@@ -1,0 +1,33 @@
+{
+  "name": "inerciacreativa/ic-framework",
+  "description": "ic Framework",
+  "type": "wordpress-muplugin",
+  "keywords": [
+    "wordpress",
+    "plugin",
+    "inerciacreativa"
+  ],
+  "license": "GPL2",
+  "authors": [
+    {
+      "name": "José Cuesta",
+      "email": "jose.cuesta@inerciacreativa.com",
+      "homepage": "https://inerciacreativa.com",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=5.6"
+  },
+  "config": {
+    "vendor-dir": "vendor"
+  },
+  "scripts": {
+    "post-install-cmd": "mv ic-framework.php ./../ic-framework.php"
+  },
+  "autoload": {
+    "psr-4": {
+      "ic\\Framework\\": "source/"
+    }
+  }
+}

@@ -1,0 +1,355 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ic Post Series\n"
+"POT-Creation-Date: 2017-02-03 06:18+0100\n"
+"PO-Revision-Date: 2017-02-03 06:19+0100\n"
+"Last-Translator: \n"
+"Language-Team: Inercia Creativa <info@inerciacreativa.com>\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.11\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;"
+"_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;_ex:1,2c;"
+"esc_attr__;esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;"
+"esc_html_x:1,2c\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: source/Api/Client/VimeoClient.php:80 source/Api/Client/YouTubeClient.php:69
+msgid "Video"
+msgstr ""
+
+#: source/Api/Client/VimeoClient.php:81 source/Api/Client/YouTubeClient.php:70
+msgid "User"
+msgstr ""
+
+#: source/Api/Client/VimeoClient.php:82 source/Api/Client/YouTubeClient.php:71
+msgid "User Videos"
+msgstr ""
+
+#: source/Api/Client/VimeoClient.php:83 source/Api/Client/YouTubeClient.php:72
+msgid "Channel"
+msgstr ""
+
+#: source/Api/Client/VimeoClient.php:84 source/Api/Client/YouTubeClient.php:73
+msgid "Channel Videos"
+msgstr ""
+
+#: source/Api/Client/VimeoClient.php:85
+msgid "Group"
+msgstr ""
+
+#: source/Api/Client/VimeoClient.php:86
+msgid "Group Videos"
+msgstr ""
+
+#: source/Api/Client/YouTubeClient.php:74
+msgid "Playlist"
+msgstr ""
+
+#: source/Api/Client/YouTubeClient.php:75
+msgid "Playlist Videos"
+msgstr ""
+
+#: source/Image/Image.php:123
+#, php-format
+msgid "Not valid image ID: %s"
+msgstr ""
+
+#: source/Image/Image.php:145
+#, php-format
+msgid "Not valid URL: %s"
+msgstr ""
+
+#: source/Image/Image.php:163
+#, php-format
+msgid "Not valid local URL: %s"
+msgstr ""
+
+#: source/Image/Image.php:199
+#, php-format
+msgid "Not valid slug: %s (%s)"
+msgstr ""
+
+#: source/Image/Image.php:230
+msgid "Not a remote image"
+msgstr ""
+
+#: source/Image/Image.php:290 source/Image/Image.php:303
+msgid "Not a local image"
+msgstr ""
+
+#: source/Plugin/Plugin.php:331
+#, php-format
+msgid "%s has deactivated itself!"
+msgstr ""
+
+#: source/Settings/SettingsForm.php:131
+msgid "Settings saved."
+msgstr "Opciones actualizadas."
+
+#: source/Types/PostType.php:222
+msgid "Featured Image"
+msgstr "Imagen destacada"
+
+#: source/Types/PostType.php:223
+msgid "Set featured image"
+msgstr "Asignar imagen destacada"
+
+#: source/Types/PostType.php:224
+msgid "Remove featured image"
+msgstr "Quitar la imagen destacada"
+
+#: source/Types/PostType.php:225
+msgid "Use as featured image"
+msgstr "Usar como imagen destacada"
+
+#: source/Types/PostType.php:226
+msgid "Add New"
+msgstr "Añadir nuevo"
+
+#: source/Types/PostType.php:227 source/Types/Taxonomy.php:157
+#, php-format
+msgid "Add New %s"
+msgstr "Añadir nuevo %s"
+
+#: source/Types/PostType.php:228
+#, php-format
+msgid "New %s"
+msgstr "Nuevo %s"
+
+#: source/Types/PostType.php:229 source/Types/Taxonomy.php:154
+#, php-format
+msgid "Edit %s"
+msgstr "Editar %s"
+
+#: source/Types/PostType.php:230 source/Types/PostType.php:378
+#: source/Types/Taxonomy.php:155
+#, php-format
+msgid "View %s"
+msgstr "Ver %s"
+
+#: source/Types/PostType.php:231 source/Types/Taxonomy.php:153
+#, php-format
+msgid "All %s"
+msgstr "Todos los %s"
+
+#: source/Types/PostType.php:232 source/Types/Taxonomy.php:152
+#, php-format
+msgid "Search %s"
+msgstr "Buscar %s"
+
+#: source/Types/PostType.php:233 source/Types/Taxonomy.php:164
+#, php-format
+msgid "Parent %s:"
+msgstr "%s superior:"
+
+#: source/Types/PostType.php:234 source/Types/Taxonomy.php:159
+#, php-format
+msgid "No %s found."
+msgstr "No se encontraron %s."
+
+#: source/Types/PostType.php:235
+#, php-format
+msgid "No %s found in Trash."
+msgstr "No se encontraron %s en la papelera."
+
+#: source/Types/PostType.php:236
+#, php-format
+msgid "%s archives"
+msgstr "Archivos de %s"
+
+#: source/Types/PostType.php:237
+#, php-format
+msgid "Insert into %s"
+msgstr "Insertar en el %s"
+
+#: source/Types/PostType.php:238
+#, php-format
+msgid "Uploaded to this %s"
+msgstr "Subido a este %s"
+
+#: source/Types/PostType.php:239
+#, php-format
+msgid "Filter %s list"
+msgstr "Lista de %s filtrados"
+
+#: source/Types/PostType.php:240 source/Types/Taxonomy.php:161
+#, php-format
+msgid "%s list navigation"
+msgstr "Navegación por el listado de %s"
+
+#: source/Types/PostType.php:241 source/Types/Taxonomy.php:162
+#, php-format
+msgid "%s list"
+msgstr "Lista de %s"
+
+#: source/Types/PostType.php:258 source/Types/PostType.php:261
+#, php-format
+msgid "%s updated."
+msgstr "%s actualizado."
+
+#: source/Types/PostType.php:259
+msgid "Custom field updated."
+msgstr "Campo personalizado actualizado."
+
+#: source/Types/PostType.php:260
+msgid "Custom field deleted."
+msgstr "Campo personalizado borrado."
+
+#: source/Types/PostType.php:262
+#, php-format
+msgid "%s restored to revision from %s"
+msgstr "%s restaurado a revisión el %s"
+
+#: source/Types/PostType.php:263
+#, php-format
+msgid "%s published."
+msgstr "%s publicado."
+
+#: source/Types/PostType.php:264
+#, php-format
+msgid "%s saved."
+msgstr "%s guardado."
+
+#: source/Types/PostType.php:265
+#, php-format
+msgid "%s submitted."
+msgstr "%s enviado."
+
+#: source/Types/PostType.php:266
+#, php-format
+msgid "%s scheduled for: <strong>%s</strong>."
+msgstr "%s programado para: <strong>%s</strong>"
+
+#: source/Types/PostType.php:267
+#, php-format
+msgid "%s draft updated."
+msgstr "Borrador de %s actualizado."
+
+#: source/Types/PostType.php:374
+msgid "M j, Y @ G:i"
+msgstr ""
+
+#: source/Types/PostType.php:379
+#, php-format
+msgid "Preview %s"
+msgstr "Vista previa de %s"
+
+#: source/Types/Taxonomy.php:156
+#, php-format
+msgid "Update %s"
+msgstr "Actualizar %s"
+
+#: source/Types/Taxonomy.php:158
+#, php-format
+msgid "New %s Name"
+msgstr "Nombre del nuevo %s"
+
+#: source/Types/Taxonomy.php:160
+#, php-format
+msgid "No %s"
+msgstr "No hay %s"
+
+#: source/Types/Taxonomy.php:163
+#, php-format
+msgid "Parent %s"
+msgstr "%s superior"
+
+#: source/Types/Taxonomy.php:165
+#, php-format
+msgid "Popular %s"
+msgstr "%s populares"
+
+#: source/Types/Taxonomy.php:166
+#, php-format
+msgid "Separate %s with commas"
+msgstr "Separa los %s con comas"
+
+#: source/Types/Taxonomy.php:167
+#, php-format
+msgid "Add or remove %s"
+msgstr "Añadir o quitar %s"
+
+#: source/Types/Taxonomy.php:168
+#, php-format
+msgid "Choose from the most used %s"
+msgstr "Elige entre los %s más utilizados"
+
+#: source/Types/Taxonomy.php:169
+#, php-format
+msgid "Filter by %s"
+msgstr "Filtrar por %s"
+
+#: source/Widget/Widget.php:133
+msgid "Widget title:"
+msgstr ""
+
+#: source/Widget/Widget.php:134
+msgid "Class names:"
+msgstr ""
+
+#: source/Widget/Widgets/CodeWidget.php:31
+msgid "ic Framework / Code"
+msgstr ""
+
+#: source/Widget/Widgets/CodeWidget.php:39
+msgid "Arbitrary text, HTML, or PHP Code"
+msgstr ""
+
+#: source/Widget/Widgets/CodeWidget.php:64
+msgid "Code:"
+msgstr ""
+
+#: source/Widget/Widgets/CodeWidget.php:65
+msgid "Automatically add paragraphs"
+msgstr ""
+
+#~ msgid "Enable series archive"
+#~ msgstr "Habilitar el archivo de la serie"
+
+#~ msgid "Post types"
+#~ msgstr "Tipos de entradas"
+
+#~ msgid "Visualization options"
+#~ msgstr "Opciones de visualización"
+
+#~ msgid "Include scheduled posts"
+#~ msgstr "Incluir artículos programados"
+
+#~ msgid "Position of the list"
+#~ msgstr "Posición donde se mostrarán"
+
+#~ msgid "Series base"
+#~ msgstr "Series base"
+
+#~ msgid "Before the content"
+#~ msgstr "Antes del contenido"
+
+#~ msgid "After the content"
+#~ msgstr "Después del contenido"
+
+#~ msgid "Filter by post series"
+#~ msgstr "Filtrar por series de entradas"
+
+#~ msgid "All series"
+#~ msgstr "Todas las series"
+
+#~ msgid "This is post %d of %d in the series <em>&ldquo;%s&rdquo;</em>"
+#~ msgstr "Este es el artículo %d de %d de la serie <em>&ldquo;%s&rdquo;</em>"
+
+#~ msgid "%s &ndash;&nbsp;<em>Scheduled for %s</em>"
+#~ msgstr "%s &ndash;&nbsp;<em>Programado para el %s</em>"
+
+#~ msgid "Series"
+#~ msgstr "Series"
+
+#~ msgid "%s &ndash; <em>Scheduled for %s</em>"
+#~ msgstr "%s &ndash; <em>Programado para %s</em>"
+
+#~ msgid "Show link list after the content"
+#~ msgstr "Mostrar enlaces después del contenido"
