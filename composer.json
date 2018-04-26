@@ -1,13 +1,14 @@
 {
-  "name": "inerciacreativa/ic-framework",
-  "description": "ic Framework",
+  "name": "inerciacreativa/wp-framework",
   "type": "wordpress-muplugin",
+  "license": "MIT",
+  "description": "ic Framework",
+  "homepage": "https://github.com/inerciacreativa/wp-framework",
   "keywords": [
     "wordpress",
     "plugin",
-    "inerciacreativa"
+    "wordpress-muplugin"
   ],
-  "license": "GPL2",
   "authors": [
     {
       "name": "José Cuesta",
@@ -22,8 +23,12 @@
   "config": {
     "vendor-dir": "vendor"
   },
+  "extra": {
+    "installer-name": "ic-framework"
+  },
   "scripts": {
-    "post-install-cmd": "mv ic-framework.php ./../ic-framework.php"
+    "post-install-cmd": "php -r \"copy('ic-framework', '../ic-framework.php');\"",
+    "post-update-cmd": "php -r \"copy('ic-framework', '../ic-framework.php');\""
   },
   "autoload": {
     "psr-4": {
