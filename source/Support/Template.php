@@ -2,9 +2,6 @@
 
 namespace ic\Framework\Support;
 
-use ic\Framework\Debug\Debug;
-use ic\Framework\Hook\HookDecorator;
-
 /**
  * Class Template
  *
@@ -13,108 +10,138 @@ use ic\Framework\Hook\HookDecorator;
 class Template
 {
 
-    use HookDecorator;
+	protected static $types = [];
 
-    protected $template;
+	/**
+	 * @return array
+	 */
+	public static function types(): array
+	{
+		if (empty(static::$types)) {
+			static::$types['php'] = 'PHP';
 
-    /**
-     * @param string $type      The name of the file template.
-     * @param string $path      The absolute path to the default file template.
-     * @param array  $arguments An array of variables to be used in the template.
-     * @param string $directory The directory in the theme.
-     *
-     * @return string
-     */
-    public static function render($type, $path, array $arguments = [], $directory = 'templates')
-    {
-        $template = new static();
+			if (\function_exists('\Twist\view')) {
+				static::$types['twig'] = 'Twig';
+			}
+		}
 
-        if ($template->locate($type, $path, $directory)) {
-            return $template->load($arguments);
-        }
+		return static::$types;
+	}
 
-        return '';
-    }
+	/**
+	 * @param string $template The name of the file template.
+	 * @param array  $data     An array of variables to be used in the template.
+	 * @param string $path     The absolute path to the default file template.
+	 *
+	 * @return string
+	 *
+	 * @throws \InvalidArgumentException
+	 */
+	public static function render(string $template, array $data = [], string $path = ''): string
+	{
+		$class = new static();
+		$types = static::types();
 
-    /**
-     * Require the template file.
-     *
-     * @param array $arguments
-     *
-     * @return string
-     */
-    public function load(array $arguments = [])
-    {
-        if (!empty($arguments)) {
-            extract($arguments, EXTR_SKIP);
-        }
+		if (substr($template, -\strlen('.twig')) === '.twig') {
+			if (!isset($types['twig'])) {
+				throw new \InvalidArgumentException('Passed a twig template, but there is no rendering engine available');
+			}
 
-        ob_start();
+			return $class->twig($template, $data, $path);
+		}
 
-        include $this->template;
+		return $class->php($template, $data, $path);
+	}
 
-        return ob_get_clean();
-    }
+	/**
+	 * Renders a Twig template through the Twist view service.
+	 *
+	 * @see https://github.com/inerciacreativa/twist
+	 *
+	 * @param string $template
+	 * @param array  $data
+	 * @param string $path
+	 *
+	 * @return string
+	 */
+	protected function twig(string $template, array $data = [], string $path): string
+	{
+		$view = \Twist\view();
 
-    /**
-     * Locate a file template and return the path.
-     *
-     * @param string $type
-     * @param string $path
-     * @param string $directory
-     *
-     * @throws \RuntimeException
-     *
-     * @return string
-     */
-    protected function locate($type, $path, $directory)
-    {
-        $type      = preg_replace('|[^a-z0-9-]+|', '', $type);
-        $templates = $this->templates($type, $path, $directory);
+		if (!empty($path)) {
+			$view->addPath($path);
+		}
 
-        foreach ($templates as $template) {
-            if (file_exists($template)) {
-                $this->template = $template;
+		return $view->render($template, $data);
+	}
 
-                return true;
-            }
-        }
+	/**
+	 * Renders a PHP template file.
+	 *
+	 * @param string $template
+	 * @param array  $data
+	 * @param string $path
+	 *
+	 * @return string
+	 */
+	protected function php(string $template, array $data = [], string $path): string
+	{
+		if ($filename = $this->locate($template, $path)) {
+			if (!empty($data)) {
+				extract($data, EXTR_SKIP);
+			}
 
-        Debug::error(sprintf('Cannot locate the template type "%s"', $type));
+			ob_start();
 
-        return false;
-    }
+			include $filename;
 
-    /**
-     * Build an array with all possible templates.
-     *
-     * @param string $type
-     * @param string $base
-     * @param string $directory
-     *
-     * @return array
-     */
-    protected function templates($type, $base, $directory)
-    {
-        $file   = $type . '.php';
-        $parent = get_template_directory();
-        $child  = get_stylesheet_directory();
+			return ob_get_clean();
+		}
 
-        if (!empty($directory)) {
-            $directory = trailingslashit($directory);
-        }
+		return '';
+	}
 
-        $templates = array_unique([
-            $child . '/' . $directory . $file,
-            $child . '/' . $file,
-            $parent . '/' . $directory . $file,
-            $parent . '/' . $file,
-            $base . '/' . $directory . $file,
-        ]);
+	/**
+	 * Locate a file template and return the path.
+	 *
+	 * @param string $template
+	 * @param string $path
+	 *
+	 * @return string|null
+	 */
+	protected function locate(string $template, string $path): ?string
+	{
+		foreach ($this->locations($template, $path) as $filename) {
+			if (file_exists($filename)) {
+				return $filename;
+			}
+		}
 
-        $templates = $this->setHook()->apply('ic_framework_templates_' . $type, $templates);
+		return null;
+	}
 
-        return $templates;
-    }
+	/**
+	 * Build an array with all possible templates.
+	 *
+	 * @param string $template
+	 * @param string $path
+	 *
+	 * @return array
+	 */
+	protected function locations(string $template, string $path): array
+	{
+		$template = ltrim($template, '/');
+		$path     = rtrim($path, '/');
+
+		$locations = array_unique(array_map(function ($location) use ($template) {
+			return "$location/$template";
+		}, [get_stylesheet_directory(), get_template_directory()]));
+
+		if (!empty($path)) {
+			$locations[] = "$path/$template";
+		}
+
+		return $locations;
+	}
 
 }
