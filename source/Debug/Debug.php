@@ -12,7 +12,7 @@ class Debug
 
     protected static function send()
     {
-        return call_user_func_array(array(FirePHP::getInstance(true), 'fb'), func_get_args());
+        return \call_user_func_array(array(FirePHP::getInstance(true), 'fb'), \func_get_args());
     }
 
     public static function group($label)
@@ -60,7 +60,7 @@ class Debug
         return self::send($table, $label, FirePHP::TABLE);
     }
 
-    public static function display($object, $label = null)
+    public static function display($object, $label = null): void
     {
         echo '<pre>';
         if ($label) {
@@ -70,7 +70,7 @@ class Debug
         echo '</pre>';
     }
 
-    public static function debug($label = null, $print = false)
+    public static function debug($label = null, $print = false): void
     {
         $exception = new \Exception();
 

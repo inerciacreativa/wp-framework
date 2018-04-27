@@ -38,10 +38,7 @@ class Options extends Store
 		$this->id      = $id;
 		$this->network = is_multisite() ? absint($network) : 0;
 
-		foreach ($defaults as $key => $value) {
-			$this->add($key, $value);
-		}
-
+		$this->fill($defaults);
 		$this->load();
 	}
 
@@ -50,7 +47,7 @@ class Options extends Store
 	 *
 	 * @return string
 	 */
-	public function id()
+	public function id(): string
 	{
 		return $this->id;
 	}
@@ -60,7 +57,7 @@ class Options extends Store
 	 *
 	 * @return int
 	 */
-	public function network()
+	public function network(): int
 	{
 		return $this->network;
 	}
@@ -70,12 +67,12 @@ class Options extends Store
 	 *
 	 * @return $this
 	 */
-	public function load()
+	public function load(): self
 	{
 		$this->exists = false;
 
 		if ($this->network) {
-			if (function_exists('get_network_option')) {
+			if (\function_exists('get_network_option')) {
 				$values = get_network_option($this->network, $this->id, []);
 			} else {
 				$values = get_site_option($this->id, []);
@@ -85,7 +82,7 @@ class Options extends Store
 		}
 
 		if (!empty($values)) {
-			$this->items = Arr::dot($values);
+			$this->fill($values);
 			$this->exists = true;
 		}
 
@@ -97,10 +94,10 @@ class Options extends Store
 	 *
 	 * @return $this
 	 */
-	public function save()
+	public function save(): self
 	{
 		if ($this->network) {
-			if (function_exists('update_network_option')) {
+			if (\function_exists('update_network_option')) {
 				update_network_option($this->network, $this->id, $this->all());
 			} else {
 				update_site_option($this->id, $this->all());
@@ -119,7 +116,7 @@ class Options extends Store
 	 *
 	 * @return bool
 	 */
-	public function exists()
+	public function exists(): bool
 	{
 		return $this->exists;
 	}

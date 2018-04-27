@@ -25,7 +25,7 @@ trait OptionsDecorator
     {
         if ($options instanceof Options) {
             $this->options = $options;
-        } elseif (($this instanceof PluginBase) && is_array($options)) {
+        } elseif (($this instanceof PluginBase) && \is_array($options)) {
             $this->options = new Options($this->id, $options, $network);
         }
 
@@ -35,7 +35,7 @@ trait OptionsDecorator
     /**
      * @return Options
      */
-    public function getOptions()
+    public function getOptions(): Options
     {
         if (!$this->options) {
             //throw new \RuntimeException('There is not Options object attached.');
