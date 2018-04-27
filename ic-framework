@@ -1,15 +1,15 @@
 <?php
 /**
  * Plugin Name: ic Framework
- * Plugin URI:  http://inerciacreativa.com
- * Version:     1.0.2
+ * Plugin URI:  https://github.com/inerciacreativa/wp-framework
+ * Version:     1.0.0
  * Description: Framework para la elaboración de plugins.
  * Author:      Jose Cuesta
- * Author URI:  http://inerciacreativa.com/
+ * Author URI:  https://inerciacreativa.com/
  * Text Domain: ic-framework
  * Domain Path: /languages
- * License:     GPL-2.0+
- * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
+ * License:     MIT
+ * License URI: https://opensource.org/licenses/MIT
  */
 
 include_once __DIR__ . '/ic-framework/vendor/autoload.php';
