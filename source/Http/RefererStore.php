@@ -9,7 +9,12 @@ namespace ic\Framework\Http;
 class RefererStore extends InputStore
 {
 
-    public function __construct($referer)
+	/**
+	 * RefererStore constructor.
+	 *
+	 * @param $referer
+	 */
+    public function __construct(string $referer)
     {
         $items = [];
 

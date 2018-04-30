@@ -16,11 +16,11 @@ abstract class Plugin extends PluginBase
     /**
      * @inheritdoc
      */
-    protected function onCreation()
+    protected function configure(): void
     {
-        parent::onCreation();
+        parent::configure();
 
-        $this->setHook()
+        $this->hook()
              ->activation($this->getFileName(), function () {
                  if (($check = $this->dependencies()) !== true) {
                      $this->error($check);
@@ -29,7 +29,7 @@ abstract class Plugin extends PluginBase
                  $this->activate();
              })
              ->deactivation($this->getFileName(), function () {
-                 $this->onUninstall();
+                 $this->uninstall();
              })
              ->on('plugins_loaded', function () {
                  if (($check = $this->dependencies()) !== true) {
@@ -53,7 +53,7 @@ abstract class Plugin extends PluginBase
      *
      * You should use this method to perform actions that must be done on installation.
      */
-    protected function onInstall()
+    protected function install(): void
     {
     }
 
@@ -62,16 +62,16 @@ abstract class Plugin extends PluginBase
      *
      * You should use this method to clean the house before the plugin is uninstalled.
      */
-    protected function onUninstall()
+    protected function uninstall(): void
     {
     }
 
     /**
      *
      */
-    protected function setTranslation()
+    protected function translation(): void
     {
-        load_plugin_textdomain($this->id, false, $this->getRelativePath($this->languages));
+        load_plugin_textdomain($this->id(), false, $this->getRelativePath($this->languages()));
     }
 
     /**
@@ -79,9 +79,9 @@ abstract class Plugin extends PluginBase
      *
      * Executes install() and then flushes the rewrite rules.
      */
-    private function activate()
+    private function activate(): void
     {
-        $this->onInstall();
+        $this->install();
 
         flush_rewrite_rules();
     }
@@ -91,20 +91,20 @@ abstract class Plugin extends PluginBase
      *
      * @param string|bool $error
      */
-    private function deactivate($error)
+    private function deactivate($error): void
     {
-        if (!function_exists('deactivate_plugins')) {
+        if (!\function_exists('deactivate_plugins')) {
             require_once ABSPATH . 'wp-admin/includes/plugin.php';
         }
 
         deactivate_plugins(plugin_basename($this->getFileName()));
 
-        $this->setHook()->on('admin_notices', function () use ($error) {
+        $this->hook()->on('admin_notices', function () use ($error) {
             $html = Tag::div(['class' => 'error'],
                 Tag::p(Tag::strong(sprintf(__('%s has been deactivated.', 'ic-framework'), $this->name)))
             );
 
-            if (is_string($error)) {
+            if (\is_string($error)) {
                 $html->content(Tag::p($error));
             }
 
@@ -121,7 +121,7 @@ abstract class Plugin extends PluginBase
      * @param string $message
      * @param int    $number
      */
-    private function error($message, $number = E_USER_ERROR)
+    private function error(string $message, int $number = E_USER_ERROR): void
     {
         if (Input::getInstance()->query('action') === 'error_scrape') {
             exit(Tag::strong($message));

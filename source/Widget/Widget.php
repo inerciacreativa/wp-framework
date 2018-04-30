@@ -13,201 +13,187 @@ use ic\Framework\Html\Tag;
 abstract class Widget
 {
 
-    use HookDecorator;
+	use HookDecorator;
 
-    /**
-     * @var string
-     */
-    private $class;
+	/**
+	 * @var WidgetProxy
+	 */
+	private $proxy;
 
-    /**
-     * @var WidgetProxy
-     */
-    private $proxy;
+	/**
+	 * Widget constructor.
+	 */
+	public function __construct()
+	{
+		$this->proxy = new WidgetProxy($this);
 
-    /**
-     * @return static
-     */
-    public static function create()
-    {
-        $argument = \func_num_args() === 1 ? func_get_arg(0) : null;
+		$this->register();
+	}
 
-        return new static($argument);
-    }
+	/**
+	 * @return $this
+	 */
+	protected function register(): self
+	{
+		$this->hook()->on('widgets_init', function () {
+			register_widget($this->proxy);
+		});
 
-    /**
-     * Widget constructor.
-     */
-    public function __construct()
-    {
-        $this->class = static::class;
-        $this->proxy = new WidgetProxy($this);
+		return $this;
+	}
 
-        $this->register();
-    }
+	/**
+	 * @return string
+	 */
+	abstract public function id(): string;
 
-    /**
-     * @return $this
-     */
-    protected function register()
-    {
-        $this->setHook()->on('widgets_init', function () {
-            global $wp_widget_factory;
+	/**
+	 * @return string
+	 */
+	abstract public function name(): string;
 
-            $wp_widget_factory->widgets[$this->class] = $this->proxy;
-        });
+	/**
+	 * @return string
+	 */
+	public function description(): string
+	{
+		return '';
+	}
 
-        return $this;
-    }
+	/**
+	 * @param array $instance
+	 * @param Tag   $widget
+	 * @param Tag   $title
+	 */
+	abstract protected function frontend(array $instance, Tag $widget, Tag $title): void;
 
-    /**
-     * @return string
-     */
-    abstract public function id();
+	/**
+	 * @param array      $instance
+	 * @param WidgetForm $form
+	 *
+	 * @return string|array
+	 */
+	abstract protected function backend(array $instance, WidgetForm $form);
 
-    /**
-     * @return string
-     */
-    abstract public function name();
+	/**
+	 * @param array $instance
+	 *
+	 * @return array
+	 */
+	protected function sanitize(array $instance): array
+	{
+		return $instance;
+	}
 
-    /**
-     * @return string
-     */
-    public function description()
-    {
-        return '';
-    }
+	/**
+	 * @param array $instance
+	 * @param array $values
+	 *
+	 * @return array
+	 */
+	public function update(array $instance, array $values): array
+	{
+		foreach ($instance as $key => $value) {
+			if (!isset($values[$key])) {
+				$void = null;
+				$type = \gettype($value);
+				settype($void, $type);
 
-    /**
-     * @param Tag   $widget
-     * @param Tag   $title
-     * @param array $instance
-     *
-     * @return string
-     */
-    abstract protected function frontend(Tag $widget, Tag $title, array $instance);
+				$values[$key] = $void;
+			}
+		}
 
-    /**
-     * @param array      $instance
-     * @param WidgetForm $form
-     *
-     * @return string|array
-     */
-    abstract protected function backend(array $instance, WidgetForm $form);
+		return $this->sanitize(array_merge($instance, $values));
+	}
 
-    /**
-     * @param array $instance
-     *
-     * @return array
-     */
-    protected function sanitize(array $instance)
-    {
-        return $instance;
-    }
+	/**
+	 * @param array $instance
+	 * @param array $arguments
+	 */
+	public function display(array $instance, array $arguments): void
+	{
+		$widget          = Tag::make($this->getTag($arguments['after_widget'], 'div'));
+		$widget['class'] = $this->getClasses($arguments['before_widget'], 'widget', $instance['classes']);
 
-    /**
-     * @param array $instance
-     * @param array $values
-     *
-     * @return array
-     */
-    public function update(array $instance, array $values)
-    {
-        foreach ($instance as $key => $value) {
-            if (!isset($values[$key])) {
-                $void = null;
-                $type = gettype($value);
-                settype($void, $type);
+		$title          = Tag::make($this->getTag($arguments['after_title'], 'h2'), [], $instance['title']);
+		$title['class'] = $this->getClasses($arguments['before_title'], 'widget-title');
 
-                $values[$key] = $void;
-            }
-        }
+		$this->frontend($instance, $widget, $title);
+	}
 
-        return $this->sanitize(array_merge($instance, $values));
-    }
+	/**
+	 * @param array $instance
+	 */
+	public function configure(array $instance): void
+	{
+		$form = new WidgetForm($this, $instance);
 
-    /**
-     * @param array $instance
-     * @param array $arguments
-     */
-    public function display(array $instance, array $arguments)
-    {
-        $widget          = Tag::create($this->getTag($arguments['after_widget'], 'div'));
-        $widget['class'] = $this->getClasses($arguments['before_widget'], 'widget', $instance['classes']);
+		echo Tag::div(['class' => 'ic-widget'], [
+			Tag::p($form->text('title', '', [
+				'class' => 'widefat',
+				'label' => __('Widget title:', 'ic-framework'),
+			])),
+			Tag::p($form->text('classes', '', [
+				'class' => 'widefat',
+				'label' => __('Class names:', 'ic-framework'),
+			])),
+			$this->backend($instance, $form),
+		]);
+	}
 
-        $title          = Tag::create($this->getTag($arguments['after_title'], 'h2'), [], $instance['title']);
-        $title['class'] = $this->getClasses($arguments['before_title'], 'widget-title');
+	/**
+	 * @param string $name
+	 *
+	 * @return string
+	 */
+	public function getFieldId(string $name): string
+	{
+		return $this->proxy->get_field_id($name);
+	}
 
-        echo $this->frontend($widget, $title, $instance);
-    }
+	/**
+	 * @param string $name
+	 *
+	 * @return string
+	 */
+	public function getFieldName(string $name): string
+	{
+		return $this->proxy->get_field_name($name);
+	}
 
-    /**
-     * @param array $instance
-     */
-    public function configure(array $instance)
-    {
-        $form = new WidgetForm($this, $instance);
+	/**
+	 * @param string $string
+	 * @param string $default
+	 *
+	 * @return string
+	 */
+	protected function getTag(string $string, string $default = ''): string
+	{
+		$tag = preg_replace('/[^[:alnum:]]/', '', $string);
 
-        echo Tag::div(['class' => 'ic-widget'], [
-            Tag::p($form->text('title', '', ['class' => 'widefat', 'label' => __('Widget title:', 'ic-framework')])),
-            Tag::p($form->text('classes', '', ['class' => 'widefat', 'label' => __('Class names:', 'ic-framework')])),
-            $this->backend($instance, $form),
-        ]);
-    }
+		return empty($tag) ? $default : $tag;
+	}
 
-    /**
-     * @param string $name
-     *
-     * @return string
-     */
-    public function getFieldId($name)
-    {
-        return $this->proxy->get_field_id($name);
-    }
+	/**
+	 * @param string $string
+	 * @param string $default
+	 * @param string $extra
+	 *
+	 * @return string
+	 */
+	protected function getClasses(string $string, string $default, string $extra = ''): string
+	{
+		$classes = $default;
 
-    /**
-     * @param string $name
-     *
-     * @return string
-     */
-    public function getFieldName($name)
-    {
-        return $this->proxy->get_field_name($name);
-    }
+		if (preg_match('/ class="(.*)"/', $string, $matches)) {
+			$classes = $matches[1];
+		}
 
-    /**
-     * @param string $string
-     * @param string $default
-     *
-     * @return string
-     */
-    protected function getTag($string, $default = '')
-    {
-        $tag = preg_replace('/[^[:alnum:]]/', '', $string);
+		if (!empty($extra)) {
+			$classes .= ' ' . trim($extra);
+		}
 
-        return empty($tag) ? $default : $tag;
-    }
-
-    /**
-     * @param string $string
-     * @param string $default
-     * @param string $extra
-     *
-     * @return string
-     */
-    protected function getClasses($string, $default, $extra = '')
-    {
-        $classes = $default;
-
-        if (preg_match('/ class="(.*)"/', $string, $matches)) {
-            $classes = $matches[1];
-        }
-
-        if (!empty($extra)) {
-            $classes .= ' '. trim($extra);
-        }
-
-        return $classes;
-    }
+		return $classes;
+	}
 
 }

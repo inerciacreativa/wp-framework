@@ -36,6 +36,7 @@ class Template
 	 * @return string
 	 *
 	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
 	 */
 	public static function render(string $template, array $data = [], string $path = ''): string
 	{
@@ -83,6 +84,8 @@ class Template
 	 * @param string $path
 	 *
 	 * @return string
+	 *
+	 * @throws \RuntimeException
 	 */
 	protected function php(string $template, array $data = [], string $path): string
 	{
@@ -98,7 +101,7 @@ class Template
 			return ob_get_clean();
 		}
 
-		return '';
+		throw new \RuntimeException(sprintf('Template "%s" not found', $template));
 	}
 
 	/**

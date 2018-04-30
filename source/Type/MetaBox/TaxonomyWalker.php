@@ -1,6 +1,6 @@
 <?php
 
-namespace ic\Framework\Custom\MetaBox;
+namespace ic\Framework\Type\MetaBox;
 
 use ic\Framework\Support\Arr;
 
@@ -59,13 +59,13 @@ class TaxonomyWalker extends \Walker_Category_Checklist
         $checked  = Arr::get($arguments, 'selected_cats', []);
         $disabled = (bool)Arr::get($arguments, 'disabled', false);
         $list     = (bool)Arr::get($arguments, 'list_only', false);
-        $class    = in_array($term->term_id, $popular, false) ? 'popular-category' : '';
+        $class    = \in_array($term->term_id, $popular, false) ? 'popular-category' : '';
 
         //"Press this" does not support custom taxonomies...
         if (!$list) {
             $input = $this->metaBox->getInput($term, [
                 'class'    => $class,
-                'checked'  => in_array($term->term_id, $checked, false),
+                'checked'  => \in_array($term->term_id, $checked, false),
                 'disabled' => $disabled,
             ]);
 

@@ -3,7 +3,7 @@
 namespace ic\Framework\Plugin;
 
 /**
- * Class Assetable
+ * Class AssetsDecorator
  *
  * @package ic\Framework\Plugin
  */
@@ -16,14 +16,14 @@ trait AssetsDecorator
     private $assets;
 
     /**
-     * @param string|null $pathName
+     * @param string $pathName
      *
      * @return Assets
      */
-    public function setAssets($pathName = null)
+    public function setAssets($pathName = ''): Assets
     {
         if ($this->assets === null) {
-            if ($pathName === null && method_exists($this, 'getRelativePath')) {
+            if (empty($pathName) && method_exists($this, 'getRelativePath')) {
                 $pathName = $this->getRelativePath();
             }
 
@@ -36,7 +36,7 @@ trait AssetsDecorator
     /**
      * @return Assets
      */
-    public function getAssets()
+    public function getAssets(): Assets
     {
         if ($this->assets === null) {
             return $this->setAssets();
@@ -51,8 +51,10 @@ trait AssetsDecorator
      * @param array  $parameters
      *
      * @return static
+     *
+     * @throws \InvalidArgumentException
      */
-    public function addStyle($source, $target, array $parameters = [])
+    public function addStyle(string $source, int $target, array $parameters = [])
     {
         $this->getAssets()->addStyle($source, $target, $parameters);
 
@@ -64,8 +66,10 @@ trait AssetsDecorator
      * @param array  $parameters
      *
      * @return static
+     *
+     * @throws \InvalidArgumentException
      */
-    public function addFrontStyle($source, array $parameters = [])
+    public function addFrontStyle(string $source, array $parameters = [])
     {
         return $this->addStyle($source, Assets::FRONT, $parameters);
     }
@@ -75,8 +79,10 @@ trait AssetsDecorator
      * @param array  $parameters
      *
      * @return static
+     *
+     * @throws \InvalidArgumentException
      */
-    public function addBackStyle($source, array $parameters = [])
+    public function addBackStyle(string $source, array $parameters = [])
     {
         return $this->addStyle($source, Assets::BACK, $parameters);
     }
@@ -87,8 +93,10 @@ trait AssetsDecorator
      * @param array  $parameters
      *
      * @return static
+     *
+     * @throws \InvalidArgumentException
      */
-    public function addScript($source, $target, array $parameters = [])
+    public function addScript(string $source, int $target, array $parameters = [])
     {
         $this->getAssets()->addScript($source, $target, $parameters);
 
@@ -100,8 +108,10 @@ trait AssetsDecorator
      * @param array  $parameters
      *
      * @return static
+     *
+     * @throws \InvalidArgumentException
      */
-    public function addFrontScript($source, array $parameters = [])
+    public function addFrontScript(string $source, array $parameters = [])
     {
         return $this->addScript($source, Assets::FRONT, $parameters);
     }
@@ -111,8 +121,10 @@ trait AssetsDecorator
      * @param array  $parameters
      *
      * @return static
+     *
+     * @throws \InvalidArgumentException
      */
-    public function addBackScript($source, array $parameters = [])
+    public function addBackScript(string $source, array $parameters = [])
     {
         return $this->addScript($source, Assets::BACK, $parameters);
     }

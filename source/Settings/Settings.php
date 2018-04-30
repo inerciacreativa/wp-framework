@@ -2,11 +2,10 @@
 
 namespace ic\Framework\Settings;
 
-use ic\Framework\Debug\Debug;
-use ic\Framework\Support\Options;
-use ic\Framework\Settings\Page\OptionsPage;
 use ic\Framework\Settings\Page\NetworkPage;
+use ic\Framework\Settings\Page\OptionsPage;
 use ic\Framework\Settings\Page\SitePage;
+use ic\Framework\Support\Options;
 use ic\Framework\Support\Str;
 
 /**
@@ -41,170 +40,178 @@ use ic\Framework\Support\Str;
 class Settings
 {
 
-    const MANAGEMENT = 'tools.php';
-    const OPTIONS    = 'options-general.php';
-    const THEMES     = 'themes.php';
-    const PLUGINS    = 'plugins.php';
-    const USERS      = 'users.php';
-    const DASHBOARD  = 'index.php';
-    const POSTS      = 'edit.php';
-    const PAGES      = 'edit.php?post_type=page';
-    const MEDIA      = 'upload.php';
-    const COMMENTS   = 'edit-comments.php';
-    const SETTINGS   = 'settings.php';
-    const SITES      = 'sites.php';
-    const UPDATES    = 'update-core.php';
+	public const MANAGEMENT = 'tools.php';
 
-    /**
-     * @var array The possible option pages with the default sections.
-     */
-    protected static $optionPages = [
-        'general'    => ['default'],
-        'writing'    => ['default', 'post_via_email'],
-        'reading'    => ['default'],
-        'discussion' => ['default', 'avatars'],
-        'media'      => ['default', 'embeds', 'uploads'],
-        'permalink'  => ['optional'],
-    ];
+	public const OPTIONS = 'options-general.php';
 
-    /**
-     * @var array The possible page parents for a site page.
-     */
-    protected static $siteParents = [
-        'options'    => self::OPTIONS,
-        'dashboard'  => self::DASHBOARD,
-        'posts'      => self::POSTS,
-        'pages'      => self::PAGES,
-        'media'      => self::MEDIA,
-        'comments'   => self::COMMENTS,
-        'themes'     => self::THEMES,
-        'plugins'    => self::PLUGINS,
-        'users'      => self::USERS,
-        'management' => self::MANAGEMENT,
-    ];
+	public const THEMES = 'themes.php';
 
-    /**
-     * @var array The possible page parents for a network page.
-     */
-    protected static $networkParents = [
-        'settings'  => self::SETTINGS,
-        'dashboard' => self::DASHBOARD,
-        'sites'     => self::SITES,
-        'users'     => self::USERS,
-        'themes'    => self::THEMES,
-        'plugins'   => self::PLUGINS,
-        'updates'   => self::UPDATES,
-    ];
+	public const PLUGINS = 'plugins.php';
 
-    /**
-     * NativePage constructor.
-     *
-     * @param string  $id
-     * @param Options $options
-     *
-     * @return OptionsPage
-     */
-    protected static function options($id, Options $options)
-    {
-        return new OptionsPage($id, $options);
-    }
+	public const USERS = 'users.php';
 
-    /**
-     * SitePage constructor.
-     *
-     * @param string  $parent
-     * @param string  $id
-     * @param Options $options
-     * @param string  $pageTitle
-     * @param string  $menuTitle
-     *
-     * @return SitePage
-     */
-    protected static function site($parent, $id, Options $options, $pageTitle, $menuTitle = '')
-    {
-        return new SitePage($parent, $id, $options, $pageTitle, $menuTitle);
-    }
+	public const DASHBOARD = 'index.php';
 
-    /**
-     * NetworkPage constructor.
-     *
-     * @param string  $parent
-     * @param string  $id
-     * @param Options $options
-     * @param string  $pageTitle
-     * @param string  $menuTitle
-     *
-     * @return NetworkPage
-     */
-    protected static function network($parent, $id, Options $options, $pageTitle, $menuTitle = '')
-    {
-        return new NetworkPage($parent, $id, $options, $pageTitle, $menuTitle);
-    }
+	public const POSTS = 'edit.php';
 
-    /**
-     * Dynamic Settings API page constructor.
-     *
-     * @param string $name
-     * @param array  $arguments
-     *
-     * @return SettingsPage
-     */
-    public static function __callStatic($name, $arguments)
-    {
-        list($type, $page) = explode('_', Str::snake($name));
+	public const PAGES = 'edit.php?post_type=page';
 
-        if ($type === 'options') {
-            if (!array_key_exists($page, self::$optionPages)) {
-                Debug::error(sprintf('"%s" is not a valid "options" page.', $page), static::class);
+	public const MEDIA = 'upload.php';
 
-                $page = reset(array_keys(self::$optionPages));
-            }
+	public const COMMENTS = 'edit-comments.php';
 
-        } elseif (in_array($type, ['site', 'network'], false)) {
-            $variable = $type . 'Parents';
-            $parents  = self::$$variable;
+	public const SETTINGS = 'settings.php';
 
-            if (!array_key_exists($page, $parents)) {
-                Debug::error(sprintf('"%s" is not a valid "%s" parent page.', $page, $type), static::class);
+	public const SITES = 'sites.php';
 
-                $page = reset($parents);
-            } else {
-                $page = $parents[$page];
-            }
-        } else {
-            Debug::error(sprintf('"%s" is not a valid settings type.', $type), 'Settings');
+	public const UPDATES = 'update-core.php';
 
-            return null;
-        }
+	/**
+	 * @var array The possible option pages with the default sections.
+	 */
+	protected static $optionPages = [
+		'general'    => ['default'],
+		'writing'    => ['default', 'post_via_email'],
+		'reading'    => ['default'],
+		'discussion' => ['default', 'avatars'],
+		'media'      => ['default', 'embeds', 'uploads'],
+		'permalink'  => ['optional'],
+	];
 
-        array_unshift($arguments, $page);
+	/**
+	 * @var array The possible page parents for a site page.
+	 */
+	protected static $siteParents = [
+		'options'    => self::OPTIONS,
+		'dashboard'  => self::DASHBOARD,
+		'posts'      => self::POSTS,
+		'pages'      => self::PAGES,
+		'media'      => self::MEDIA,
+		'comments'   => self::COMMENTS,
+		'themes'     => self::THEMES,
+		'plugins'    => self::PLUGINS,
+		'users'      => self::USERS,
+		'management' => self::MANAGEMENT,
+	];
 
-        return call_user_func_array([__CLASS__, $type], $arguments);
-    }
+	/**
+	 * @var array The possible page parents for a network page.
+	 */
+	protected static $networkParents = [
+		'settings'  => self::SETTINGS,
+		'dashboard' => self::DASHBOARD,
+		'sites'     => self::SITES,
+		'users'     => self::USERS,
+		'themes'    => self::THEMES,
+		'plugins'   => self::PLUGINS,
+		'updates'   => self::UPDATES,
+	];
 
-    /**
-     * @param string $page
-     *
-     * @return string
-     */
-    public static function getDefaultSection($page)
-    {
-        if (array_key_exists($page, self::$optionPages)) {
-            return reset(self::$optionPages[$page]);
-        }
+	/**
+	 * NativePage constructor.
+	 *
+	 * @param string  $id
+	 * @param Options $options
+	 *
+	 * @return OptionsPage
+	 */
+	protected static function options(string $id, Options $options): OptionsPage
+	{
+		return new OptionsPage($id, $options);
+	}
 
-        return 'default';
-    }
+	/**
+	 * SitePage constructor.
+	 *
+	 * @param string  $parent
+	 * @param string  $id
+	 * @param Options $options
+	 * @param string  $pageTitle
+	 * @param string  $menuTitle
+	 *
+	 * @return SitePage
+	 */
+	protected static function site(string $parent, string $id, Options $options, string $pageTitle, string $menuTitle = ''): SitePage
+	{
+		return new SitePage($parent, $id, $options, $pageTitle, $menuTitle);
+	}
 
-    /**
-     * @param string $page
-     * @param string $section
-     *
-     * @return bool
-     */
-    public static function isDefaultSection($page, $section)
-    {
-        return array_key_exists($page, self::$optionPages) && in_array($section, self::$optionPages[$page], false);
-    }
+	/**
+	 * NetworkPage constructor.
+	 *
+	 * @param string  $parent
+	 * @param string  $id
+	 * @param Options $options
+	 * @param string  $pageTitle
+	 * @param string  $menuTitle
+	 *
+	 * @return NetworkPage
+	 */
+	protected static function network(string $parent, string $id, Options $options, string $pageTitle, string $menuTitle = ''): NetworkPage
+	{
+		return new NetworkPage($parent, $id, $options, $pageTitle, $menuTitle);
+	}
+
+	/**
+	 * Dynamic Settings API page constructor.
+	 *
+	 * @param string $name
+	 * @param array  $arguments
+	 *
+	 * @return SettingsPage
+	 *
+	 * @throws \InvalidArgumentException
+	 */
+	public static function __callStatic(string $name, array $arguments): SettingsPage
+	{
+		[$type, $page] = explode('_', Str::snake($name));
+
+		if ($type === 'options') {
+			if (!array_key_exists($page, self::$optionPages)) {
+				throw new \InvalidArgumentException("'$page' is not a valid settings page.");
+			}
+
+		} else if (\in_array($type, ['site', 'network'], false)) {
+			$variable = $type . 'Parents';
+			$parents  = self::$$variable;
+
+			if (!array_key_exists($page, $parents)) {
+				throw new \InvalidArgumentException(sprintf('"%s" is not a valid "%s" parent page.', $page, $type));
+			}
+
+			$page = $parents[$page];
+		} else {
+			throw new \InvalidArgumentException(sprintf('"%s" is not a valid settings type.', $type));
+		}
+
+		array_unshift($arguments, $page);
+
+		return \call_user_func_array([__CLASS__, $type], $arguments);
+	}
+
+	/**
+	 * @param string $page
+	 *
+	 * @return string
+	 */
+	public static function getDefaultSection(string $page): string
+	{
+		if (array_key_exists($page, self::$optionPages)) {
+			return reset(self::$optionPages[$page]);
+		}
+
+		return 'default';
+	}
+
+	/**
+	 * @param string $page
+	 * @param string $section
+	 *
+	 * @return bool
+	 */
+	public static function isDefaultSection(string $page, string $section): bool
+	{
+		return array_key_exists($page, self::$optionPages) && \in_array($section, self::$optionPages[$page], false);
+	}
 
 }

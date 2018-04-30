@@ -2,7 +2,6 @@
 
 namespace ic\Framework\Plugin;
 
-use ic\Framework\Debug\Debug;
 use ic\Framework\Hook\HookDecorator;
 
 /**
@@ -13,65 +12,70 @@ use ic\Framework\Hook\HookDecorator;
 trait PluginClassDecorator
 {
 
-    use HookDecorator;
-    use MetadataDecorator;
-    use OptionsDecorator;
-    use AssetsDecorator;
+	use HookDecorator;
+	use MetadataDecorator;
+	use OptionsDecorator;
+	use AssetsDecorator;
 
-    /**
-     * @var Plugin
-     */
-    private $plugin;
+	/**
+	 * @var Plugin
+	 */
+	private $plugin;
 
-    /**
-     * @param PluginBase $plugin
-     *
-     * @return Plugin;
-     */
-    protected function setPlugin(PluginBase $plugin)
-    {
-        if (!$this->plugin) {
-            $this->plugin = $plugin;
+	/**
+	 * @param PluginBase $plugin
+	 *
+	 * @throws \RuntimeException
+	 * @throws \InvalidArgumentException
+	 */
+	protected function setPlugin(PluginBase $plugin): void
+	{
+		if ($this->plugin) {
+			throw new \RuntimeException('There is already a Plugin object attached.');
+		}
 
-            $this->setMetadata($plugin);
-            $this->setOptions($plugin->getOptions());
-        }
+		$this->plugin = $plugin;
 
-        return $this->plugin;
-    }
+		$this->setMetadata($plugin->getMetadata());
+		$this->setOptions($plugin->getOptions());
+	}
 
-    /**
-     * @return Plugin|null
-     */
-    public function getPlugin()
-    {
-        if ($this->plugin === null) {
-            Debug::error('There is no Plugin object attached.', static::class);
+	/**
+	 * @return Plugin
+	 *
+	 * @throws \RuntimeException
+	 */
+	public function getPlugin(): Plugin
+	{
+		if ($this->plugin === null) {
+			throw new \RuntimeException('There is no Plugin object attached.');
+		}
 
-            return null;
-        }
+		return $this->plugin;
+	}
 
-        return $this->plugin;
-    }
+	/**
+	 * @param string $path
+	 *
+	 * @return string
+	 *
+	 * @throws \RuntimeException
+	 */
+	public function getRelativePath(string $path = ''): string
+	{
+		return $this->getPlugin()->getRelativePath($path);
+	}
 
-    /**
-     * @param string $pathName
-     *
-     * @return string
-     */
-    public function getRelativePath($pathName = '')
-    {
-        return $this->plugin->getRelativePath($pathName);
-    }
-
-    /**
-     * @param string $pathName
-     *
-     * @return string
-     */
-    public function getAbsolutePath($pathName = '')
-    {
-        return $this->plugin->getAbsolutePath($pathName);
-    }
+	/**
+	 * @param string $path
+	 *
+	 * @return string
+	 *
+	 * @throws \RuntimeException
+	 */
+	public function getAbsolutePath($path = ''): string
+	{
+		return $this->getPlugin()->getAbsolutePath($path);
+	}
 
 }

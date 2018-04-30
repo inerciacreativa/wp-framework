@@ -10,12 +10,12 @@ namespace ic\Framework\Settings\Page;
 class SitePage extends CustomPage
 {
 
-    /**
-     * @inheritdoc
-     */
-    protected function getHook()
-    {
-        return 'admin_menu';
-    }
+	/**
+	 * @inheritdoc
+	 */
+	protected function getHook(): string
+	{
+		return 'admin_menu';
+	}
 
 }

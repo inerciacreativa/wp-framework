@@ -35,7 +35,7 @@ class WidgetProxy extends \WP_Widget
     /**
      * @inheritdoc
      */
-    public function widget($arguments, $instance)
+    public function widget($arguments, $instance): void
     {
         $this->widget->display($instance, $arguments);
     }
@@ -43,7 +43,7 @@ class WidgetProxy extends \WP_Widget
     /**
      * @inheritdoc
      */
-    public function update($new_instance, $old_instance)
+    public function update($new_instance, $old_instance): array
     {
         return $this->widget->update($old_instance, $new_instance);
     }
@@ -51,7 +51,7 @@ class WidgetProxy extends \WP_Widget
     /**
      * @inheritdoc
      */
-    public function form($instance)
+    public function form($instance): void
     {
         $this->widget->configure($instance);
     }

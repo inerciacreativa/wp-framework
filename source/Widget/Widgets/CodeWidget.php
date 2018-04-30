@@ -18,15 +18,15 @@ class CodeWidget extends Widget
     /**
      * @inheritdoc
      */
-    public function id()
+    public function id(): string
     {
-        return 'code2';
+        return 'code';
     }
 
     /**
      * @inheritdoc
      */
-    public function name()
+    public function name(): string
     {
         return __('ic Framework / Code', 'ic-framework');
     }
@@ -34,7 +34,7 @@ class CodeWidget extends Widget
     /**
      * @inheritdoc
      */
-    public function description()
+    public function description(): string
     {
         return __('Arbitrary text, HTML, or PHP Code', 'ic-framework');
     }
@@ -42,20 +42,21 @@ class CodeWidget extends Widget
     /**
      * @inheritdoc
      */
-    /*
-    protected function frontend(array $instance, array $arguments)
+    protected function frontend(array $instance, Tag $widget, Tag $title): void
     {
         ob_start();
         eval('?>' . Arr::get($instance, 'code'));
-        $code = ob_get_clean();
+        $content = ob_get_clean();
 
-        if (Arr::get($instance, 'autop')) {
-            $code = wpautop($code);
+        if (Arr::get($instance, 'format')) {
+            $content = wpautop($content);
         }
 
-        return $code;
+	    $widget->content($title);
+	    $widget->content($content);
+
+	    echo $widget;
     }
-    */
 
     /**
      * @inheritdoc
@@ -64,7 +65,7 @@ class CodeWidget extends Widget
     {
         return [
             Tag::p($form->textarea('code', '', ['label' => __('Code:', 'ic-framework')])),
-            Tag::p($form->checkbox('autop', 1, false, ['label' => __('Automatically add paragraphs', 'ic-framework')])),
+            Tag::p($form->checkbox('format', 1, false, ['label' => __('Automatically add paragraphs', 'ic-framework')])),
         ];
     }
 

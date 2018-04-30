@@ -32,7 +32,7 @@ class FileStore extends Store
      *
      * @return array
      */
-    private function normalizeFiles(array $files)
+    private function normalizeFiles(array $files): array
     {
         $normalized = [];
 
@@ -42,12 +42,12 @@ class FileStore extends Store
                 continue;
             }
 
-            if (is_array($file) && isset($file['tmp_name'])) {
+            if (\is_array($file) && isset($file['tmp_name'])) {
                 $normalized[$key] = $this->createFile($file);
                 continue;
             }
 
-            if (is_array($file)) {
+            if (\is_array($file)) {
                 $normalized[$key] = $this->normalizeFiles($file);
                 continue;
             }
@@ -68,7 +68,7 @@ class FileStore extends Store
      */
     private function createFile(array $file)
     {
-        if (is_array($file['tmp_name'])) {
+        if (\is_array($file['tmp_name'])) {
             return $this->normalizeNestedFile($file);
         }
 
@@ -76,7 +76,7 @@ class FileStore extends Store
             $file['tmp_name'],
             $file['name'],
             $file['type'],
-            $file['size'],
+	        (int)$file['size'],
             $file['error']
         );
     }
@@ -91,7 +91,7 @@ class FileStore extends Store
      *
      * @return File[]
      */
-    private function normalizeNestedFile(array $files)
+    private function normalizeNestedFile(array $files): array
     {
         $normalized = [];
 

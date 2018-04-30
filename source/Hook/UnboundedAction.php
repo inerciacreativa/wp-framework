@@ -22,12 +22,12 @@ class UnboundedAction extends Action
      * @type bool      $enabled
      * }
      */
-    public function __construct($hook, callable $callback, array $parameters = [])
+    public function __construct(string $hook, callable $callback, array $parameters = [])
     {
         parent::__construct($hook, $callback, $parameters);
 
-        if (is_array($callback)) {
-            $namespace = get_class($callback[0]);
+        if (\is_array($callback)) {
+            $namespace = \get_class($callback[0]);
             $id        = $callback[1];
         } else {
             $namespace = 'global';
@@ -40,7 +40,7 @@ class UnboundedAction extends Action
     /**
      * @inheritdoc
      */
-    public function enable()
+    public function enable(): ActionInterface
     {
         if (!$this->enabled) {
             add_filter($this->hook, $this->callback, $this->priority, $this->arguments);
@@ -53,7 +53,7 @@ class UnboundedAction extends Action
     /**
      * @inheritdoc
      */
-    public function disable()
+    public function disable(): ActionInterface
     {
         if ($this->enabled) {
             remove_filter($this->hook, $this->callback, $this->priority);

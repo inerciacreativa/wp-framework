@@ -2,328 +2,366 @@
 
 namespace ic\Framework\Hook;
 
-use ic\Framework\Support\Singleton;
-use ic\Framework\Support\Data;
 use ic\Framework\Support\Arr;
+use ic\Framework\Support\Data;
 
 /**
- * Class Hooks
+ * Class Hook
  *
  * @package ic\Framework\Hook
- * @method static Hook getInstance()
  */
-class Hook extends Singleton
+class Hook
 {
 
-    /**
-     * @var object
-     */
-    private $object;
+	/**
+	 * @var Hook
+	 */
+	private static $instance;
 
-    /**
-     * @var string
-     */
-    private $class;
+	/**
+	 * @var object
+	 */
+	private $object;
 
-    /**
-     * @var ActionInterface[]
-     */
-    private $actions = [];
+	/**
+	 * @var string
+	 */
+	private $class;
 
-    /**
-     * @param object $object
-     *
-     * @return static
-     */
-    public static function bind($object)
-    {
-        $hooks         = static::getInstance();
-        $hooks->object = $object;
-        $hooks->class  = get_class($object);
+	/**
+	 * @var ActionInterface[]
+	 */
+	private $actions = [];
 
-        return $hooks;
-    }
+	/**
+	 * @return Hook
+	 */
+	final public static function instance(): Hook
+	{
+		if (self::$instance === null) {
+			self::$instance = new self();
+		}
 
-    /**
-     * @return static
-     */
-    public static function unbind()
-    {
-        $hooks         = static::getInstance();
-        $hooks->object = null;
-        $hooks->class  = '';
+		return self::$instance;
+	}
 
-        return $hooks;
-    }
+	/**
+	 * @param object $object
+	 *
+	 * @return static
+	 */
+	public static function bind($object): Hook
+	{
+		$hook         = static::instance();
+		$hook->object = $object;
+		$hook->class  = \get_class($object);
 
-    /**
-     * The format of the IDs is '$namespace.$hook.$callback'.
-     *
-     * If only one segment is passed it's assumed to be '$callback'.
-     * If two segments are passed it's assumed to be '$hook.$callback'-
-     *
-     * @param string $target
-     *
-     * @return ActionInterface[]
-     */
-    public function get($target)
-    {
-        $segments = explode('.', $target);
+		return $hook;
+	}
 
-        if (count($segments) === 1) {
-            array_unshift($segments, '*');
-        }
+	/**
+	 * @return static
+	 */
+	public static function unbind(): Hook
+	{
+		$hook         = static::instance();
+		$hook->object = null;
+		$hook->class  = '';
 
-        if (count($segments) === 2) {
-            if ($this->isBounded()) {
-                array_unshift($segments, $this->class);
-            } else {
-                array_unshift($segments, 'global');
-            }
-        }
+		return $hook;
+	}
 
-        $actions = Data::get($this->actions, $segments, []);
+	/**
+	 * The format of the IDs is '$namespace.$hook.$callback'.
+	 *
+	 * If only one segment is passed it's assumed to be '$callback'.
+	 * If two segments are passed it's assumed to be '$hook.$callback'-
+	 *
+	 * @param string $target
+	 *
+	 * @return ActionInterface[]
+	 */
+	public function get($target): array
+	{
+		$segments = explode('.', $target);
 
-        if (!is_array($actions)) {
-            $actions = [$actions];
-        } elseif (!empty($actions)) {
-            $actions = array_values(array_filter($actions));
-        }
+		if (\count($segments) === 1) {
+			array_unshift($segments, '*');
+		}
 
-        return $actions;
-    }
+		if (\count($segments) === 2) {
+			if ($this->isBounded()) {
+				array_unshift($segments, $this->class);
+			} else {
+				array_unshift($segments, 'global');
+			}
+		}
 
-    /**
-     * @param ActionInterface $action
-     * @param bool            $overwrite
-     *
-     * @return $this
-     */
-    public function set(ActionInterface $action, $overwrite = true)
-    {
-        Data::set($this->actions, $action->getId(), $action, $overwrite);
+		$actions = Data::get($this->actions, $segments, []);
 
-        return $this;
-    }
+		if (!\is_array($actions)) {
+			$actions = [$actions];
+		} else if (!empty($actions)) {
+			$actions = array_values(array_filter($actions));
+		}
 
-    /**
-     * @param string          $hook
-     * @param string|callable $callback
-     * @param array           $parameters
-     *
-     * @return ActionInterface|null
-     */
-    public function getAction($hook, $callback, array $parameters = [])
-    {
-        if ($callback instanceof \Closure) {
-            return new ClosureAction($hook, $callback, $parameters);
-        } elseif ($this->isBounded($callback)) {
-            return new BoundedAction($hook, $this->object, $callback, $parameters);
-        } elseif (is_callable($callback)) {
-            return new UnboundedAction($hook, $callback, $parameters);
-        }
+		return $actions;
+	}
 
-        return null;
-    }
+	/**
+	 * @param ActionInterface $action
+	 * @param bool            $overwrite
+	 *
+	 * @return $this
+	 */
+	public function set(ActionInterface $action, bool $overwrite = true): self
+	{
+		Data::set($this->actions, $action->getId(), $action, $overwrite);
 
-    /**
-     * @param string $callback
-     *
-     * @return bool
-     */
-    protected function isBounded($callback = null)
-    {
-        return $this->object !== null && ($callback === null || (is_string($callback) && method_exists($this->object, $callback)));
-    }
+		return $this;
+	}
 
-    /**
-     * @param string          $hook       The name of the event
-     * @param string|callable $callback   The method to be run
-     * @param array           $parameters {
-     *
-     * @type string           $target     The name of the filter or action to hook
-     * @type int              $priority   Used to specify the order of execution
-     * @type int              $arguments  The number of arguments the method accepts
-     * @type callable|bool    $status     Whether the event should be executed or not
-     * }
-     *
-     * @return $this
-     */
-    public function on($hook, $callback, array $parameters = [])
-    {
-        $parameters = array_merge(['enabled' => true], $parameters);
+	/**
+	 * @param string          $hook
+	 * @param string|callable $callback
+	 * @param array           $parameters
+	 *
+	 * @return ActionInterface|null
+	 */
+	public function getAction(string $hook, $callback, array $parameters = []): ?ActionInterface
+	{
+		if ($callback instanceof \Closure) {
+			return new ClosureAction($hook, $callback, $parameters);
+		}
 
-        if ($action = $this->getAction($hook, $callback, $parameters)) {
-            $this->set($action);
-        }
+		if ($this->isBounded($callback)) {
+			return new BoundedAction($hook, $this->object, $callback, $parameters);
+		}
 
-        return $this;
-    }
+		if (\is_callable($callback)) {
+			return new UnboundedAction($hook, $callback, $parameters);
+		}
 
-    /**
-     * @param string          $hook
-     * @param string|callable $callback
-     * @param array|int       $parameters
-     *
-     * @return $this
-     */
-    public function off($hook, $callback, $parameters = 10)
-    {
-        if (is_int($parameters)) {
-            $parameters = ['priority' => $parameters, 'enabled' => false];
-        } else {
-            $parameters = array_merge($parameters, ['enabled' => false]);
-        }
+		return null;
+	}
 
-        if ($action = $this->getAction($hook, $callback, $parameters)) {
-            $this->set($action);
-        }
+	/**
+	 * @param string $callback
+	 *
+	 * @return bool
+	 */
+	protected function isBounded($callback = null): bool
+	{
+		return $this->object !== null && ($callback === null || (\is_string($callback) && method_exists($this->object, $callback)));
+	}
 
-        return $this;
-    }
+	/**
+	 * @param string          $hook       The name of the event
+	 * @param string|callable $callback   The method to be run
+	 * @param array           $parameters {
+	 *
+	 * @type string           $target     The name of the filter or action to hook
+	 * @type int              $priority   Used to specify the order of execution
+	 * @type int              $arguments  The number of arguments the method accepts
+	 * @type callable|bool    $status     Whether the event should be executed or not
+	 * }
+	 *
+	 * @return $this
+	 */
+	public function on(string $hook, $callback, array $parameters = []): self
+	{
+		$parameters = array_merge(['enabled' => true], $parameters);
 
-    /**
-     * @param string          $hook
-     * @param string|callable $callback
-     * @param array           $parameters
-     *
-     * @return $this
-     */
-    public function before($hook, $callback, array $parameters = [])
-    {
-        return $this->on($hook, $callback, array_merge($parameters, ['priority' => -1]));
-    }
+		if ($action = $this->getAction($hook, $callback, $parameters)) {
+			$this->set($action);
+		}
 
-    /**
-     * @param string          $hook
-     * @param string|callable $callback
-     * @param array           $parameters
-     *
-     * @return $this
-     */
-    public function after($hook, $callback, array $parameters = [])
-    {
-        return $this->on($hook, $callback, array_merge($parameters, ['priority' => 999999]));
-    }
+		return $this;
+	}
 
-    /**
-     * @param string|array    $hook
-     * @param string|callable $callback
-     *
-     * @return $this
-     */
-    public function capture($hook, $callback)
-    {
-        if ($this->isBounded($callback) && ($action = new CaptureAction($hook, $this->object, $callback))) {
-            $this->set($action);
-        }
+	/**
+	 * @param string          $hook
+	 * @param string|callable $callback
+	 * @param array|int       $parameters
+	 *
+	 * @return $this
+	 */
+	public function off(string $hook, $callback, $parameters = 10): self
+	{
+		if (\is_int($parameters)) {
+			$parameters = ['priority' => $parameters, 'enabled' => false];
+		} else {
+			$parameters = array_merge($parameters, ['enabled' => false]);
+		}
 
-        return $this;
-    }
+		if ($action = $this->getAction($hook, $callback, $parameters)) {
+			$this->set($action);
+		}
 
-    /**
-     * @param string          $file
-     * @param string|callable $callback
-     * @param array           $parameters
-     *
-     * @return $this
-     */
-    public function activation($file, $callback, array $parameters = [])
-    {
-        $hook = 'activate_' . plugin_basename($file);
+		return $this;
+	}
 
-        return $this->on($hook, $callback, $parameters);
-    }
+	/**
+	 * @param string          $hook
+	 * @param string|callable $callback
+	 * @param array           $parameters
+	 *
+	 * @return $this
+	 */
+	public function before(string $hook, $callback, array $parameters = []): self
+	{
+		return $this->on($hook, $callback, array_merge($parameters, ['priority' => -1]));
+	}
 
-    /**
-     * @param string          $file
-     * @param string|callable $callback
-     * @param array           $parameters
-     *
-     * @return $this
-     */
-    public function deactivation($file, $callback, array $parameters = [])
-    {
-        $hook = 'deactivate_' . plugin_basename($file);
+	/**
+	 * @param string          $hook
+	 * @param string|callable $callback
+	 * @param array           $parameters
+	 *
+	 * @return $this
+	 */
+	public function after(string $hook, $callback, array $parameters = []): self
+	{
+		return $this->on($hook, $callback, array_merge($parameters, ['priority' => 999999]));
+	}
 
-        return $this->on($hook, $callback, $parameters);
-    }
+	/**
+	 * @param string|array    $hook
+	 * @param string|callable $callback
+	 *
+	 * @return $this
+	 */
+	public function capture(string $hook, $callback): self
+	{
+		if ($this->isBounded($callback) && ($action = new CaptureAction($hook, $this->object, $callback))) {
+			$this->set($action);
+		}
 
-    /**
-     * @param string $hook
-     * @param mixed  $parameters
-     */
-    public function fire($hook, $parameters)
-    {
-        call_user_func_array('do_action', func_get_args());
-    }
+		return $this;
+	}
 
-    /**
-     * @param string $hook
-     * @param mixed  $parameters
-     *
-     * @return mixed
-     */
-    public function apply($hook, $parameters)
-    {
-        return call_user_func_array('apply_filters', func_get_args());
-    }
+	/**
+	 * @param string          $file
+	 * @param string|callable $callback
+	 * @param array           $parameters
+	 *
+	 * @return $this
+	 */
+	public function activation(string $file, $callback, array $parameters = []): self
+	{
+		$hook = 'activate_' . plugin_basename($file);
 
-    /**
-     * @param string|array $target
-     *
-     * @return $this
-     */
-    public function enable($target)
-    {
-        $actions = $this->get($target);
+		return $this->on($hook, $callback, $parameters);
+	}
 
-        foreach ($actions as $action) {
-            $action->enable();
-        }
+	/**
+	 * @param string          $file
+	 * @param string|callable $callback
+	 * @param array           $parameters
+	 *
+	 * @return $this
+	 */
+	public function deactivation(string $file, $callback, array $parameters = []): self
+	{
+		$hook = 'deactivate_' . plugin_basename($file);
 
-        return $this;
-    }
+		return $this->on($hook, $callback, $parameters);
+	}
 
-    /**
-     * @param string|array $target
-     *
-     * @return $this
-     */
-    public function disable($target)
-    {
-        $actions = $this->get($target);
+	/**
+	 * @param string $hook
+	 * @param mixed  $parameters
+	 *
+	 * @return $this
+	 */
+	public function fire(string $hook, $parameters): self
+	{
+		do_action(...\func_get_args());
 
-        foreach ($actions as $action) {
-            $action->disable();
-        }
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param string $hook
+	 * @param mixed  $parameters
+	 *
+	 * @return mixed
+	 */
+	public function apply(string $hook, $parameters)
+	{
+		return apply_filters(...\func_get_args());
+	}
 
-    /**
-     * @return ActionInterface[]
-     */
-    public function all()
-    {
-        return Arr::flatten($this->actions);
-    }
+	/**
+	 * @param string|array $target
+	 *
+	 * @return $this
+	 */
+	public function enable($target): self
+	{
+		$actions = $this->get($target);
 
-    /**
-     * @param $target
-     *
-     * @return array
-     */
-    public function inspect($target)
-    {
-        $report  = [];
-        $actions = $this->get($target);
+		foreach ($actions as $action) {
+			$action->enable();
+		}
 
-        foreach ($actions as $action) {
-            $report[$action->getId()] = $action->isEnabled();
-        }
+		return $this;
+	}
 
-        return $report;
-    }
+	/**
+	 * @param string|array $target
+	 *
+	 * @return $this
+	 */
+	public function disable($target): self
+	{
+		$actions = $this->get($target);
+
+		foreach ($actions as $action) {
+			$action->disable();
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @return ActionInterface[]
+	 */
+	public function all(): array
+	{
+		return Arr::flatten($this->actions);
+	}
+
+	/**
+	 * @param $target
+	 *
+	 * @return array
+	 */
+	public function inspect($target): array
+	{
+		$report  = [];
+		$actions = $this->get($target);
+
+		foreach ($actions as $action) {
+			$report[$action->getId()] = $action->isEnabled();
+		}
+
+		return $report;
+	}
+
+	/**
+	 * Forbidden clone.
+	 */
+	final private function __clone()
+	{
+	}
+
+	/**
+	 * @throws \RuntimeException
+	 */
+	final public function __wakeup()
+	{
+		throw new \RuntimeException('Cannot unserialize singleton.');
+	}
 
 }

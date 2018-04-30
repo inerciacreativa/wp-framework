@@ -5,8 +5,8 @@ namespace ic\Framework\Settings\Form;
 use ic\Framework\Hook\HookDecorator;
 use ic\Framework\Settings\Settings;
 use ic\Framework\Settings\SettingsPage;
-use ic\Framework\Support\Options;
 use ic\Framework\Support\Arr;
+use ic\Framework\Support\Options;
 
 /**
  * Class Sections
@@ -16,235 +16,247 @@ use ic\Framework\Support\Arr;
 class Sections
 {
 
-    use HookDecorator;
+	use HookDecorator;
 
-    /**
-     * @var SettingsPage
-     */
-    protected $page;
+	/**
+	 * @var SettingsPage
+	 */
+	protected $page;
 
-    /**
-     * @var Tab
-     */
-    protected $tab;
+	/**
+	 * @var Tab
+	 */
+	protected $tab;
 
-    /**
-     * @var Section[]
-     */
-    protected $sections = [];
+	/**
+	 * @var Section[]
+	 */
+	protected $sections = [];
 
-    /**
-     * @var callable
-     */
-    protected $validation;
+	/**
+	 * @var callable
+	 */
+	protected $validation;
 
-    /**
-     * @var callable
-     */
-    protected $done;
+	/**
+	 * @var callable
+	 */
+	protected $finalization;
 
-    /**
-     * @var bool
-     */
-    protected $registered = false;
+	/**
+	 * @var bool
+	 */
+	protected $registered = false;
 
-    /**
-     * @var string
-     */
-    protected $default;
+	/**
+	 * @var string
+	 */
+	protected $default;
 
-    /**
-     * Sections constructor.
-     *
-     * @param SettingsPage $page
-     * @param Tab          $tab
-     */
-    public function __construct(SettingsPage $page, Tab $tab = null)
-    {
-        $this->page    = $page;
-        $this->tab     = $tab;
-        $this->default = Settings::getDefaultSection($this->page->id());
-    }
+	/**
+	 * Sections constructor.
+	 *
+	 * @param SettingsPage $page
+	 * @param Tab          $tab
+	 */
+	public function __construct(SettingsPage $page, Tab $tab = null)
+	{
+		$this->page    = $page;
+		$this->tab     = $tab;
+		$this->default = Settings::getDefaultSection($this->page->id());
+	}
 
-    /**
-     * Adds a new section.
-     *
-     * @param string   $id
-     * @param \Closure $content
-     *
-     * @return $this
-     */
-    public function section($id, \Closure $content)
-    {
-        $id = $id ?: $this->default;
+	/**
+	 * Adds a new section.
+	 *
+	 * @param string|null $id
+	 * @param \Closure    $content
+	 *
+	 * @return $this
+	 */
+	public function addSection($id, \Closure $content): self
+	{
+		$id = $id ?: $this->default;
 
-        if (!isset($this->sections[$id])) {
-            $this->sections[$id] = new Section($this->page, $id, $content);
-        }
+		if (!isset($this->sections[$id])) {
+			$this->sections[$id] = new Section($this->page, $id, $content);
+		}
 
-        return $this;
-    }
+		return $this;
+	}
 
-    /**
-     * Retrieves all fields in all sections.
-     *
-     * @return Field[]
-     */
-    public function fields()
-    {
-        $fields = [];
+	/**
+	 * Adds an error.
+	 *
+	 * @param string $id
+	 * @param string $message
+	 *
+	 * @return $this
+	 */
+	public function addError(string $id, string $message): self
+	{
+		add_settings_error($this->page->id(), str_replace('.', '-', $id), $message);
 
-        foreach ($this->sections as $section) {
-            $fields = array_merge($fields, $section->fields());
-        }
+		return $this;
+	}
 
-        return $fields;
-    }
+	/**
+	 * Sets the validation function.
+	 *
+	 * @param callable $validation
+	 *
+	 * @return $this
+	 */
+	public function onValidation(callable $validation): self
+	{
+		$this->validation = $validation;
 
-    /**
-     * Sets the validation function.
-     *
-     * @param callable $validation
-     *
-     * @return $this
-     */
-    public function validation(callable $validation)
-    {
-        $this->validation = $validation;
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * Sets the finalization function.
+	 *
+	 * @param callable $finalization
+	 *
+	 * @return $this
+	 */
+	public function onFinalization(callable $finalization): self
+	{
+		$this->finalization = $finalization;
 
-    public function done(callable $done)
-    {
-        $this->done = $done;
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * Registers the sections via Settings API.
+	 */
+	public function register(): void
+	{
+		if ($this->registered) {
+			return;
+		}
 
-    /**
-     * Registers the sections via Settings API.
-     */
-    public function register()
-    {
-        if ($this->registered) {
-            return;
-        }
+		// If the page is "permalink" WP does not save values!
+		if ($this->page->id() === 'permalink') {
+			$this->hook()->on('load-options-permalink.php', function () {
+				if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !check_admin_referer('update-permalink')) {
+					return;
+				}
 
-        // If the page is "permalink" WP does not save values!
-        if ($this->page->id() === 'permalink') {
-            $this->setHook()->on('load-options-permalink.php', function () {
-                if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !check_admin_referer('update-permalink')) {
-                    return;
-                }
+				$values = $_POST[$this->getOptions()->id()] ?? [];
+				$values = $this->validate($values);
 
-                $values = isset($_POST[$this->options()->id()]) ? $_POST[$this->options()->id()] : [];
-                $values = $this->validate($values);
+				$this->finalize(null, $values);
+			});
+		} else {
+			$this->hook()->on('update_option_' . $this->getOptions()
+			                                          ->id(), 'finalize', ['arguments' => 2]);
 
-                $this->finish(null, $values);
-            });
-        } else {
-            $this->setHook()->on('update_option_' . $this->options()->id(), 'finish', ['arguments' => 2]);
+			register_setting($this->page->id(), $this->getOptions()->id(), [
+				'sanitize_callback' => function (array $values) {
+					return $this->validate($values);
+				},
+			]);
+		}
 
-            register_setting($this->page->id(), $this->options()->id(), [
-                'sanitize_callback' => function ($values) {
-                    return $this->validate($values);
-                },
-            ]);
-        }
+		foreach ($this->sections as $section) {
+			$section->register();
+		}
 
-        foreach ($this->sections as $section) {
-            $section->register();
-        }
+		$this->registered = true;
+	}
 
-        $this->registered = true;
-    }
+	/**
+	 * @return bool
+	 */
+	public function isRegistered(): bool
+	{
+		return $this->registered;
+	}
 
-    /**
-     * @return bool
-     */
-    public function registered()
-    {
-        return $this->registered;
-    }
+	/**
+	 * Retrieves all fields in all sections.
+	 *
+	 * @return Field[]
+	 */
+	protected function getFields(): array
+	{
+		$fields = [[]];
 
-    /**
-     * Adds an error.
-     *
-     * @param string $id
-     * @param string $message
-     *
-     * @return $this
-     */
-    public function error($id, $message)
-    {
-        add_settings_error($this->page->id(), str_replace('.', '-', $id), $message);
+		foreach ($this->sections as $section) {
+			$fields[] = $section->getFields();
+		}
 
-        return $this;
-    }
+		return array_merge(...$fields);
+	}
 
-    /**
-     * @return Options
-     */
-    protected function options()
-    {
-        return $this->page->options();
-    }
+	/**
+	 * @return Options
+	 */
+	protected function getOptions(): Options
+	{
+		return $this->page->getOptions();
+	}
 
-    /**
-     * Validate the values.
-     *
-     * @param $values
-     *
-     * @return array|mixed
-     */
-    protected function validate($values)
-    {
-        if (empty($values)) {
-            $values = [];
-        }
+	/**
+	 * Validate the values.
+	 *
+	 * @param $values
+	 *
+	 * @return array
+	 */
+	protected function validate(array $values): array
+	{
+		if (empty($values)) {
+			$values = [];
+		}
 
-        $values = $this->normalize($values, $this->fields(), $this->options()->all());
+		$values = $this->normalize($values, $this->getFields());
 
-        if (is_callable($this->validation)) {
-            return call_user_func($this->validation, $values, $this);
-        }
+		if (\is_callable($this->validation)) {
+			return \call_user_func($this->validation, $values, $this);
+		}
 
-        return $values;
-    }
+		return $values;
+	}
 
-    /**
-     * Normalize the values. Correct the checkboxes values, and return the complete Options array.
-     *
-     * @param array   $values
-     * @param Field[] $fields
-     * @param array   $options
-     *
-     * @return array
-     */
-    protected function normalize(array $values, array $fields, array $options)
-    {
-        foreach ($fields as $field) {
-            if ($field->type() === 'checkbox') {
-                if (Arr::has($values, $field->id())) {
-                    Arr::set($values, $field->id(), (bool)Arr::get($values, $field->id()));
-                } else {
-                    Arr::set($values, $field->id(), false);
-                }
-            }
-        }
+	/**
+	 * Normalize the values. Correct the checkboxes values, and return the
+	 * complete Options array.
+	 *
+	 * @param array   $values
+	 * @param Field[] $fields
+	 *
+	 * @return array
+	 */
+	protected function normalize(array $values, array $fields): array
+	{
+		foreach ($fields as $field) {
+			if ($field->getType() === 'checkbox') {
+				if (Arr::has($values, $field->getId())) {
+					Arr::set($values, $field->getId(), (bool) Arr::get($values, $field->getId()));
+				} else {
+					Arr::set($values, $field->getId(), false);
+				}
+			}
+		}
 
-        return Arr::fill($options, $values);
-    }
+		return Arr::fill($this->getOptions()->all(), $values);
+	}
 
-    protected function finish($old, $values)
-    {
-        $this->options()->fill($values);
-        $this->options()->save();
+	/**
+	 * @param $oldValues
+	 * @param $newValues
+	 */
+	protected function finalize(array $oldValues, array $newValues): void
+	{
+		$this->getOptions()->fill($newValues);
+		$this->getOptions()->save();
 
-        if (is_callable($this->done)) {
-            call_user_func($this->done);
-        }
-    }
+		if (\is_callable($this->finalization)) {
+			\call_user_func($this->finalization, $newValues, $this);
+		}
+	}
 
 }

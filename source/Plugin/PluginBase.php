@@ -2,9 +2,7 @@
 
 namespace ic\Framework\Plugin;
 
-use ic\Framework\Debug\Debug;
 use ic\Framework\Hook\HookDecorator;
-use ic\Framework\Support\PathDecorator;
 
 /**
  * Class PluginBase
@@ -14,121 +12,100 @@ use ic\Framework\Support\PathDecorator;
 abstract class PluginBase
 {
 
-    use PathDecorator;
-    use HookDecorator;
-    use MetadataDecorator;
-    use OptionsDecorator;
-    use AssetsDecorator;
+	use PathDecorator;
+	use HookDecorator;
+	use MetadataDecorator;
+	use OptionsDecorator;
+	use AssetsDecorator;
 
-    /**
-     * @var array
-     */
-    private static $instances = [];
+	/**
+	 * @var array
+	 */
+	private static $instances = [];
 
-    /**
-     * @return static
-     */
-    public static function getInstance()
-    {
-        return self::create();
-    }
+	/**
+	 * @return static
+	 */
+	final public static function instance()
+	{
+		return self::create('');
+	}
 
-    /**
-     * @return static
-     */
-    public static function create()
-    {
-        $class = get_called_class();
+	/**
+	 * @param string $filename
+	 * @param string $root
+	 *
+	 * @return static
+	 */
+	final public static function create(string $filename, string $root = WP_PLUGIN_DIR)
+	{
+		$class = static::class;
 
-        if (!isset(self::$instances[$class])) {
-            $reflection  = new \ReflectionClass($class);
-            $instance    = $reflection->newInstanceWithoutConstructor();
-            $constructor = $reflection->getConstructor();
-            $constructor->setAccessible(true);
-            $constructor->invokeArgs($instance, func_get_args());
+		if (!isset(self::$instances[$class])) {
+			self::$instances[$class] = new $class($filename, $root);
+		}
 
-            self::$instances[$class] = $instance;
-        }
+		return self::$instances[$class];
+	}
 
-        return self::$instances[$class];
-    }
+	/**
+	 * @param string $filename
+	 * @param string $root
+	 *
+	 * @throws \RuntimeException
+	 * @throws \ReflectionException
+	 */
+	final private function __construct($filename, $root = WP_PLUGIN_DIR)
+	{
+		$this->setPaths($filename, $root);
+		$this->setMetadata($this->getFileName());
+		$this->setAssets();
 
-    /**
-     * @param string $fileName
-     * @param string $rootName
-     */
-    final protected function __construct($fileName, $rootName = WP_PLUGIN_DIR)
-    {
-        $this->setPaths($fileName, $rootName);
-        $this->setMetadata($this->getFileName());
-        $this->setAssets();
+		$this->configure();
 
-        $this->onCreation();
+		$namespace = (new \ReflectionClass($this))->getNamespaceName();
+		$class     = $namespace . '\\' . (is_admin() ? 'Backend' : 'Frontend');
 
-        $nameSpace = (new \ReflectionClass($this))->getNamespaceName();
-        $className = $nameSpace . '\\' . (is_admin() ? 'Backend' : 'Frontend');
+		if (class_exists($class)) {
+			new $class($this);
+		}
+	}
 
-        if (class_exists($className)) {
-            new $className($this);
-        } elseif (is_admin()) {
-            $this->onBackend();
-        } else {
-            $this->onFrontend();
-        }
-    }
+	/**
+	 *
+	 */
+	final private function __clone()
+	{
+	}
 
-    /**
-     *
-     */
-    final protected function __clone()
-    {
-    }
+	/**
+	 * @throws \RuntimeException
+	 */
+	final public function __wakeup()
+	{
+		throw new \RuntimeException('Cannot unserialize singleton.');
+	}
 
-    /**
-     * @throws \RuntimeException
-     */
-    final public function __wakeup()
-    {
-        throw new \RuntimeException('Cannot unserialize singleton.');
-    }
+	/**
+	 * Runs once the plugin is configured.
+	 */
+	protected function configure(): void
+	{
+		$this->hook()->before('init', 'initialize')->on('init', 'translation');
+	}
 
-    /**
-     * Runs once the plugin is configured.
-     */
-    protected function onCreation()
-    {
-        $this->setHook()->before('init', function () {
-            $this->setTranslation();
-            $this->onInit();
-        });
-    }
+	/**
+	 * Used to register custom post types, taxonomies and widgets.
+	 */
+	protected function initialize(): void
+	{
+	}
 
-    /**
-     * Used to register custom post types, taxonomies and widgets.
-     */
-    protected function onInit()
-    {
-    }
-
-    /**
-     *
-     */
-    protected function onBackend()
-    {
-    }
-
-    /**
-     *
-     */
-    protected function onFrontend()
-    {
-    }
-
-    /**
-     *
-     */
-    protected function setTranslation()
-    {
-    }
+	/**
+	 *
+	 */
+	protected function translation(): void
+	{
+	}
 
 }

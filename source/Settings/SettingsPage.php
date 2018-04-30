@@ -55,7 +55,7 @@ abstract class SettingsPage
      * @param string  $menuTitle
      *
      */
-    public function __construct($parent, $id, Options $options, $pageTitle = '', $menuTitle = '')
+    public function __construct(string $parent, string $id, Options $options, string $pageTitle = '', string $menuTitle = '')
     {
         $this->parent    = $parent;
         $this->id        = $id;
@@ -68,7 +68,7 @@ abstract class SettingsPage
     /**
      * @return string
      */
-    public function id()
+    public function id(): string
     {
         return $this->id;
     }
@@ -76,7 +76,7 @@ abstract class SettingsPage
     /**
      * @return string
      */
-    public function parent()
+    public function getParent(): string
     {
         return $this->parent;
     }
@@ -84,7 +84,7 @@ abstract class SettingsPage
     /**
      * @return Options
      */
-    public function options()
+    public function getOptions(): Options
     {
         return $this->options;
     }
@@ -92,19 +92,22 @@ abstract class SettingsPage
     /**
      * @return SettingsForm
      */
-    public function form()
+    public function getForm(): SettingsForm
     {
         return $this->form;
     }
 
-    abstract protected function register();
+	/**
+	 *
+	 */
+    abstract protected function register(): void;
 
     /**
      * Initialize
      */
-    protected function initialize()
+    protected function initialize(): void
     {
-        $this->setHook()->on('admin_init', 'register');
+        $this->hook()->on('admin_init', 'register');
     }
 
 }

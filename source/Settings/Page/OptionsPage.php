@@ -2,9 +2,9 @@
 
 namespace ic\Framework\Settings\Page;
 
+use ic\Framework\Settings\Form\SectionsDecorator;
 use ic\Framework\Settings\Settings;
 use ic\Framework\Settings\SettingsPage;
-use ic\Framework\Settings\Form\SectionsDecorator;
 use ic\Framework\Support\Options;
 
 /**
@@ -15,21 +15,21 @@ use ic\Framework\Support\Options;
 class OptionsPage extends SettingsPage
 {
 
-    use SectionsDecorator;
+	use SectionsDecorator;
 
-    /**
-     * OptionsPage constructor.
-     *
-     * @param string  $id
-     * @param Options $options
-     */
-    public function __construct($id, Options $options)
-    {
-        parent::__construct(Settings::OPTIONS, $id, $options);
+	/**
+	 * OptionsPage constructor.
+	 *
+	 * @param string  $id
+	 * @param Options $options
+	 */
+	public function __construct(string $id, Options $options)
+	{
+		parent::__construct(Settings::OPTIONS, $id, $options);
 
-        $this->sections($this);
+		$this->createSections($this);
 
-        $this->initialize();
-    }
+		$this->initialize();
+	}
 
 }

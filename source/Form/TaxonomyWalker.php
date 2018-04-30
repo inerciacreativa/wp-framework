@@ -28,7 +28,7 @@ class TaxonomyWalker extends \Walker_Category_Checklist
      * @param string $name
      * @param string $type
      */
-    public function __construct($name, $type = 'checkbox')
+    public function __construct(string $name, string $type = 'checkbox')
     {
         $this->name = $name;
         $this->type = $type;
@@ -43,7 +43,7 @@ class TaxonomyWalker extends \Walker_Category_Checklist
             'name'    => $this->name,
             'type'    => $this->type,
             'value'   => $category->term_id,
-            'checked' => in_array($category->term_id, $arguments['selected_cats'], false),
+            'checked' => \in_array($category->term_id, $arguments['selected_cats'], false),
         ];
 
         $output .= Tag::li(Tag::label([

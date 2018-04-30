@@ -2,8 +2,7 @@
 
 namespace ic\Framework\Settings\Form;
 
-use ic\Framework\Debug\Debug;
-
+use ic\Framework\Settings\SettingsForm;
 use ic\Framework\Support\Arr;
 
 /**
@@ -14,194 +13,246 @@ use ic\Framework\Support\Arr;
 class Field
 {
 
-    /**
-     * @var Section
-     */
-    protected $section;
+	/**
+	 * @var Section
+	 */
+	protected $section;
 
-    /**
-     * @var string
-     */
-    protected $id;
+	/**
+	 * @var string
+	 */
+	protected $id;
 
-    /**
-     * @var string
-     */
-    protected $type;
+	/**
+	 * @var string
+	 */
+	protected $type;
 
-    /**
-     * @var string
-     */
-    protected $label;
+	/**
+	 * @var string
+	 */
+	protected $label;
 
-    /**
-     * @var callable
-     */
-    protected $callback;
+	/**
+	 * @var callable
+	 */
+	protected $callback;
 
-    /**
-     * @var array
-     */
-    protected $parameters;
+	/**
+	 * @var array
+	 */
+	protected $parameters;
 
-    /**
-     * @var array
-     */
-    protected static $fieldParameters = [
-        [
-            'fields'     => ['text', 'password', 'hidden', 'email', 'url', 'file', 'number', 'textarea'],
-            'parameters' => ['id', 'value', 'attributes'],
-        ],
-        [
-            'fields'     => ['checkbox', 'radio', 'select', 'choices'],
-            'parameters' => ['id', 'value', 'selected', 'attributes'],
-        ],
-        [
-            'fields'     => ['submit', 'button', 'reset', 'image'],
-            'parameters' => ['value', 'attributes'],
-        ],
-        [
-            'fields'     => ['post_types', 'taxonomies', 'terms', 'image_sizes'],
-            'parameters' => ['id', 'selected', 'attributes'],
-        ],
-    ];
+	/**
+	 * @var array
+	 */
+	protected static $fieldParameters = [
+		[
+			'fields'     => [
+				'text',
+				'password',
+				'hidden',
+				'email',
+				'url',
+				'file',
+				'number',
+				'textarea',
+			],
+			'parameters' => ['id', 'value', 'attributes'],
+		],
+		[
+			'fields'     => ['checkbox', 'radio', 'select', 'choices'],
+			'parameters' => ['id', 'value', 'selected', 'attributes'],
+		],
+		[
+			'fields'     => ['submit', 'button', 'reset', 'image'],
+			'parameters' => ['value', 'attributes'],
+		],
+		[
+			'fields'     => [
+				'post_types',
+				'taxonomies',
+				'terms',
+				'image_sizes',
+			],
+			'parameters' => ['id', 'selected', 'attributes'],
+		],
+	];
 
-    /**
-     * Field constructor.
-     *
-     * @param Section         $section
-     * @param string          $id
-     * @param string|callable $callback
-     * @param string          $label
-     * @param array           $attributes
-     * @param mixed           $value
-     * @param string|array    $selected
-     */
-    public function __construct(Section $section, $id, $callback, $label, array $attributes = [], $value = null, $selected = null)
-    {
-        $this->section = $section;
-        $this->label   = $label;
-        $this->id      = $id;
-        $this->type    = is_string($callback) ? $callback : 'custom';
+	/**
+	 * Field constructor.
+	 *
+	 * @param Section         $section
+	 * @param string          $id
+	 * @param string|callable $callback
+	 * @param string          $label
+	 * @param array           $attributes
+	 * @param mixed           $value
+	 * @param array|bool      $selected
+	 *
+	 * @throws \InvalidArgumentException
+	 */
+	public function __construct(Section $section, string $id, $callback, string $label, array $attributes = [], $value = null, $selected = null)
+	{
+		$this->section = $section;
+		$this->label   = $label;
+		$this->id      = $id;
+		$this->type    = \is_string($callback) ? $callback : 'custom';
 
-        if (is_string($callback) && in_array($callback, ['select', 'choices'], false)) {
-            $value = (array)$value;
-        }
+		if (\in_array($this->type, ['select', 'choices'])) {
+			$value = (array) $value;
+		}
 
-        $this->callback($callback, compact('id', 'value', 'selected', 'attributes'));
-    }
+		if (\in_array($this->type, ['checkbox', 'radio'])) {
+			$selected = (bool) $selected;
+		}
 
-    /**
-     * Return the ID.
-     *
-     * @return string
-     */
-    public function id()
-    {
-        return $this->id;
-    }
+		[
+			$this->callback,
+			$this->parameters,
+		] = $this->getCallback($callback, compact('id', 'value', 'selected', 'attributes'));
+	}
 
-    /**
-     * Return the type.
-     *
-     * @return string
-     */
-    public function type()
-    {
-        return $this->type;
-    }
+	/**
+	 * Return the ID.
+	 *
+	 * @return string
+	 */
+	public function getId(): string
+	{
+		return $this->id;
+	}
 
-    /**
-     * Register the Field.
-     */
-    public function register()
-    {
-        $arguments = [];
+	/**
+	 * Return the type.
+	 *
+	 * @return string
+	 */
+	public function getType(): string
+	{
+		return $this->type;
+	}
 
-        if ($id = $this->label()) {
-            $arguments['label_for'] = $id;
-        }
+	/**
+	 * Register the Field.
+	 */
+	public function register(): void
+	{
+		$arguments = [];
 
-        add_settings_field($this->id, $this->label, $this, $this->section->page()->id(), $this->section->id(), $arguments);
-    }
+		if ($id = $this->getLabel()) {
+			$arguments['label_for'] = $id;
+		}
 
-    /**
-     * Render the field.
-     */
-    public function __invoke()
-    {
-        if (is_callable($this->callback)) {
-            echo call_user_func_array($this->callback, $this->parameters);
-        }
-    }
+		add_settings_field($this->id, $this->label, $this, $this->getPageId(), $this->getSectionId(), $arguments);
+	}
 
-    /**
-     * Return the field ID for the label element.
-     *
-     * @return string|null
-     */
-    protected function label()
-    {
-        if ($this->attribute('label') || $this->attribute('expanded')) {
-            return null;
-        }
+	/**
+	 * Render the field.
+	 */
+	public function __invoke(): void
+	{
+		echo \call_user_func_array($this->callback, $this->parameters);
+	}
 
-        return $this->attribute('id', str_replace('.', '-', $this->id));
-    }
+	/**
+	 * @return string
+	 */
+	protected function getSectionId(): string
+	{
+		return $this->section->getId();
+	}
 
-    /**
-     * Set the callback to render the Field.
-     *
-     * @param string|callable $callback
-     * @param array           $parameters
-     */
-    protected function callback($callback, $parameters)
-    {
-        $form = $this->section->page()->form();
+	/**
+	 * @return string
+	 */
+	protected function getPageId(): string
+	{
+		return $this->section->getPage()->id();
+	}
 
-        if (is_string($callback) && method_exists($form, $callback)) {
-            $this->callback   = [$form, $callback];
-            $this->parameters = $this->parameters($callback, $parameters);
-        } elseif (is_callable($callback)) {
-            $this->callback   = $callback;
-            $this->parameters = $parameters;
-        } else {
-            Debug::error(sprintf('Not a valid callback (ID %s).', $this->id), 'Settings Field');
-        }
-    }
+	/**
+	 * @return SettingsForm
+	 */
+	protected function getForm(): SettingsForm
+	{
+		return $this->section->getPage()->getForm();
+	}
 
-    /**
-     * Get an attribute from the $parameters array.
-     *
-     * @param string      $name
-     * @param string|null $default
-     *
-     * @return string
-     */
-    protected function attribute($name, $default = null)
-    {
-        return Arr::get($this->parameters, 'attributes.' . $name, $default);
-    }
+	/**
+	 * Return the field ID for the label element.
+	 *
+	 * @return string|null
+	 */
+	protected function getLabel(): ?string
+	{
+		if ($this->getAttribute('label') || $this->getAttribute('expanded')) {
+			return null;
+		}
 
-    /**
-     * Return the allowed parameters for the Field type.
-     *
-     * @param string $field
-     * @param array  $parameters
-     *
-     * @return array
-     */
-    protected function parameters($field, $parameters)
-    {
-        foreach (static::$fieldParameters as $group) {
-            if (in_array($field, $group['fields'], false)) {
-                return Arr::only($parameters, $group['parameters']);
-            }
-        }
+		return $this->getAttribute('id', str_replace('.', '-', $this->id));
+	}
 
-        Debug::error(sprintf('Unknown field "%s" (ID %s).', $field, $this->id), 'Settings Field');
+	/**
+	 * Set the callback to render the Field.
+	 *
+	 * @param string|callable $callback
+	 * @param array           $parameters
+	 *
+	 * @return array
+	 *
+	 * @throws \InvalidArgumentException
+	 */
+	protected function getCallback($callback, array $parameters): array
+	{
+		$form = $this->getForm();
 
-        return $parameters;
-    }
+		if (\is_string($callback) && method_exists($form, $callback)) {
+			return [
+				[$form, $callback],
+				$this->getParameters($callback, $parameters),
+			];
+		}
+
+		if (\is_callable($callback)) {
+			return [$callback, $parameters];
+		}
+
+		throw new \InvalidArgumentException(sprintf('Not a valid callback (ID %s).', $this->id));
+	}
+
+	/**
+	 * Get an attribute from the $parameters array.
+	 *
+	 * @param string      $name
+	 * @param string|null $default
+	 *
+	 * @return string|null
+	 */
+	protected function getAttribute(string $name, $default = null): ?string
+	{
+		return Arr::get($this->parameters, 'attributes.' . $name, $default);
+	}
+
+	/**
+	 * Return the allowed parameters for the Field type.
+	 *
+	 * @param string $field
+	 * @param array  $parameters
+	 *
+	 * @return array
+	 *
+	 * @throws \InvalidArgumentException
+	 */
+	protected function getParameters(string $field, array $parameters): array
+	{
+		foreach (static::$fieldParameters as $group) {
+			if (\in_array($field, $group['fields'], false)) {
+				return Arr::only($parameters, $group['parameters']);
+			}
+		}
+
+		throw new \InvalidArgumentException(sprintf('Unknown field "%s" (ID %s).', $field, $this->id));
+	}
 
 }

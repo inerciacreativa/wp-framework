@@ -10,7 +10,7 @@ use ic\Framework\Plugin\Assets;
  *
  * @package ic\Framework
  *
- * @method static Framework getInstance
+ * @method static Framework instance
  */
 class Framework extends PluginBase
 {
@@ -18,9 +18,9 @@ class Framework extends PluginBase
     /**
      * @inheritdoc
      */
-    protected function onCreation()
+    protected function configure(): void
     {
-        parent::onCreation();
+        parent::configure();
 
         $this->setOptions([
             'youtube' => [
@@ -47,8 +47,10 @@ class Framework extends PluginBase
      * @param array  $parameters
      *
      * @return Assets
+     *
+     * @throws \InvalidArgumentException
      */
-    public function addScript($source, $target, array $parameters = [])
+    public function addScript(string $source, int $target, array $parameters = []): Assets
     {
         $parameters['path'] = $this->getFileName();
 
@@ -61,8 +63,10 @@ class Framework extends PluginBase
      * @param array  $parameters
      *
      * @return Assets
+     *
+     * @throws \InvalidArgumentException
      */
-    public function addStyle($source, $target, array $parameters = [])
+    public function addStyle(string $source, int $target, array $parameters = []): Assets
     {
         $parameters['path'] = $this->getFileName();
 
@@ -72,9 +76,9 @@ class Framework extends PluginBase
     /**
      *
      */
-    protected function setTranslation()
+    protected function translation(): void
     {
-        load_muplugin_textdomain($this->id, $this->getRelativePath($this->languages));
+        load_muplugin_textdomain($this->id(), $this->getRelativePath($this->languages()));
     }
 
 }

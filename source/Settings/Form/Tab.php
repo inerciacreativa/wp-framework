@@ -37,12 +37,12 @@ class Tab
      * @param string     $id
      * @param \Closure   $content
      */
-    public function __construct(CustomPage $page, $id, \Closure $content)
+    public function __construct(CustomPage $page, string $id, \Closure $content)
     {
         $this->id   = $id;
         $this->page = $page;
 
-        $this->sections($this->page);
+        $this->createSections($this->page);
 
         $content($this);
     }
@@ -52,7 +52,7 @@ class Tab
      *
      * @return string
      */
-    public function id()
+    public function getId(): string
     {
         return $this->id;
     }
@@ -64,7 +64,7 @@ class Tab
      *
      * @return $this
      */
-    public function title($title)
+    public function setTitle(string $title): self
     {
         $this->title = $title;
 
@@ -76,16 +76,16 @@ class Tab
      *
      * @return string
      */
-    public function link()
+    public function getLink(): string
     {
         $url = add_query_arg([
             'page' => $this->page->id(),
             'tab'  => $this->id,
-        ], admin_url($this->page->parent()));
+        ], admin_url($this->page->getParent()));
 
         $class = 'nav-tab';
 
-        if ($this->sections->registered()) {
+        if ($this->sections->isRegistered()) {
             $class .= ' nav-tab-active';
         }
 

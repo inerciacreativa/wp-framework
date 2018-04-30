@@ -16,27 +16,29 @@ abstract class PluginClass
      * PluginBackend constructor.
      *
      * @param PluginBase $plugin
+     *
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
     public function __construct(PluginBase $plugin)
     {
         $this->setPlugin($plugin);
 
-        $this->setHook()->on('init', 'onInit');
-
-        $this->onCreation();
+        $this->configure();
     }
 
     /**
      *
      */
-    protected function onCreation()
+    protected function configure(): void
     {
+	    $this->hook()->on('init', 'initialize');
     }
 
     /**
      *
      */
-    protected function onInit()
+    protected function initialize(): void
     {
     }
 

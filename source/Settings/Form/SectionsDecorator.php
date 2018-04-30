@@ -12,66 +12,77 @@ use ic\Framework\Settings\SettingsPage;
 trait SectionsDecorator
 {
 
-    /**
-     * @var Sections
-     */
-    protected $sections = [];
+	/**
+	 * @var Sections
+	 */
+	protected $sections;
 
-    /**
-     * Creates a new Sections object.
-     *
-     * @param SettingsPage $page
-     */
-    public function sections(SettingsPage $page)
-    {
-        $this->sections = new Sections($page);
-    }
+	/**
+	 * Creates a new Sections object.
+	 *
+	 * @param SettingsPage $page
+	 */
+	public function createSections(SettingsPage $page): void
+	{
+		$this->sections = new Sections($page);
+	}
 
-    /**
-     * Adds a new section.
-     *
-     * @param string   $id
-     * @param \Closure $content
-     *
-     * @return Sections
-     */
-    public function section($id, \Closure $content)
-    {
-        return $this->sections->section($id, $content);
-    }
+	/**
+	 * Adds a new section.
+	 *
+	 * @param string|null $id
+	 * @param \Closure    $content
+	 *
+	 * @return Sections
+	 */
+	public function addSection($id, \Closure $content): Sections
+	{
+		return $this->sections->addSection($id, $content);
+	}
 
-    /**
-     * Sets the validation function.
-     *
-     * @param callable $validation
-     *
-     * @return Sections
-     */
-    public function validation(callable $validation)
-    {
-        return $this->sections->validation($validation);
-    }
+	/**
+	 * Sets the validation function.
+	 *
+	 * @param callable $validation
+	 *
+	 * @return Sections
+	 */
+	public function onValidation(callable $validation): Sections
+	{
+		return $this->sections->onValidation($validation);
+	}
 
-    //public function
-    /**
-     * Adds an error.
-     *
-     * @param string $id
-     * @param string $message
-     *
-     * @return Sections
-     */
-    public function error($id, $message)
-    {
-        return $this->sections->error($id, $message);
-    }
+	/**
+	 * Sets the finalization function.
+	 *
+	 * @param callable $finalization
+	 *
+	 * @return Sections
+	 */
+	public function onFinalization(callable $finalization): Sections
+	{
+		return $this->sections->onFinalization($finalization);
+	}
 
-    /**
-     * Registers the sections via Settings API.
-     */
-    public function register()
-    {
-        $this->sections->register();
-    }
+	/**
+	 * Adds an error.
+	 *
+	 * @param string $id
+	 * @param string $message
+	 *
+	 * @return Sections
+	 */
+	public function addError(string $id, string $message): Sections
+	{
+		return $this->sections->addError($id, $message);
+	}
+
+	/**
+	 * Registers the sections via Settings API.
+	 */
+	public function register(): void
+	{
+		$this->sections->register();
+	}
 
 }

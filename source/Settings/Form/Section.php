@@ -43,7 +43,7 @@ class Section
      * @param string       $id
      * @param \Closure     $content
      */
-    public function __construct(SettingsPage $page, $id, \Closure $content)
+    public function __construct(SettingsPage $page, string $id, \Closure $content)
     {
         $this->page = $page;
         $this->id   = $id;
@@ -56,7 +56,7 @@ class Section
      *
      * @return string
      */
-    public function id()
+    public function getId(): string
     {
         return $this->id;
     }
@@ -66,7 +66,7 @@ class Section
      *
      * @return SettingsPage
      */
-    public function page()
+    public function getPage(): SettingsPage
     {
         return $this->page;
     }
@@ -76,7 +76,7 @@ class Section
      *
      * @return $this
      */
-    public function title($title)
+    public function title(string $title): self
     {
         $this->title = $title;
 
@@ -88,7 +88,7 @@ class Section
      *
      * @return $this
      */
-    public function description($description)
+    public function description($description): self
     {
         $this->description = $description;
 
@@ -100,10 +100,10 @@ class Section
      *
      * @return $this
      */
-    public function register()
+    public function register(): self
     {
         // Register section only if custom or an option section that doesn't exists
-        if (!Settings::isDefaultSection($this->page()->id(), $this->id)) {
+        if (!Settings::isDefaultSection($this->getPage()->id(), $this->id)) {
             add_settings_section($this->id, $this->title, $this, $this->page->id());
         }
 
@@ -119,11 +119,11 @@ class Section
      */
     public function __invoke()
     {
-        if (is_callable($this->description)) {
-            echo call_user_func($this->description);
+        if (\is_callable($this->description)) {
+            echo \call_user_func($this->description);
         }
 
-        if (is_string($this->description)) {
+        if (\is_string($this->description)) {
             echo $this->description;
         }
     }

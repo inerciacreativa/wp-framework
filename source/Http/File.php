@@ -10,54 +10,69 @@ namespace ic\Framework\Http;
 class File
 {
 
-    private $path;
+	/**
+	 * @var string
+	 */
+	private $path;
 
-    /**
-     * The original name of the uploaded file.
-     *
-     * @var string
-     */
-    private $originalName;
+	/**
+	 * The original name of the uploaded file.
+	 *
+	 * @var string
+	 */
+	private $originalName;
 
-    /**
-     * The mime type provided by the uploader.
-     *
-     * @var string
-     */
-    private $mimeType;
+	/**
+	 * The mime type provided by the uploader.
+	 *
+	 * @var string
+	 */
+	private $mimeType;
 
-    /**
-     * The file size provided by the uploader.
-     *
-     * @var string
-     */
-    private $size;
+	/**
+	 * The file size provided by the uploader.
+	 *
+	 * @var int
+	 */
+	private $size;
 
-    /**
-     * The UPLOAD_ERR_XXX constant provided by the uploader.
-     *
-     * @var int
-     */
-    private $error;
+	/**
+	 * The UPLOAD_ERR_XXX constant provided by the uploader.
+	 *
+	 * @var int
+	 */
+	private $error;
 
-    public function __construct($path, $originalName, $mimeType = null, $size = null, $error = null)
-    {
-        $this->path         = $path;
-        $this->originalName = $originalName;
-        $this->mimeType     = $mimeType ?: 'application/octet-stream';
-        $this->size         = $size;
-        $this->error        = $error ?: UPLOAD_ERR_OK;
-    }
+	/**
+	 * File constructor.
+	 *
+	 * @param string      $path
+	 * @param string      $originalName
+	 * @param string|null $mimeType
+	 * @param int         $size
+	 * @param int|null    $error
+	 */
+	public function __construct(string $path, string $originalName, string $mimeType = null, $size = 0, int $error = null)
+	{
+		$this->path         = $path;
+		$this->originalName = $originalName;
+		$this->mimeType     = $mimeType ?: 'application/octet-stream';
+		$this->size         = (int) $size;
+		$this->error        = $error ?: UPLOAD_ERR_OK;
+	}
 
-    public function toArray()
-    {
-        return [
-            'tmp_name' => $this->path,
-            'name'     => $this->originalName,
-            'type'     => $this->mimeType,
-            'size'     => $this->size,
-            'error'    => $this->error,
-        ];
-    }
+	/**
+	 * @return array
+	 */
+	public function toArray(): array
+	{
+		return [
+			'tmp_name' => $this->path,
+			'name'     => $this->originalName,
+			'type'     => $this->mimeType,
+			'size'     => $this->size,
+			'error'    => $this->error,
+		];
+	}
 
 }

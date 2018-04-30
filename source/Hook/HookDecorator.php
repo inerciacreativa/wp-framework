@@ -10,12 +10,12 @@ namespace ic\Framework\Hook;
 trait HookDecorator
 {
 
-    /**
-     * @return Hook
-     */
-    protected function setHook()
-    {
-        return Hook::bind($this);
-    }
+	/**
+	 * @return Hook
+	 */
+	protected function hook(): Hook
+	{
+		return Hook::bind($this);
+	}
 
 }

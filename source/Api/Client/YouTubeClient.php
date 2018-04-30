@@ -19,7 +19,7 @@ class YouTubeClient extends Client
      */
     public function getAuth()
     {
-        $options = Framework::getInstance()->getOptions();
+        $options = Framework::instance()->getOptions();
 
         return new OAuthKey([
             'key'  => $options->get('youtube.credentials.key'),

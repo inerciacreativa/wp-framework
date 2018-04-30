@@ -3,62 +3,87 @@
 namespace ic\Framework\Plugin;
 
 /**
- * Class MetadataDecorator
+ * Trait MetadataDecorator
  *
- * @package ic\Framework\Support
- *
- * @property-read string $id
- * @property-read string $name
- * @property-read string $version
- * @property-read string $languages
- *
+ * @package ic\Framework\Plugin
  */
 trait MetadataDecorator
 {
 
-    /**
-     * @var array|Plugin
-     */
-    private $metadata = [];
+	/**
+	 * @var Metadata
+	 */
+	private $metadata;
 
-    /**
-     * @param string|Plugin $source
-     *
-     * @return static
-     */
-    protected function setMetadata($source)
-    {
-        $this->metadata = $source instanceof PluginBase ? $source : new Metadata($source);
+	/**
+	 * @param string|Metadata $source
+	 *
+	 * @return $this
+	 *
+	 * @throws \RuntimeException
+	 */
+	protected function setMetadata($source): self
+	{
+		$this->metadata = $source instanceof Metadata ? $source : new Metadata($source);
 
-        return $this;
-    }
+		return $this;
+	}
 
-    /**
-     * @param string $key
-     *
-     * @return string|null
-     */
-    public function __get($key)
-    {
-        return isset($this->metadata->$key) ? $this->metadata->$key : null;
-    }
+	/**
+	 * @param string $metadata
+	 *
+	 * @return string|Metadata
+	 *
+	 * @throws \RuntimeException
+	 * @throws \InvalidArgumentException
+	 */
+	public function getMetadata(string $metadata = null)
+	{
+		if ($this->metadata === null) {
+			throw new \RuntimeException(sprintf('There is no attached metadata in "%s".', static::class));
+		}
 
-    /**
-     * @param string $key
-     * @param string $value
-     */
-    public function __set($key, $value)
-    {
-    }
+		if (empty($metadata)) {
+			return $this->metadata;
+		}
 
-    /**
-     * @param string $key
-     *
-     * @return bool
-     */
-    public function __isset($key)
-    {
-        return isset($this->metadata->$key);
-    }
+		if (!isset($this->metadata->$metadata)) {
+			throw new \InvalidArgumentException(sprintf('There is no attached metadata "%s" in "%s".', $metadata, static::class));
+		}
+
+		return $this->metadata->$metadata;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function id(): string
+	{
+		return $this->getMetadata('id');
+	}
+
+	/**
+	 * @return string
+	 */
+	public function name(): string
+	{
+		return $this->getMetadata('name');
+	}
+
+	/**
+	 * @return string
+	 */
+	public function version(): string
+	{
+		return $this->getMetadata('version');
+	}
+
+	/**
+	 * @return string
+	 */
+	public function languages(): string
+	{
+		return $this->getMetadata('languages');
+	}
 
 }

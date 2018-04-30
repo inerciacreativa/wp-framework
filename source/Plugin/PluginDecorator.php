@@ -22,9 +22,11 @@ trait PluginDecorator
     /**
      * @param Plugin|null $plugin
      *
-     * @return Plugin;
+     * @return Plugin
+     *
+     * @throws \RuntimeException
      */
-    protected function plugin(Plugin $plugin = null)
+    protected function plugin(Plugin $plugin = null): Plugin
     {
         if (!$this->plugin) {
             if ($plugin) {

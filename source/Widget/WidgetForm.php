@@ -34,7 +34,7 @@ class WidgetForm extends AdvancedForm
     /**
      * @inheritdoc
      */
-    protected function getIdAttribute($id, array $attributes = [])
+    protected function getIdAttribute(string $id, array $attributes = []): string
     {
         return $this->widget->getFieldId($id);
     }
@@ -42,7 +42,7 @@ class WidgetForm extends AdvancedForm
     /**
      * @inheritdoc
      */
-    protected function getNameAttribute($id, $tag, array $attributes = [])
+    protected function getNameAttribute(string $id, string $tag, array $attributes = []): string
     {
         return $this->widget->getFieldName($id);
     }

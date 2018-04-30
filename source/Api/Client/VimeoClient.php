@@ -19,7 +19,7 @@ class VimeoClient extends Client
      */
     public function getAuth()
     {
-        $options = Framework::getInstance()->getOptions();
+        $options = Framework::instance()->getOptions();
 
         return new OAuthToken(
             $this->getEndpoint() . '/oauth/authorize/client',

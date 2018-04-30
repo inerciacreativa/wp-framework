@@ -1,6 +1,8 @@
 <?php
 
-namespace ic\Framework\Support;
+namespace ic\Framework\Plugin;
+
+use ic\Framework\Support\Arr;
 
 /**
  * Class PathDecorator
@@ -21,9 +23,9 @@ trait PathDecorator
      *
      * @return $this
      */
-    protected function setPaths($fileName, $rootName)
+    protected function setPaths(string $fileName, string $rootName): self
     {
-        $baseName = basename(dirname($fileName));
+        $baseName = basename(\dirname($fileName));
         $rootName = wp_normalize_path(($rootName === WP_PLUGIN_DIR) ? ($rootName . '/' . $baseName) : $rootName);
         $fileName = basename($fileName);
 
@@ -35,7 +37,7 @@ trait PathDecorator
     /**
      * @return string
      */
-    public function getFileName()
+    public function getFileName(): string
     {
         return $this->getAbsolutePath(Arr::get($this->paths, 'fileName', ''));
     }
@@ -43,7 +45,7 @@ trait PathDecorator
     /**
      * @return string
      */
-    public function getRootName()
+    public function getRootName(): string
     {
         return Arr::get($this->paths, 'rootName', '');
     }
@@ -51,7 +53,7 @@ trait PathDecorator
     /**
      * @return string
      */
-    public function getBaseName()
+    public function getBaseName(): string
     {
         return Arr::get($this->paths, 'baseName', '');
     }
@@ -63,7 +65,7 @@ trait PathDecorator
      *
      * @return string
      */
-    public function getAbsolutePath($path = '')
+    public function getAbsolutePath(string $path = ''): string
     {
         return $this->getRootName() . $this->getPath($path);
     }
@@ -75,7 +77,7 @@ trait PathDecorator
      *
      * @return string
      */
-    public function getRelativePath($path = '')
+    public function getRelativePath(string $path = ''): string
     {
         return $this->getBaseName() . $this->getPath($path);
     }
@@ -85,7 +87,7 @@ trait PathDecorator
      *
      * @return string
      */
-    protected function getPath($path)
+    protected function getPath(string $path): string
     {
         return $path ? ('/' . ltrim(wp_normalize_path($path), '/\\')) : '';
     }

@@ -2,12 +2,12 @@
 /**
  * Plugin Name: ic Framework
  * Plugin URI:  https://github.com/inerciacreativa/wp-framework
- * Version:     1.0.0
+ * Version:     2.0.0
+ * Text Domain: ic-framework
+ * Domain Path: /languages
  * Description: Framework para la elaboración de plugins.
  * Author:      Jose Cuesta
  * Author URI:  https://inerciacreativa.com/
- * Text Domain: ic-framework
- * Domain Path: /languages
  * License:     MIT
  * License URI: https://opensource.org/licenses/MIT
  */
