@@ -32,7 +32,7 @@ class Backend extends PluginClass
                             $section
                                 ->title(__('YouTube credentials', $this->id()))
                                 ->description(sprintf(
-                                    __('Required for using YouTube. Create a public API key in the %s and copy your API key.'),
+                                    __('Required for using YouTube. Create a public API key in the %s and copy your API key.', $this->id()),
                                     Tag::a(['href' => 'https://console.developers.google.com/'], 'Google Developers Console')
                                 ))
                                 ->text('youtube.credentials.key', __('API Key', $this->id()), [
