@@ -46,7 +46,7 @@ class Framework extends PluginBase
 	 */
 	protected function translation(): void
 	{
-		load_muplugin_textdomain($this->id(), $this->languages());
+		load_muplugin_textdomain($this->id(), $this->id() . '/' . $this->languages());
 	}
 
     /**
