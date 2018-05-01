@@ -1,15 +1,15 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: ic Post Series\n"
-"POT-Creation-Date: 2017-02-03 06:18+0100\n"
-"PO-Revision-Date: 2017-02-03 06:19+0100\n"
+"Project-Id-Version: ic Framework\n"
+"POT-Creation-Date: 2018-05-01 06:28+0200\n"
+"PO-Revision-Date: 2018-05-01 06:28+0200\n"
 "Last-Translator: \n"
-"Language-Team: Inercia Creativa <info@inerciacreativa.com>\n"
+"Language-Team: Jose Cuesta <jose.cuesta@inerciacreativa.com>\n"
 "Language: es_ES\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.11\n"
+"X-Generator: Poedit 2.0.7\n"
 "X-Poedit-Basepath: ..\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;"
@@ -19,279 +19,334 @@ msgstr ""
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: source/Api/Client/VimeoClient.php:80 source/Api/Client/YouTubeClient.php:69
+#: source/Api/Client/VimeoClient.php:70 source/Api/Client/YouTubeClient.php:68
 msgid "Video"
-msgstr ""
+msgstr "Vídeo"
 
-#: source/Api/Client/VimeoClient.php:81 source/Api/Client/YouTubeClient.php:70
+#: source/Api/Client/VimeoClient.php:71 source/Api/Client/YouTubeClient.php:69
 msgid "User"
 msgstr ""
 
-#: source/Api/Client/VimeoClient.php:82 source/Api/Client/YouTubeClient.php:71
+#: source/Api/Client/VimeoClient.php:72 source/Api/Client/YouTubeClient.php:70
 msgid "User Videos"
 msgstr ""
 
-#: source/Api/Client/VimeoClient.php:83 source/Api/Client/YouTubeClient.php:72
+#: source/Api/Client/VimeoClient.php:73 source/Api/Client/YouTubeClient.php:71
 msgid "Channel"
 msgstr ""
 
-#: source/Api/Client/VimeoClient.php:84 source/Api/Client/YouTubeClient.php:73
+#: source/Api/Client/VimeoClient.php:74 source/Api/Client/YouTubeClient.php:72
 msgid "Channel Videos"
 msgstr ""
 
-#: source/Api/Client/VimeoClient.php:85
+#: source/Api/Client/VimeoClient.php:75
 msgid "Group"
 msgstr ""
 
-#: source/Api/Client/VimeoClient.php:86
+#: source/Api/Client/VimeoClient.php:76
 msgid "Group Videos"
 msgstr ""
 
-#: source/Api/Client/YouTubeClient.php:74
+#: source/Api/Client/YouTubeClient.php:73
 msgid "Playlist"
 msgstr ""
 
-#: source/Api/Client/YouTubeClient.php:75
+#: source/Api/Client/YouTubeClient.php:74
 msgid "Playlist Videos"
 msgstr ""
 
-#: source/Image/Image.php:123
+#: source/Backend.php:30
+msgid "Video Options"
+msgstr "Opciones de Vídeo"
+
+#: source/Backend.php:33
+msgid "YouTube credentials"
+msgstr "Credenciales de YouTube"
+
+#: source/Backend.php:35
+#, php-format
+msgid ""
+"Required for using YouTube. Create a public API key in the %s and copy your "
+"API key."
+msgstr ""
+"Obligatorio para usar YouTube. Crea una llave pública para la API en %s y "
+"cópiala aquí."
+
+#: source/Backend.php:38
+msgid "API Key"
+msgstr "Llave API"
+
+#: source/Backend.php:44
+msgid "Vimeo credentials"
+msgstr "Credenciales de Vimeo"
+
+#: source/Backend.php:46
+#, php-format
+msgid ""
+"Required for using Vimeo. Register a new application in %s and copy your "
+"client identifier and secrets."
+msgstr ""
+"Obligatorio para usar Vimeo. Registra una nueva aplicación en %s y copia el "
+"identificador y secreto del cliente."
+
+#: source/Backend.php:49
+msgid "Client Identifier"
+msgstr "Identificador cliente"
+
+#: source/Backend.php:52
+msgid "Client Secrets"
+msgstr "Secreto cliente"
+
+#: source/Image/Image.php:125
 #, php-format
 msgid "Not valid image ID: %s"
 msgstr ""
 
-#: source/Image/Image.php:145
+#: source/Image/Image.php:147
 #, php-format
 msgid "Not valid URL: %s"
 msgstr ""
 
-#: source/Image/Image.php:163
+#: source/Image/Image.php:165
 #, php-format
 msgid "Not valid local URL: %s"
 msgstr ""
 
-#: source/Image/Image.php:199
+#: source/Image/Image.php:200
 #, php-format
 msgid "Not valid slug: %s (%s)"
 msgstr ""
 
-#: source/Image/Image.php:230
+#: source/Image/Image.php:231
 msgid "Not a remote image"
 msgstr ""
 
-#: source/Image/Image.php:290 source/Image/Image.php:303
+#: source/Image/Image.php:291 source/Image/Image.php:304
 msgid "Not a local image"
 msgstr ""
 
-#: source/Plugin/Plugin.php:331
+#: source/Plugin/Plugin.php:96
 #, php-format
-msgid "%s has deactivated itself!"
+msgid "%s has been deactivated."
 msgstr ""
 
-#: source/Settings/SettingsForm.php:131
+#: source/Settings/SettingsForm.php:129
 msgid "Settings saved."
 msgstr "Opciones actualizadas."
 
-#: source/Types/PostType.php:222
+#: source/Type/MetaBox/TaxonomyMetaBox.php:161
+msgid "Most Used"
+msgstr ""
+
+#: source/Type/MetaBox/TaxonomyMetaBox.php:267
+#, php-format
+msgid "+ %s"
+msgstr ""
+
+#: source/Type/MetaBox/TaxonomyMetaBox.php:411
+msgid "None"
+msgstr ""
+
+#: source/Type/PostType.php:217
 msgid "Featured Image"
 msgstr "Imagen destacada"
 
-#: source/Types/PostType.php:223
+#: source/Type/PostType.php:218
 msgid "Set featured image"
 msgstr "Asignar imagen destacada"
 
-#: source/Types/PostType.php:224
+#: source/Type/PostType.php:219
 msgid "Remove featured image"
 msgstr "Quitar la imagen destacada"
 
-#: source/Types/PostType.php:225
+#: source/Type/PostType.php:220
 msgid "Use as featured image"
 msgstr "Usar como imagen destacada"
 
-#: source/Types/PostType.php:226
+#: source/Type/PostType.php:221
 msgid "Add New"
 msgstr "Añadir nuevo"
 
-#: source/Types/PostType.php:227 source/Types/Taxonomy.php:157
+#: source/Type/PostType.php:222 source/Type/Taxonomy.php:176
 #, php-format
 msgid "Add New %s"
 msgstr "Añadir nuevo %s"
 
-#: source/Types/PostType.php:228
+#: source/Type/PostType.php:223
 #, php-format
 msgid "New %s"
 msgstr "Nuevo %s"
 
-#: source/Types/PostType.php:229 source/Types/Taxonomy.php:154
+#: source/Type/PostType.php:224 source/Type/Taxonomy.php:173
 #, php-format
 msgid "Edit %s"
 msgstr "Editar %s"
 
-#: source/Types/PostType.php:230 source/Types/PostType.php:378
-#: source/Types/Taxonomy.php:155
+#: source/Type/PostType.php:225 source/Type/PostType.php:425
+#: source/Type/Taxonomy.php:174
 #, php-format
 msgid "View %s"
 msgstr "Ver %s"
 
-#: source/Types/PostType.php:231 source/Types/Taxonomy.php:153
+#: source/Type/PostType.php:226 source/Type/Taxonomy.php:172
 #, php-format
 msgid "All %s"
 msgstr "Todos los %s"
 
-#: source/Types/PostType.php:232 source/Types/Taxonomy.php:152
+#: source/Type/PostType.php:227 source/Type/Taxonomy.php:171
 #, php-format
 msgid "Search %s"
 msgstr "Buscar %s"
 
-#: source/Types/PostType.php:233 source/Types/Taxonomy.php:164
+#: source/Type/PostType.php:228 source/Type/Taxonomy.php:183
 #, php-format
 msgid "Parent %s:"
 msgstr "%s superior:"
 
-#: source/Types/PostType.php:234 source/Types/Taxonomy.php:159
+#: source/Type/PostType.php:229 source/Type/Taxonomy.php:178
 #, php-format
 msgid "No %s found."
 msgstr "No se encontraron %s."
 
-#: source/Types/PostType.php:235
+#: source/Type/PostType.php:230
 #, php-format
 msgid "No %s found in Trash."
 msgstr "No se encontraron %s en la papelera."
 
-#: source/Types/PostType.php:236
+#: source/Type/PostType.php:231
 #, php-format
 msgid "%s archives"
 msgstr "Archivos de %s"
 
-#: source/Types/PostType.php:237
+#: source/Type/PostType.php:232
 #, php-format
 msgid "Insert into %s"
 msgstr "Insertar en el %s"
 
-#: source/Types/PostType.php:238
+#: source/Type/PostType.php:233
 #, php-format
 msgid "Uploaded to this %s"
 msgstr "Subido a este %s"
 
-#: source/Types/PostType.php:239
+#: source/Type/PostType.php:234
 #, php-format
 msgid "Filter %s list"
 msgstr "Lista de %s filtrados"
 
-#: source/Types/PostType.php:240 source/Types/Taxonomy.php:161
+#: source/Type/PostType.php:235 source/Type/Taxonomy.php:180
 #, php-format
 msgid "%s list navigation"
 msgstr "Navegación por el listado de %s"
 
-#: source/Types/PostType.php:241 source/Types/Taxonomy.php:162
+#: source/Type/PostType.php:236 source/Type/Taxonomy.php:181
 #, php-format
 msgid "%s list"
 msgstr "Lista de %s"
 
-#: source/Types/PostType.php:258 source/Types/PostType.php:261
+#: source/Type/PostType.php:253 source/Type/PostType.php:256
 #, php-format
 msgid "%s updated."
 msgstr "%s actualizado."
 
-#: source/Types/PostType.php:259
+#: source/Type/PostType.php:254
 msgid "Custom field updated."
 msgstr "Campo personalizado actualizado."
 
-#: source/Types/PostType.php:260
+#: source/Type/PostType.php:255
 msgid "Custom field deleted."
 msgstr "Campo personalizado borrado."
 
-#: source/Types/PostType.php:262
+#: source/Type/PostType.php:257
 #, php-format
 msgid "%s restored to revision from %s"
 msgstr "%s restaurado a revisión el %s"
 
-#: source/Types/PostType.php:263
+#: source/Type/PostType.php:258
 #, php-format
 msgid "%s published."
 msgstr "%s publicado."
 
-#: source/Types/PostType.php:264
+#: source/Type/PostType.php:259
 #, php-format
 msgid "%s saved."
 msgstr "%s guardado."
 
-#: source/Types/PostType.php:265
+#: source/Type/PostType.php:260
 #, php-format
 msgid "%s submitted."
 msgstr "%s enviado."
 
-#: source/Types/PostType.php:266
+#: source/Type/PostType.php:261
 #, php-format
 msgid "%s scheduled for: <strong>%s</strong>."
-msgstr "%s programado para: <strong>%s</strong>"
+msgstr "%s programado para: <strong>%s</strong>."
 
-#: source/Types/PostType.php:267
+#: source/Type/PostType.php:262
 #, php-format
 msgid "%s draft updated."
 msgstr "Borrador de %s actualizado."
 
-#: source/Types/PostType.php:374
+#: source/Type/PostType.php:421
 msgid "M j, Y @ G:i"
 msgstr ""
 
-#: source/Types/PostType.php:379
+#: source/Type/PostType.php:429
 #, php-format
 msgid "Preview %s"
 msgstr "Vista previa de %s"
 
-#: source/Types/Taxonomy.php:156
+#: source/Type/Taxonomy.php:175
 #, php-format
 msgid "Update %s"
 msgstr "Actualizar %s"
 
-#: source/Types/Taxonomy.php:158
+#: source/Type/Taxonomy.php:177
 #, php-format
 msgid "New %s Name"
 msgstr "Nombre del nuevo %s"
 
-#: source/Types/Taxonomy.php:160
+#: source/Type/Taxonomy.php:179
 #, php-format
 msgid "No %s"
 msgstr "No hay %s"
 
-#: source/Types/Taxonomy.php:163
+#: source/Type/Taxonomy.php:182
 #, php-format
 msgid "Parent %s"
 msgstr "%s superior"
 
-#: source/Types/Taxonomy.php:165
+#: source/Type/Taxonomy.php:184
 #, php-format
 msgid "Popular %s"
 msgstr "%s populares"
 
-#: source/Types/Taxonomy.php:166
+#: source/Type/Taxonomy.php:185
 #, php-format
 msgid "Separate %s with commas"
 msgstr "Separa los %s con comas"
 
-#: source/Types/Taxonomy.php:167
+#: source/Type/Taxonomy.php:186
 #, php-format
 msgid "Add or remove %s"
 msgstr "Añadir o quitar %s"
 
-#: source/Types/Taxonomy.php:168
+#: source/Type/Taxonomy.php:187
 #, php-format
 msgid "Choose from the most used %s"
 msgstr "Elige entre los %s más utilizados"
 
-#: source/Types/Taxonomy.php:169
+#: source/Type/Taxonomy.php:188
 #, php-format
 msgid "Filter by %s"
 msgstr "Filtrar por %s"
 
-#: source/Widget/Widget.php:133
-msgid "Widget title:"
-msgstr ""
-
 #: source/Widget/Widget.php:134
+msgid "Widget title:"
+msgstr "Título del widget:"
+
+#: source/Widget/Widget.php:138
 msgid "Class names:"
-msgstr ""
+msgstr "Nombres de clases:"
 
 #: source/Widget/Widgets/CodeWidget.php:31
 msgid "ic Framework / Code"
@@ -301,11 +356,11 @@ msgstr ""
 msgid "Arbitrary text, HTML, or PHP Code"
 msgstr ""
 
-#: source/Widget/Widgets/CodeWidget.php:64
+#: source/Widget/Widgets/CodeWidget.php:67
 msgid "Code:"
 msgstr ""
 
-#: source/Widget/Widgets/CodeWidget.php:65
+#: source/Widget/Widgets/CodeWidget.php:68
 msgid "Automatically add paragraphs"
 msgstr ""
 
