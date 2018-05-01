@@ -91,7 +91,9 @@ abstract class PluginBase
 	 */
 	protected function configure(): void
 	{
-		$this->hook()->before('init', 'initialize')->on('init', 'translation');
+		$this->hook()
+		     ->before('init', 'initialize')
+		     ->on('plugins_loaded', 'translation');
 	}
 
 	/**
@@ -106,6 +108,7 @@ abstract class PluginBase
 	 */
 	protected function translation(): void
 	{
+		load_plugin_textdomain($this->id(), false, $this->getRelativePath($this->languages()));
 	}
 
 }

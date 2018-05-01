@@ -41,11 +41,11 @@ trait PluginClassDecorator
 	}
 
 	/**
-	 * @return Plugin
+	 * @return Plugin|PluginClass
 	 *
 	 * @throws \RuntimeException
 	 */
-	public function getPlugin(): Plugin
+	public function getPlugin()
 	{
 		if ($this->plugin === null) {
 			throw new \RuntimeException('There is no Plugin object attached.');

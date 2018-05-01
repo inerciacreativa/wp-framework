@@ -67,14 +67,6 @@ abstract class Plugin extends PluginBase
     }
 
     /**
-     *
-     */
-    protected function translation(): void
-    {
-        load_plugin_textdomain($this->id(), false, $this->getRelativePath($this->languages()));
-    }
-
-    /**
      * Runs when the plugin is activated.
      *
      * Executes install() and then flushes the rewrite rules.
