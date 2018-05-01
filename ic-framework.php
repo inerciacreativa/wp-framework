@@ -4,7 +4,7 @@
  * Plugin URI:  https://github.com/inerciacreativa/wp-framework
  * Version:     2.0.0
  * Text Domain: ic-framework
- * Domain Path: /languages
+ * Domain Path: /ic-framework/languages
  * Description: Framework para la elaboración de plugins.
  * Author:      Jose Cuesta
  * Author URI:  https://inerciacreativa.com/
