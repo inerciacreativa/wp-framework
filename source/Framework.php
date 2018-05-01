@@ -22,6 +22,8 @@ class Framework extends PluginBase
     {
         parent::configure();
 
+	    $this->hook()->on('muplugins_loaded', 'translation');
+
         $this->setOptions([
             'youtube' => [
                 'credentials' => [
@@ -37,9 +39,15 @@ class Framework extends PluginBase
         ]);
 
         $this->setAssets();
-
-        ob_start();
     }
+
+	/**
+	 *
+	 */
+	protected function translation(): void
+	{
+		load_muplugin_textdomain($this->id(), $this->languages());
+	}
 
     /**
      * @param string $source
@@ -71,14 +79,6 @@ class Framework extends PluginBase
         $parameters['path'] = $this->getFileName();
 
         return $this->getAssets()->addStyle($source, $target, $parameters);
-    }
-
-    /**
-     *
-     */
-    protected function translation(): void
-    {
-        load_muplugin_textdomain($this->id(), $this->getRelativePath($this->languages()));
     }
 
 }
