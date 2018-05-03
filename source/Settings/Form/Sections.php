@@ -246,10 +246,10 @@ class Sections
 	}
 
 	/**
-	 * @param $oldValues
-	 * @param $newValues
+	 * @param array|null $oldValues
+	 * @param array      $newValues
 	 */
-	protected function finalize(array $oldValues, array $newValues): void
+	protected function finalize($oldValues, array $newValues): void
 	{
 		$this->getOptions()->fill($newValues);
 		$this->getOptions()->save();
