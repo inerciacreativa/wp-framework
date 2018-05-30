@@ -13,7 +13,7 @@ use ic\Framework\Support\Http;
 class Image
 {
 
-    const JPEG_QUALITY = 90;
+    public const JPEG_QUALITY = 90;
 
     private $id = 0;
 
@@ -34,9 +34,9 @@ class Image
      */
     public function __construct($image)
     {
-        if (is_string($image)) {
+        if (\is_string($image)) {
             $this->setSource($image);
-        } elseif (is_array($image)) {
+        } elseif (\is_array($image)) {
             $image  = array_merge(['id' => 0, 'src' => '', 'alt' => ''], $image);
             $result = false;
 
@@ -72,7 +72,7 @@ class Image
      *
      * @return bool
      */
-    protected function addError($code, $message)
+    protected function addError($code, $message): bool
     {
         $this->errors[] = new \WP_Error($code, $message);
 
@@ -82,7 +82,7 @@ class Image
     /**
      * @return bool
      */
-    public function hasErrors()
+    public function hasErrors(): bool
     {
         return !empty($this->errors);
     }
@@ -90,7 +90,7 @@ class Image
     /**
      * @return array
      */
-    public function getErrors()
+    public function getErrors(): array
     {
         return $this->errors;
     }
@@ -98,22 +98,22 @@ class Image
     /**
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * @param $id
+     * @param int $id
      *
      * @return bool
      */
-    protected function setId($id)
+    protected function setId(int $id): bool
     {
         if ($id) {
             $post = get_post($id);
 
-            if (is_object($post) && ($post->post_type === 'attachment')) {
+            if (\is_object($post) && ($post->post_type === 'attachment')) {
                 $this->id    = $id;
                 $this->post  = (int)$post->post_parent;
                 $this->local = true;
@@ -128,7 +128,7 @@ class Image
     /**
      * @return string
      */
-    public function getSource()
+    public function getSource(): string
     {
         return $this->source;
     }
@@ -138,7 +138,7 @@ class Image
      *
      * @return bool
      */
-    protected function setSource($source)
+    protected function setSource(string $source): bool
     {
         $parsed = Http::make($source);
         $home   = Http::home();
@@ -179,7 +179,7 @@ class Image
      *
      * @return bool
      */
-    protected function setLocalUrl($url, $base)
+    protected function setLocalUrl(string $url, string $base): bool
     {
         global $wpdb;
 
@@ -203,7 +203,7 @@ class Image
     /**
      * @return bool
      */
-    public function isLocal()
+    public function isLocal(): bool
     {
         return $this->local;
     }
@@ -211,7 +211,7 @@ class Image
     /**
      * @return bool
      */
-    public function isRemote()
+    public function isRemote(): bool
     {
         return !$this->local;
     }
@@ -221,7 +221,7 @@ class Image
      *
      * @return bool|int
      */
-    public function download($post_id = 0)
+    public function download(int $post_id = 0)
     {
         if ($this->isLocal()) {
             return $this->id;
@@ -231,7 +231,7 @@ class Image
             return $this->addError('download', __('Not a remote image', 'fx'));
         }
 
-        if (!function_exists('download_url')) {
+        if (!\function_exists('download_url')) {
             include ABSPATH . 'wp-admin/includes/file.php';
         }
 
@@ -248,11 +248,11 @@ class Image
             return $this->addError('download', $error->get_error_message());
         }
 
-        if (!function_exists('media_handle_sideload')) {
+        if (!\function_exists('media_handle_sideload')) {
             include ABSPATH . 'wp-admin/includes/media.php';
         }
 
-        if (!function_exists('wp_read_image_metadata')) {
+        if (!\function_exists('wp_read_image_metadata')) {
             include ABSPATH . 'wp-admin/includes/image.php';
         }
 
