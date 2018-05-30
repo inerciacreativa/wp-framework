@@ -26,7 +26,6 @@ class Date
 	public static function now(): Date
 	{
 		return new static();
-		//return \DateTime::createFromFormat('Y-m-d H:i:s', current_time('mysql'));
 	}
 
 	/**
@@ -37,7 +36,6 @@ class Date
 	public static function create(string $input): Date
 	{
 		return new static($input);
-		//return \DateTime::createFromFormat('Y-m-d H:i:s', current_time('mysql'));
 	}
 
 	/**
