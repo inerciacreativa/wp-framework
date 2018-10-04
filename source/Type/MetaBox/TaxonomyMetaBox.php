@@ -445,7 +445,7 @@ class TaxonomyMetaBox
 			'type'       => $type,
 			'id'         => "in-$id",
 			'name'       => $name,
-			'value'      => $term->term_id,
+			'value'      => $this->isHierarchical() ? $term->term_id : $term->name,
 			'data-value' => $term->name,
 			// Used for non hierarchical taxonomies.
 		], $attributes);
