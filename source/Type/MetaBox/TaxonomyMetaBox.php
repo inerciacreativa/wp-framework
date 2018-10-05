@@ -413,7 +413,8 @@ class TaxonomyMetaBox
 				'parent'  => 0,
 			];
 
-			$terms[] = $none;
+			// Add term to the beginning of the list.
+			array_unshift($terms, $none);
 		}
 
 		return $terms;
@@ -449,6 +450,11 @@ class TaxonomyMetaBox
 			'data-value' => $term->name,
 			// Used for non hierarchical taxonomies.
 		], $attributes);
+
+		// If is the special 'none' term, remove its value.
+		if ($term->term_id === 0) {
+			$attributes['value'] = '';
+		}
 
 		return Tag::li([
 			'id'    => $id,
