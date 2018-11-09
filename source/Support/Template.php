@@ -20,7 +20,7 @@ class Template
 		if (empty(static::$types)) {
 			static::$types['php'] = 'PHP';
 
-			if (\function_exists('\Twist\view')) {
+			if (\class_exists('\Twist\Twist')) {
 				static::$types['twig'] = 'Twig';
 			}
 		}
@@ -67,7 +67,7 @@ class Template
 	 */
 	protected function twig(string $template, array $data = [], string $path): string
 	{
-		$view = \Twist\view();
+		$view = \Twist\Twist::view();
 
 		if (!empty($path)) {
 			$view->addPath($path);
