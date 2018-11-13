@@ -26,7 +26,7 @@ trait PathDecorator
     protected function setPaths(string $fileName, string $rootName): self
     {
         $baseName = basename(\dirname($fileName));
-        $rootName = wp_normalize_path(($rootName === WP_PLUGIN_DIR) ? ($rootName . '/' . $baseName) : $rootName);
+	    $rootName = wp_normalize_path($rootName . '/' . $baseName);
         $fileName = basename($fileName);
 
         $this->paths = compact('baseName', 'rootName', 'fileName');
