@@ -28,8 +28,8 @@
     "installer-name": "ic-framework"
   },
   "scripts": {
-    "post-install-cmd": "php -r \"copy('ic-framework.php', '../ic-framework.php');\"",
-    "post-update-cmd": "php -r \"copy('ic-framework.php', '../ic-framework.php');\""
+    "post-install-cmd": "php -r \"copy('ic-framework-loader.php', '../ic-framework-loader.php');\"",
+    "post-update-cmd": "php -r \"copy('ic-framework-loader.php', '../ic-framework-loader.php');\""
   },
   "autoload": {
     "psr-4": {
