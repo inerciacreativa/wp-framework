@@ -60,7 +60,7 @@ class Framework extends PluginBase
      */
     public function addScript(string $source, int $target, array $parameters = []): Assets
     {
-        $parameters['path'] = $this->getFileName();
+	    $parameters['path'] = $this->getRootName();
 
         return $this->getAssets()->addScript($source, $target, $parameters);
     }
@@ -76,7 +76,7 @@ class Framework extends PluginBase
      */
     public function addStyle(string $source, int $target, array $parameters = []): Assets
     {
-        $parameters['path'] = $this->getFileName();
+        $parameters['path'] = $this->getRootName();
 
         return $this->getAssets()->addStyle($source, $target, $parameters);
     }
