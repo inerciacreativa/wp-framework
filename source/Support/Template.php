@@ -70,7 +70,7 @@ class Template
 		$view = \Twist\Twist::view();
 
 		if (!empty($path)) {
-			$view->addPath($path);
+			$view->path($path);
 		}
 
 		return $view->render($template, $data);
