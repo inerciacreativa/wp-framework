@@ -330,7 +330,7 @@ class Form
 	 */
 	public function number(string $id, $value = null, array $attributes = []): string
 	{
-		return $this->input('number', $id, $value, $attributes);
+		return $this->input('number', $id, (int) $value, $attributes);
 	}
 
 	/**
