@@ -497,9 +497,9 @@ class Arr
 	/**
 	 * Get a value from the array, and remove it.
 	 *
-	 * @param array  $array
-	 * @param string $key
-	 * @param mixed  $default
+	 * @param array $array
+	 * @param mixed $key
+	 * @param mixed $default
 	 *
 	 * @return mixed
 	 */
@@ -636,6 +636,20 @@ class Arr
 		$result = static::flatten($array);
 
 		return implode($glue, static::values($result));
+	}
+
+	/**
+	 * @param array    $array
+	 * @param callable $callback ($carry, $value, $key)
+	 * @param mixed    $initial
+	 *
+	 * @return mixed
+	 */
+	public static function reduce(array $array, callable $callback, $initial = null)
+	{
+		return array_reduce(array_keys($array), function ($result, $key) use ($callback, $array) {
+			return $callback($result, $array[$key], $key);
+		}, $initial);
 	}
 
 	/**
