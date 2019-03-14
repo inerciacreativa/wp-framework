@@ -124,6 +124,10 @@ class Section
         }
 
         if (\is_string($this->description)) {
+        	if (strpos($this->description, '<p>') === false) {
+		        $this->description = "<p>$this->description</p>";
+	        }
+
             echo $this->description;
         }
     }
