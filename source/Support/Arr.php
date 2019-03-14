@@ -47,6 +47,7 @@ class Arr
 	public static function dot(array $array, string $prepend = ''): array
 	{
 		$results = [];
+
 		foreach ($array as $key => $value) {
 			if (\is_array($value) && static::isAssoc($value)) {
 				$results = array_merge($results, static::dot($value, $prepend . $key . '.'));
@@ -156,11 +157,11 @@ class Arr
 	/**
 	 * Collapse an array of arrays into a single array.
 	 *
-	 * @param array $array
+	 * @param array|Collection $array
 	 *
 	 * @return array
 	 */
-	public static function collapse(array $array): array
+	public static function collapse($array): array
 	{
 		$results = [];
 
@@ -180,29 +181,25 @@ class Arr
 	/**
 	 * Flatten a multi-dimensional array into a single level.
 	 *
-	 * @param array $array
+	 * @param array|Collection $array
 	 * @param int   $depth
 	 *
 	 * @return array
 	 */
-	public static function flatten(array $array, int $depth = 999): array
+	public static function flatten($array, int $depth = INF): array
 	{
 		$result = [];
 
 		foreach ($array as $item) {
 			$item = $item instanceof Collection ? $item->all() : $item;
 
-			if (\is_array($item)) {
-				if ($depth === 1) {
-					$result = array_merge($result, $item);
-					continue;
-				}
-
+			if (!\is_array($item)) {
+				$result[] = $item;
+			} elseif ($depth === 1) {
+				$result = array_merge($result, array_values($item));
+			} else {
 				$result = array_merge($result, static::flatten($item, $depth - 1));
-				continue;
 			}
-
-			$result[] = $item;
 		}
 
 		return $result;
