@@ -15,7 +15,7 @@ class ImageCollection extends Collection
     /**
      * @inheritdoc
      */
-    public function offsetSet($key, $value)
+    public function offsetSet($key, $value): void
     {
         $value = $this->getImage($value);
 
@@ -33,7 +33,7 @@ class ImageCollection extends Collection
     /**
      * @inheritdoc
      */
-    public function toArray()
+    public function toArray(): array
     {
         $items = array_map([$this, 'getImage'], $this->items);
 
@@ -45,7 +45,7 @@ class ImageCollection extends Collection
      *
      * @return array|null
      */
-    protected function getImage(array $image)
+    protected function getImage(array $image): ?array
     {
         $default = [
             'src'    => '',

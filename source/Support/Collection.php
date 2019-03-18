@@ -1011,7 +1011,7 @@ class Collection implements \Countable, \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return \ArrayIterator
 	 */
-	public function getIterator(): \ArrayIterator
+	public function getIterator()
 	{
 		return new \ArrayIterator($this->items);
 	}
