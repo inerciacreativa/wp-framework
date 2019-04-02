@@ -3,6 +3,11 @@
 namespace ic\Framework\Html;
 
 use ic\Framework\Support\Arr;
+use SimpleXMLElement;
+use Exception;
+use ArrayAccess;
+use InvalidArgumentException;
+use Closure;
 
 /**
  * Class Tag
@@ -119,7 +124,7 @@ use ic\Framework\Support\Arr;
  * @method static Tag video($attributes = [], $content = null)
  * @method static Tag wbr($attributes = [])
  */
-class Tag implements \ArrayAccess
+class Tag implements ArrayAccess
 {
 
 	/**
@@ -212,7 +217,7 @@ class Tag implements \ArrayAccess
 		$attributes = Arr::get($arguments, 0, []);
 		$content    = Arr::get($arguments, 1);
 
-		if (\is_array($attributes) && (empty($attributes) || Arr::isAssoc($attributes))) {
+		if (is_array($attributes) && (empty($attributes) || Arr::isAssoc($attributes))) {
 			return new static($tag, $attributes, $content);
 		}
 
@@ -245,14 +250,14 @@ class Tag implements \ArrayAccess
 	{
 		$options = LIBXML_NOERROR | LIBXML_ERR_NONE | LIBXML_ERR_FATAL;
 		try {
-			$xml = new \SimpleXMLElement(trim($html), $options);
+			$xml = new SimpleXMLElement(trim($html), $options);
 
 			$tag        = $xml->getName();
 			$attributes = current($xml->attributes());
 			$content    = (string) $xml;
 
 			return new static($tag, $attributes, $content);
-		} catch (\Exception $exception) {
+		} catch (Exception $exception) {
 			return null;
 		}
 	}
@@ -400,9 +405,9 @@ class Tag implements \ArrayAccess
 	 *
 	 * @param string $attribute
 	 *
-	 * @return string
+	 * @return string|null
 	 */
-	public function offsetGet($attribute): string
+	public function offsetGet($attribute): ?string
 	{
 		if ($this->offsetExists($attribute)) {
 			return $this->attributes[$attribute];
@@ -417,14 +422,14 @@ class Tag implements \ArrayAccess
 	 * @param string           $attribute
 	 * @param string|bool|null $value
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 *
 	 * @return void
 	 */
 	public function offsetSet($attribute, $value): void
 	{
 		if (empty($attribute)) {
-			throw new \InvalidArgumentException('Attribute name not specified');
+			throw new InvalidArgumentException('Attribute name not specified');
 		}
 
 		if ($value === null) {
@@ -453,31 +458,29 @@ class Tag implements \ArrayAccess
 	 */
 	protected static function getContent($content): string
 	{
-		$result = null;
-
 		if (empty($content)) {
-			$result = '';
+			if (is_numeric($content)) {
+				return (string) $content;
+			}
+
+			return '';
 		}
 
-		if (\is_string($content) || (\is_object($content) && method_exists($content, '__toString'))) {
-			$result = (string) $content;
+		if (is_string($content) || (is_object($content) && method_exists($content, '__toString'))) {
+			return (string) $content;
 		}
 
-		if ($content instanceof \Closure || (\is_object($content) && method_exists($content, '__invoke'))) {
-			$result = $content();
-		}
-
-		if (\is_array($content)) {
-			$result = array_reduce($content, function ($string, $content) {
+		if (is_array($content)) {
+			return array_reduce($content, static function ($string, $content) {
 				return $string . static::getContent($content);
 			}, '');
 		}
 
-		if ($result === null) {
-			$result = '';
+		if (($content instanceof Closure) || (is_object($content) && method_exists($content, '__invoke'))) {
+			return $content();
 		}
 
-		return $result;
+		return '';
 	}
 
 	/**
@@ -487,12 +490,12 @@ class Tag implements \ArrayAccess
 	 */
 	protected static function getAttributes(array $attributes): string
 	{
-		$attributes = Arr::map($attributes, function ($name, $value) {
+		$attributes = Arr::map($attributes, static function ($name, $value) {
 			if (static::isBoolAttribute($name)) {
 				return $value ? $name : '';
 			}
 
-			if ($value === '' && !\in_array($name, ['value', 'alt'], false)) {
+			if ($value === '' && !in_array($name, ['value', 'alt'], false)) {
 				return $value;
 			}
 
@@ -517,7 +520,7 @@ class Tag implements \ArrayAccess
 	 */
 	public static function isVoidTag(string $tag): bool
 	{
-		return \in_array($tag, static::$voidTags, false);
+		return in_array($tag, static::$voidTags, false);
 	}
 
 	/**
@@ -527,7 +530,7 @@ class Tag implements \ArrayAccess
 	 */
 	public static function isBoolAttribute(string $attribute): bool
 	{
-		return \in_array($attribute, static::$boolAttributes, true);
+		return in_array($attribute, static::$boolAttributes, true);
 	}
 
 	/**
@@ -537,7 +540,7 @@ class Tag implements \ArrayAccess
 	 */
 	public static function isUrlAttribute(string $attribute): bool
 	{
-		return \in_array($attribute, static::$urlAttributes, true);
+		return in_array($attribute, static::$urlAttributes, true);
 	}
 
 }
