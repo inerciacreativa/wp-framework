@@ -2,6 +2,12 @@
 
 namespace ic\Framework\Support;
 
+use Twist\App\AppException;
+use Twist\Twist;
+use Twist\View\Twig\TwigView;
+use RuntimeException;
+use InvalidArgumentException;
+
 /**
  * Class Template
  *
@@ -20,7 +26,7 @@ class Template
 		if (empty(static::$types)) {
 			static::$types['php'] = 'PHP';
 
-			if (\class_exists('\Twist\Twist')) {
+			if (class_exists(Twist::class)) {
 				static::$types['twig'] = 'Twig';
 			}
 		}
@@ -34,18 +40,15 @@ class Template
 	 * @param string $path     The absolute path to the default file template.
 	 *
 	 * @return string
-	 *
-	 * @throws \InvalidArgumentException
-	 * @throws \RuntimeException
 	 */
 	public static function render(string $template, array $data = [], string $path = ''): string
 	{
 		$class = new static();
 		$types = static::types();
 
-		if (substr($template, -\strlen('.twig')) === '.twig') {
+		if (Str::endsWith($template, '.twig')) {
 			if (!isset($types['twig'])) {
-				throw new \InvalidArgumentException('Passed a twig template, but there is no rendering engine available');
+				throw new InvalidArgumentException('Passed a twig template, but there is no rendering engine available');
 			}
 
 			return $class->twig($template, $data, $path);
@@ -65,15 +68,20 @@ class Template
 	 *
 	 * @return string
 	 */
-	protected function twig(string $template, array $data = [], string $path): string
+	protected function twig(string $template, array $data, string $path): string
 	{
-		$view = \Twist\Twist::view();
+		/** @var TwigView $view */
+		$view = Twist::view();
 
-		if (!empty($path)) {
-			$view->path($path);
+		try {
+			if (!empty($path)) {
+				$view->path($path);
+			}
+
+			return $view->render($template, $data);
+		} catch (AppException $exception) {
+			throw new RuntimeException($exception->getMessage());
 		}
-
-		return $view->render($template, $data);
 	}
 
 	/**
@@ -84,10 +92,8 @@ class Template
 	 * @param string $path
 	 *
 	 * @return string
-	 *
-	 * @throws \RuntimeException
 	 */
-	protected function php(string $template, array $data = [], string $path): string
+	protected function php(string $template, array $data, string $path): string
 	{
 		if ($filename = $this->locate($template, $path)) {
 			if (!empty($data)) {
@@ -96,12 +102,13 @@ class Template
 
 			ob_start();
 
+			/** @noinspection PhpIncludeInspection */
 			include $filename;
 
 			return ob_get_clean();
 		}
 
-		throw new \RuntimeException(sprintf('Template "%s" not found', $template));
+		throw new RuntimeException(sprintf('Template "%s" not found', $template));
 	}
 
 	/**
@@ -136,7 +143,7 @@ class Template
 		$template = ltrim($template, '/');
 		$path     = rtrim($path, '/');
 
-		$locations = array_unique(array_map(function ($location) use ($template) {
+		$locations = array_unique(array_map(static function ($location) use ($template) {
 			return "$location/$template";
 		}, [get_stylesheet_directory(), get_template_directory()]));
 
