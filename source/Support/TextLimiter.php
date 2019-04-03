@@ -2,10 +2,12 @@
 
 namespace ic\Framework\Support;
 
-use ic\Framework\Support\Limiter\LimiterResolverInterface;
+use DOMNode;
+use DOMText;
+use ic\Framework\Dom\Document;
 use ic\Framework\Support\Limiter\LettersResolver;
+use ic\Framework\Support\Limiter\LimiterResolverInterface;
 use ic\Framework\Support\Limiter\WordsResolver;
-use ic\Framework\Html\Document;
 
 /**
  * Class TextLimiter
@@ -15,30 +17,30 @@ use ic\Framework\Html\Document;
 class TextLimiter
 {
 
-    /**
-     * @var LimiterResolverInterface
-     */
-    protected $resolver;
+	/**
+	 * @var LimiterResolverInterface
+	 */
+	protected $resolver;
 
-    /**
-     * @var int
-     */
-    protected $limit;
+	/**
+	 * @var int
+	 */
+	protected $limit;
 
-    /**
-     * @var bool
-     */
-    protected $reached = false;
+	/**
+	 * @var bool
+	 */
+	protected $reached = false;
 
-    /**
-     * @var int
-     */
-    private $count = 0;
+	/**
+	 * @var int
+	 */
+	private $count = 0;
 
-    /**
-     * @var array
-     */
-    private $nodes = [];
+	/**
+	 * @var array
+	 */
+	private $nodes = [];
 
 	/**
 	 * @param string $string
@@ -99,15 +101,15 @@ class TextLimiter
 	}
 
 	/**
-	 * @param \DOMNode $node
-	 * @param int      $limit
+	 * @param DOMNode $node
+	 * @param int     $limit
 	 */
-	protected function walk(\DOMNode $node, int $limit): void
+	protected function walk(DOMNode $node, int $limit): void
 	{
 		if ($this->count >= $limit) {
 			$this->nodes[] = $node;
 		} else {
-			if ($node instanceof \DOMText) {
+			if ($node instanceof DOMText) {
 				$count = $this->resolver->count($node->nodeValue);
 
 				if (($this->count + $count) > $limit) {
