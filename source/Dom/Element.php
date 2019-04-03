@@ -1,15 +1,18 @@
 <?php
 
-namespace ic\Framework\Html;
+namespace ic\Framework\Dom;
+
+use DOMAttr;
+use DOMElement;
 
 /**
  * Class Element
  *
- * @package ic\Framework\Html
+ * @package ic\Framework\Dom
  *
  * @property Document ownerDocument
  */
-class Element extends \DOMElement
+class Element extends DOMElement
 {
 
 	/**
@@ -42,13 +45,37 @@ class Element extends \DOMElement
 	}
 
 	/**
+	 * @param string $name
+	 * @param mixed  $default
+	 *
+	 * @return mixed
+	 */
+	public function getAttribute($name, $default = '')
+	{
+		$result = parent::getAttribute($name);
+		if ($result === '') {
+			return $default;
+		}
+
+		if (!is_string($default)) {
+			settype($result, gettype($default));
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Returns the content of the class attribute as an array.
 	 *
 	 * @return array
 	 */
 	public function getClassNames(): array
 	{
-		$classes = $this->hasAttribute('class') ? explode(' ', $this->getAttribute('class')) : [];
+		if (!$this->hasAttribute('class')) {
+			return [];
+		}
+
+		$classes = explode(' ', $this->getAttribute('class'));
 
 		return array_filter($classes);
 	}
@@ -64,7 +91,7 @@ class Element extends \DOMElement
 	{
 		$classes = $this->getClassNames();
 
-		if (!\in_array($className, $classes, false)) {
+		if (!in_array($className, $classes, false)) {
 			$classes[] = $className;
 			$this->setAttribute('class', implode(' ', $classes));
 
@@ -105,9 +132,9 @@ class Element extends \DOMElement
 	{
 		$remove = [];
 
-		/** @var \DOMAttr $attribute */
+		/** @var DOMAttr $attribute */
 		foreach ($this->attributes as $attribute) {
-			if (\in_array($attribute->nodeName, $disallowedAttributes, false)) {
+			if (in_array($attribute->nodeName, $disallowedAttributes, false)) {
 				$remove[] = $attribute;
 			} elseif ($attribute->nodeName === 'style') {
 				$styles = $this->filterStyles($attribute->nodeValue, $allowedStyles);
@@ -159,7 +186,7 @@ class Element extends \DOMElement
 			$style = explode(':', strtolower($style));
 			$style = array_map('trim', $style);
 
-			if (\in_array($style[0], $allowed, false)) {
+			if (in_array($style[0], $allowed, false)) {
 				$result[] = sprintf('%s: %s', $style[0], $style[1]);
 			}
 		}
