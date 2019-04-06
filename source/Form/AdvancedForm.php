@@ -114,7 +114,7 @@ class AdvancedForm extends Form
 		}
 
 		$selected = $this->getValueAttribute($id, $selected);
-		if (isset($selected[$taxonomy])) {
+		if (array_key_exists($taxonomy, $selected)) {
 			$selected = $selected[$taxonomy];
 		}
 
@@ -184,7 +184,7 @@ class AdvancedForm extends Form
 			$result->put($name, $dimension);
 		}
 
-		return $result->sort(function ($a, $b) {
+		return $result->sort(static function ($a, $b) {
 			$a = $a['width'] * ($a['height'] ?: 99999);
 			$b = $b['width'] * ($b['height'] ?: 99999);
 
@@ -193,7 +193,7 @@ class AdvancedForm extends Form
 			}
 
 			return ($a > $b) ? -1 : 1;
-		})->map(function ($dimension, $name) {
+		})->map(static function ($dimension, $name) {
 			return sprintf('%s (%dx%d)', $name, $dimension['width'], $dimension['height']);
 		})->all();
 	}

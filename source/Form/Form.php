@@ -163,7 +163,7 @@ class Form
 	 */
 	public function input(string $type, string $id, $value = null, array $attributes = []): string
 	{
-		if (!isset($attributes['skipValue']) && !\in_array($type, static::$skipValueTypes, false)) {
+		if (!isset($attributes['skipValue']) && !in_array($type, static::$skipValueTypes, false)) {
 			$value = $this->getValueAttribute($id, $value);
 		}
 
@@ -442,7 +442,7 @@ class Form
 				return $this->isRadioChecked($id, $value, $checked);
 
 			default:
-				return $this->getValueAttribute($id) == $value;
+				/** @noinspection TypeUnsafeComparisonInspection */ return $this->getValueAttribute($id) == $value;
 		}
 	}
 
@@ -467,7 +467,7 @@ class Form
 
 		$posted = $this->getValueAttribute($id);
 
-		return \is_array($posted) ? \in_array($value, $posted, false) : (bool) $posted;
+		return is_array($posted) ? in_array($value, $posted, false) : (bool) $posted;
 	}
 
 	/**
@@ -485,6 +485,7 @@ class Form
 			return $checked;
 		}
 
+		/** @noinspection TypeUnsafeComparisonInspection */
 		return $this->getValueAttribute($id) == $value;
 	}
 
@@ -502,7 +503,7 @@ class Form
 	{
 		if (empty($values)) {
 			$values = $this->getValueAttribute($id, $values);
-		} else if (\is_callable($values)) {
+		} else if (is_callable($values)) {
 			$values = $values();
 		}
 
@@ -527,7 +528,7 @@ class Form
 	 */
 	protected function getSelectOption($display, $value, $selected): string
 	{
-		if (\is_array($display)) {
+		if (is_array($display)) {
 			return $this->optionGroup($display, $value, $selected);
 		}
 
@@ -584,8 +585,8 @@ class Form
 	 */
 	protected function isSelectedValue($value, $selected): bool
 	{
-		if (\is_array($selected)) {
-			return \in_array($value, $selected, false);
+		if (is_array($selected)) {
+			return in_array($value, $selected, false);
 		}
 
 		return ((string) $value === (string) $selected);
@@ -606,7 +607,7 @@ class Form
 	{
 		if (empty($values)) {
 			$values = $this->getValueAttribute($id, $values);
-		} else if (\is_callable($values)) {
+		} else if (is_callable($values)) {
 			$values = $values();
 		} else if ($values instanceof Collection) {
 			$values = $values->all();
@@ -642,7 +643,7 @@ class Form
 		}
 
 		if ($multiple && !isset($attributes['size'])) {
-			$attributes['size'] = \count($values);
+			$attributes['size'] = count($values);
 		}
 
 		return $this->select($id, $values, $selected, $attributes);
@@ -662,7 +663,7 @@ class Form
 		$choices = [];
 
 		foreach ($values as $value => $label) {
-			$checked   = \in_array($value, $selected, false);
+			$checked   = in_array($value, $selected, false);
 			$choices[] = [
 				Tag::li(Tag::label([
 					$this->$type($id, $value, $checked, $attributes),
@@ -789,7 +790,7 @@ class Form
 		// If the HTTP method is in this list of spoofed methods, we will attach the
 		// method spoofer hidden input to the form. This allows us to use regular
 		// form to initiate PUT and DELETE requests in addition to the typical.
-		if (\in_array($method, static::$spoofedMethods, false)) {
+		if (in_array($method, static::$spoofedMethods, false)) {
 			$fields[] = $this->special('_method', $method);
 		}
 
@@ -916,7 +917,7 @@ class Form
 			return true;
 		}
 
-		return (bool) \count($input->request());
+		return (bool) count($input->request());
 	}
 
 }
