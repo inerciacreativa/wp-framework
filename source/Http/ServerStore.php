@@ -15,7 +15,7 @@ class ServerStore extends InputStore
 	 */
 	public function getHeaders(): array
 	{
-		$headers = [];
+		$headers        = [];
 		$contentHeaders = [
 			'CONTENT_LENGTH' => true,
 			'CONTENT_MD5'    => true,

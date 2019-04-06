@@ -104,19 +104,19 @@ class InputStore extends Store
 	 * @param int    $filter  FILTER_* constant
 	 * @param mixed  $options Filter options
 	 *
+	 * @return mixed
 	 * @see http://php.net/manual/en/function.filter-var.php
 	 *
-	 * @return mixed
 	 */
 	public function filter(string $key, $default = null, int $filter = FILTER_DEFAULT, array $options = [])
 	{
 		$value = $this->get($key, $default);
 		// Always turn $options into an array - this allows filter_var option shortcuts.
-		if (!\is_array($options) && $options) {
+		if (!is_array($options) && $options) {
 			$options = ['flags' => $options];
 		}
 		// Add a convenience check for arrays.
-		if (\is_array($value) && !isset($options['flags'])) {
+		if (is_array($value) && !isset($options['flags'])) {
 			$options['flags'] = FILTER_REQUIRE_ARRAY;
 		}
 

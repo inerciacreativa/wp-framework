@@ -104,6 +104,16 @@ class Input
 	}
 
 	/**
+	 * @param string $method
+	 *
+	 * @return bool
+	 */
+	public function isMethod(string $method): bool
+	{
+		return $this->method() === $method;
+	}
+
+	/**
 	 * Get all of the input and files for the request.
 	 *
 	 * @return array
@@ -117,17 +127,17 @@ class Input
 	 * Get a subset containing the provided keys with values from the input
 	 * data.
 	 *
-	 * @param  array|mixed $keys
+	 * @param array|mixed $keys
 	 *
 	 * @return array
 	 */
 	public function only($keys): array
 	{
-		$keys    = \is_array($keys) ? $keys : \func_get_args();
+		$keys    = is_array($keys) ? $keys : func_get_args();
 		$results = [];
 		$input   = $this->all();
 
-		foreach ((array) $keys as $key) {
+		foreach ($keys as $key) {
 			Arr::set($results, $key, Data::get($input, $key));
 		}
 
@@ -137,13 +147,13 @@ class Input
 	/**
 	 * Get all of the input except for a specified array of items.
 	 *
-	 * @param  array|mixed $keys
+	 * @param array|mixed $keys
 	 *
 	 * @return array
 	 */
 	public function except($keys): array
 	{
-		$keys    = \is_array($keys) ? $keys : \func_get_args();
+		$keys    = is_array($keys) ? $keys : func_get_args();
 		$results = $this->all();
 
 		Arr::forget($results, $keys);
@@ -154,16 +164,16 @@ class Input
 	/**
 	 * Determine if the request contains a given input item key.
 	 *
-	 * @param  string|array $key
+	 * @param array|mixed $keys
 	 *
 	 * @return bool
 	 */
-	public function exists(string $key): bool
+	public function exists($keys): bool
 	{
-		$keys  = \is_array($key) ? $key : \func_get_args();
+		$keys  = is_array($keys) ? $keys : func_get_args();
 		$input = $this->all();
 
-		foreach ((array) $keys as $value) {
+		foreach ($keys as $value) {
 			if (!Arr::has($input, $value)) {
 				return false;
 			}
@@ -175,15 +185,15 @@ class Input
 	/**
 	 * Determine if the request contains a non-empty value for an input item.
 	 *
-	 * @param  string|array $key
+	 * @param array|mixed $keys
 	 *
 	 * @return bool
 	 */
-	public function has(string $key): bool
+	public function has($keys): bool
 	{
-		$keys = \is_array($key) ? $key : \func_get_args();
+		$keys = is_array($keys) ? $keys : func_get_args();
 
-		foreach ((array) $keys as $value) {
+		foreach ($keys as $value) {
 			if ($this->isEmptyString($value)) {
 				return false;
 			}
@@ -195,8 +205,8 @@ class Input
 	/**
 	 * Retrieve an input item from the request.
 	 *
-	 * @param  string            $key
-	 * @param  string|array|null $default
+	 * @param string            $key
+	 * @param string|array|null $default
 	 *
 	 * @return string|array
 	 */
@@ -210,13 +220,14 @@ class Input
 	/**
 	 * Retrieve an input item from the request.
 	 *
-	 * @param  string            $key
-	 * @param  string|array|null $default
+	 * @param string            $key
+	 * @param string|array|null $default
 	 *
 	 * @return string|array
 	 */
 	public function get(string $key = null, $default = null)
 	{
+		/** @noinspection AdditionOperationOnArraysInspection */
 		$input = $this->getInputSource()->all() + $this->query->all();
 
 		return $key ? Arr::get($input, $key, $default) : $input;
@@ -225,8 +236,8 @@ class Input
 	/**
 	 * Retrieve a query string item from the request.
 	 *
-	 * @param  string            $key
-	 * @param  string|array|null $default
+	 * @param string            $key
+	 * @param string|array|null $default
 	 *
 	 * @return string|array
 	 */
@@ -238,8 +249,8 @@ class Input
 	/**
 	 * Retrieve a file from the request.
 	 *
-	 * @param  string $key
-	 * @param  mixed  $default
+	 * @param string $key
+	 * @param mixed  $default
 	 *
 	 * @return File
 	 */
@@ -251,7 +262,7 @@ class Input
 	/**
 	 * Determine if the uploaded data contains a file.
 	 *
-	 * @param  string $key
+	 * @param string $key
 	 *
 	 * @return bool
 	 */
@@ -263,8 +274,8 @@ class Input
 	/**
 	 * Retrieve a header from the request.
 	 *
-	 * @param  string            $key
-	 * @param  string|array|null $default
+	 * @param string            $key
+	 * @param string|array|null $default
 	 *
 	 * @return string|array
 	 */
@@ -276,7 +287,7 @@ class Input
 	/**
 	 * Determine if a header is set on the request.
 	 *
-	 * @param  string $key
+	 * @param string $key
 	 *
 	 * @return bool
 	 */
@@ -288,8 +299,8 @@ class Input
 	/**
 	 * Retrieve a server variable from the request.
 	 *
-	 * @param  string            $key
-	 * @param  string|array|null $default
+	 * @param string            $key
+	 * @param string|array|null $default
 	 *
 	 * @return string|array
 	 */
@@ -299,8 +310,8 @@ class Input
 	}
 
 	/**
-	 * @param  string            $key
-	 * @param  string|array|null $default
+	 * @param string            $key
+	 * @param string|array|null $default
 	 *
 	 * @return string|array
 	 */
@@ -320,14 +331,14 @@ class Input
 	/**
 	 * Determine if the given input key is an empty string for "has".
 	 *
-	 * @param  string $key
+	 * @param string $key
 	 *
 	 * @return bool
 	 */
 	protected function isEmptyString($key): bool
 	{
 		$value       = $this->get($key);
-		$boolOrArray = \is_bool($value) || \is_array($value);
+		$boolOrArray = is_bool($value) || is_array($value);
 
 		return !$boolOrArray && trim((string) $value) === '';
 	}

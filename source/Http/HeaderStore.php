@@ -2,12 +2,16 @@
 
 namespace ic\Framework\Http;
 
+use ArrayIterator;
+use Countable;
+use IteratorAggregate;
+
 /**
  * Class HeaderStore
  *
  * @package ic\Framework\Http
  */
-class HeaderStore implements \IteratorAggregate, \Countable
+class HeaderStore implements Countable, IteratorAggregate
 {
 
 	/**
@@ -92,7 +96,7 @@ class HeaderStore implements \IteratorAggregate, \Countable
 			return $first ? $default : [$default];
 		}
 		if ($first) {
-			return \count($this->headers[$key]) ? $this->headers[$key][0] : $default;
+			return count($this->headers[$key]) ? $this->headers[$key][0] : $default;
 		}
 
 		return $this->headers[$key];
@@ -141,7 +145,7 @@ class HeaderStore implements \IteratorAggregate, \Countable
 	 */
 	public function contains(string $key, string $value): bool
 	{
-		return \in_array($value, $this->get($key, null, false), false);
+		return in_array($value, $this->get($key, null, false), false);
 	}
 
 	/**
@@ -162,17 +166,17 @@ class HeaderStore implements \IteratorAggregate, \Countable
 	 */
 	public function count(): int
 	{
-		return \count($this->headers);
+		return count($this->headers);
 	}
 
 	/**
 	 * Returns an iterator for headers.
 	 *
-	 * @return \ArrayIterator An \ArrayIterator instance
+	 * @return ArrayIterator An ArrayIterator instance
 	 */
-	public function getIterator(): \ArrayIterator
+	public function getIterator(): ArrayIterator
 	{
-		return new \ArrayIterator($this->headers);
+		return new ArrayIterator($this->headers);
 	}
 
 }
