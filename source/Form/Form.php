@@ -440,10 +440,10 @@ class Form
 
 			case 'radio':
 				return $this->isRadioChecked($id, $value, $checked);
-
-			default:
-				/** @noinspection TypeUnsafeComparisonInspection */ return $this->getValueAttribute($id) == $value;
 		}
+
+		/** @noinspection TypeUnsafeComparisonInspection */
+		return $this->getValueAttribute($id) == $value;
 	}
 
 	/**
