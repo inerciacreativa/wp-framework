@@ -1,6 +1,6 @@
 <?php
 
-namespace ic\Framework\Settings;
+namespace ic\Framework\Settings\Form;
 
 use ic\Framework\Form\AdvancedForm;
 use ic\Framework\Hook\HookDecorator;
@@ -12,7 +12,7 @@ use ic\Framework\Support\Options;
  *
  * @package ic\Framework\Settings\Form
  */
-class SettingsForm extends AdvancedForm
+class Form extends AdvancedForm
 {
 
 	use HookDecorator;
@@ -65,7 +65,7 @@ class SettingsForm extends AdvancedForm
 	/**
 	 * @inheritdoc
 	 *
-	 * @see SettingsForm::save()
+	 * @see Form::save()
 	 */
 	protected function getAction(array $options): string
 	{
@@ -125,7 +125,7 @@ class SettingsForm extends AdvancedForm
 	 */
 	protected function saveErrors(): void
 	{
-		if (!\count(get_settings_errors())) {
+		if (!count(get_settings_errors())) {
 			add_settings_error($this->id(), 'settings_updated', __('Settings saved.'), 'updated');
 		}
 

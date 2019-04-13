@@ -2,9 +2,11 @@
 
 namespace ic\Framework\Settings\Form;
 
+use Closure;
 use ic\Framework\Hook\HookDecorator;
+use ic\Framework\Http\Input;
+use ic\Framework\Settings\Page\Page;
 use ic\Framework\Settings\Settings;
-use ic\Framework\Settings\SettingsPage;
 use ic\Framework\Support\Arr;
 use ic\Framework\Support\Options;
 
@@ -19,7 +21,7 @@ class Sections
 	use HookDecorator;
 
 	/**
-	 * @var SettingsPage
+	 * @var Page
 	 */
 	protected $page;
 
@@ -44,11 +46,6 @@ class Sections
 	protected $finalization;
 
 	/**
-	 * @var bool
-	 */
-	protected $registered = false;
-
-	/**
 	 * @var string
 	 */
 	protected $default;
@@ -56,25 +53,25 @@ class Sections
 	/**
 	 * Sections constructor.
 	 *
-	 * @param SettingsPage $page
-	 * @param Tab          $tab
+	 * @param Page $page
+	 * @param Tab  $tab
 	 */
-	public function __construct(SettingsPage $page, Tab $tab = null)
+	public function __construct(Page $page, Tab $tab = null)
 	{
 		$this->page    = $page;
 		$this->tab     = $tab;
-		$this->default = Settings::getDefaultSection($this->page->id());
+		$this->default = Settings::getDefaultSection($page->id());
 	}
 
 	/**
 	 * Adds a new section.
 	 *
 	 * @param string|null $id
-	 * @param \Closure    $content
+	 * @param Closure     $content
 	 *
 	 * @return $this
 	 */
-	public function addSection($id, \Closure $content): self
+	public function section($id, Closure $content): self
 	{
 		$id = $id ?: $this->default;
 
@@ -93,9 +90,9 @@ class Sections
 	 *
 	 * @return $this
 	 */
-	public function addError(string $id, string $message): self
+	public function error(string $id, string $message): self
 	{
-		add_settings_error($this->page->id(), str_replace('.', '-', $id), $message);
+		add_settings_error($this->id(), str_replace('.', '-', $id), $message);
 
 		return $this;
 	}
@@ -107,7 +104,7 @@ class Sections
 	 *
 	 * @return $this
 	 */
-	public function onValidation(callable $validation): self
+	public function validation(callable $validation): self
 	{
 		$this->validation = $validation;
 
@@ -121,7 +118,7 @@ class Sections
 	 *
 	 * @return $this
 	 */
-	public function onFinalization(callable $finalization): self
+	public function finalization(callable $finalization): self
 	{
 		$this->finalization = $finalization;
 
@@ -129,74 +126,55 @@ class Sections
 	}
 
 	/**
+	 * @return string
+	 */
+	public function id(): string
+	{
+		return $this->page->id();
+	}
+
+	/**
 	 * Registers the sections via Settings API.
 	 */
 	public function register(): void
 	{
-		if ($this->registered) {
-			return;
-		}
-
-		// If the page is "permalink" WP does not save values!
-		if ($this->page->id() === 'permalink') {
+		// If the page is "permalink" WP does not save values.
+		// Handle the validation and finalization manually.
+		if ($this->id() === 'permalink') {
 			$this->hook()->on('load-options-permalink.php', function () {
-				if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !check_admin_referer('update-permalink')) {
+				$input = Input::getInstance();
+
+				if (!$input->isMethod('POST') || !check_admin_referer('update-permalink')) {
 					return;
 				}
 
-				$values = $_POST[$this->getOptions()->id()] ?? [];
+				$values = $input->request($this->id(), []);
 				$values = $this->validate($values);
 
-				$this->finalize(null, $values);
+				$this->finalize($this->options()->all(), $values, true);
 			});
 		} else {
-			$this->hook()->on('update_option_' . $this->getOptions()
-			                                          ->id(), 'finalize', ['arguments' => 2]);
-
-			register_setting($this->page->id(), $this->getOptions()->id(), [
+			register_setting($this->id(), $this->id(), [
 				'sanitize_callback' => function (array $values) {
 					return $this->validate($values);
 				},
 			]);
+
+			$this->hook()
+			     ->on('update_option_' . $this->id(), 'finalize', ['arguments' => 2]);
 		}
 
 		foreach ($this->sections as $section) {
 			$section->register();
 		}
-
-		$this->registered = true;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isRegistered(): bool
-	{
-		return $this->registered;
-	}
-
-	/**
-	 * Retrieves all fields in all sections.
-	 *
-	 * @return Field[]
-	 */
-	protected function getFields(): array
-	{
-		$fields = [[]];
-
-		foreach ($this->sections as $section) {
-			$fields[] = $section->getFields();
-		}
-
-		return array_merge(...$fields);
 	}
 
 	/**
 	 * @return Options
 	 */
-	protected function getOptions(): Options
+	protected function options(): Options
 	{
-		return $this->page->getOptions();
+		return $this->page->options();
 	}
 
 	/**
@@ -208,55 +186,70 @@ class Sections
 	 */
 	protected function validate(array $values): array
 	{
-		if (empty($values)) {
-			$values = [];
-		}
+		$values = $this->normalize($values);
 
-		$values = $this->normalize($values, $this->getFields());
-
-		if (\is_callable($this->validation)) {
-			return \call_user_func($this->validation, $values, $this);
+		if (is_callable($this->validation)) {
+			return call_user_func($this->validation, $values, $this);
 		}
 
 		return $values;
 	}
 
 	/**
+	 * @param array|null $oldValues
+	 * @param array      $newValues
+	 * @param bool       $save
+	 */
+	protected function finalize($oldValues, array $newValues, bool $save = false): void
+	{
+		$this->options()->fill($newValues);
+
+		if ($save) {
+			$this->options()->save();
+		}
+
+		if (is_callable($this->finalization)) {
+			call_user_func($this->finalization, $newValues, $oldValues, $this);
+		}
+	}
+
+	/**
 	 * Normalize the values. Correct the checkboxes values, and return the
 	 * complete Options array.
 	 *
-	 * @param array   $values
-	 * @param Field[] $fields
+	 * @param array $values
 	 *
 	 * @return array
 	 */
-	protected function normalize(array $values, array $fields): array
+	protected function normalize(array $values): array
 	{
-		foreach ($fields as $field) {
-			if ($field->getType() === 'checkbox') {
-				if (Arr::has($values, $field->getId())) {
-					Arr::set($values, $field->getId(), (bool) Arr::get($values, $field->getId()));
+		foreach ($this->fields() as $field) {
+			if ($field->type() === 'checkbox') {
+				if (Arr::has($values, $field->id())) {
+					Arr::set($values, $field->id(), (bool) Arr::get($values, $field->id()));
 				} else {
-					Arr::set($values, $field->getId(), false);
+					Arr::set($values, $field->id(), false);
 				}
 			}
 		}
 
-		return Arr::fill($this->getOptions()->all(), $values);
+		return Arr::fill($this->options()->all(), $values);
 	}
 
 	/**
-	 * @param array|null $oldValues
-	 * @param array      $newValues
+	 * Retrieves all fields in all sections.
+	 *
+	 * @return Field[]
 	 */
-	protected function finalize($oldValues, array $newValues): void
+	protected function fields(): array
 	{
-		$this->getOptions()->fill($newValues);
-		$this->getOptions()->save();
+		$fields = [[]];
 
-		if (\is_callable($this->finalization)) {
-			\call_user_func($this->finalization, $newValues, $this);
+		foreach ($this->sections as $section) {
+			$fields[] = $section->fields();
 		}
+
+		return array_merge(...$fields);
 	}
 
 }

@@ -2,7 +2,8 @@
 
 namespace ic\Framework\Settings\Form;
 
-use ic\Framework\Settings\SettingsPage;
+use Closure;
+use ic\Framework\Settings\Page\Page;
 
 /**
  * Class SectionsDecorator
@@ -20,9 +21,9 @@ trait SectionsDecorator
 	/**
 	 * Creates a new Sections object.
 	 *
-	 * @param SettingsPage $page
+	 * @param Page $page
 	 */
-	public function createSections(SettingsPage $page): void
+	protected function sections(Page $page): void
 	{
 		$this->sections = new Sections($page);
 	}
@@ -31,37 +32,13 @@ trait SectionsDecorator
 	 * Adds a new section.
 	 *
 	 * @param string|null $id
-	 * @param \Closure    $content
+	 * @param Closure     $content
 	 *
 	 * @return Sections
 	 */
-	public function addSection($id, \Closure $content): Sections
+	public function section($id, Closure $content): Sections
 	{
-		return $this->sections->addSection($id, $content);
-	}
-
-	/**
-	 * Sets the validation function.
-	 *
-	 * @param callable $validation
-	 *
-	 * @return Sections
-	 */
-	public function onValidation(callable $validation): Sections
-	{
-		return $this->sections->onValidation($validation);
-	}
-
-	/**
-	 * Sets the finalization function.
-	 *
-	 * @param callable $finalization
-	 *
-	 * @return Sections
-	 */
-	public function onFinalization(callable $finalization): Sections
-	{
-		return $this->sections->onFinalization($finalization);
+		return $this->sections->section($id, $content);
 	}
 
 	/**
@@ -72,17 +49,33 @@ trait SectionsDecorator
 	 *
 	 * @return Sections
 	 */
-	public function addError(string $id, string $message): Sections
+	public function error(string $id, string $message): Sections
 	{
-		return $this->sections->addError($id, $message);
+		return $this->sections->error($id, $message);
 	}
 
 	/**
-	 * Registers the sections via Settings API.
+	 * Sets the validation function.
+	 *
+	 * @param callable $validation
+	 *
+	 * @return Sections
 	 */
-	public function register(): void
+	public function validation(callable $validation): Sections
 	{
-		$this->sections->register();
+		return $this->sections->validation($validation);
+	}
+
+	/**
+	 * Sets the finalization function.
+	 *
+	 * @param callable $finalization
+	 *
+	 * @return Sections
+	 */
+	public function finalization(callable $finalization): Sections
+	{
+		return $this->sections->finalization($finalization);
 	}
 
 }

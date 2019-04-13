@@ -2,8 +2,8 @@
 
 namespace ic\Framework\Settings\Form;
 
-use ic\Framework\Settings\Page\CustomPage;
 use ic\Framework\Html\Tag;
+use ic\Framework\Settings\Page\PageTabbed;
 
 /**
  * Class Tab
@@ -13,83 +13,103 @@ use ic\Framework\Html\Tag;
 class Tab
 {
 
-    use SectionsDecorator;
+	use SectionsDecorator;
 
-    /**
-     * @var CustomPage
-     */
-    protected $page;
+	/**
+	 * @var PageTabbed
+	 */
+	protected $page;
 
-    /**
-     * @var string
-     */
-    protected $id;
+	/**
+	 * @var string
+	 */
+	protected $id;
 
-    /**
-     * @var string
-     */
-    protected $title;
+	/**
+	 * @var callable
+	 */
+	protected $content;
 
-    /**
-     * Tab constructor.
-     *
-     * @param CustomPage $page
-     * @param string     $id
-     * @param \Closure   $content
-     */
-    public function __construct(CustomPage $page, string $id, \Closure $content)
-    {
-        $this->id   = $id;
-        $this->page = $page;
+	/**
+	 * @var string
+	 */
+	protected $title;
 
-        $this->createSections($this->page);
+	/**
+	 * @var bool
+	 */
+	protected $active = false;
 
-        $content($this);
-    }
+	/**
+	 * Tab constructor.
+	 *
+	 * @param PageTabbed $page
+	 * @param string     $id
+	 * @param string     $title
+	 * @param callable   $content
+	 */
+	public function __construct(PageTabbed $page, string $id, string $title, callable $content = null)
+	{
+		$this->page    = $page;
+		$this->id      = $id;
+		$this->title   = $title;
+		$this->content = $content;
 
-    /**
-     * Retrieves the tab ID.
-     *
-     * @return string
-     */
-    public function getId(): string
-    {
-        return $this->id;
-    }
+		$this->sections($this->page);
+	}
 
-    /**
-     * Sets the tab title.
-     *
-     * @param $title
-     *
-     * @return $this
-     */
-    public function setTitle(string $title): self
-    {
-        $this->title = $title;
+	/**
+	 * Registers the sections via Settings API.
+	 */
+	public function register(): void
+	{
+		if ($this->content) {
+			call_user_func($this->content, $this);
+		}
 
-        return $this;
-    }
+		$this->sections->register();
+		$this->active = true;
+	}
 
-    /**
-     * Retrieves the link to this tab.
-     *
-     * @return string
-     */
-    public function getLink(): string
-    {
-        $url = add_query_arg([
-            'page' => $this->page->id(),
-            'tab'  => $this->id,
-        ], admin_url($this->page->getParent()));
+	/**
+	 * Retrieves the tab ID.
+	 *
+	 * @return string
+	 */
+	public function id(): string
+	{
+		return $this->id;
+	}
 
-        $class = 'nav-tab';
+	/**
+	 * @return string
+	 */
+	public function url(): string
+	{
+		return add_query_arg([
+			'page' => $this->page->id(),
+			'tab'  => $this->id,
+		], admin_url($this->page->parent()));
+	}
 
-        if ($this->sections->isRegistered()) {
-            $class .= ' nav-tab-active';
-        }
+	/**
+	 * Retrieves the link to this tab.
+	 *
+	 * @return string
+	 */
+	public function link(): string
+	{
+		$link  = $this->url();
+		$class = 'nav-tab';
 
-        return Tag::a(['href' => $url, 'class' => $class], $this->title ?: $this->id);
-    }
+		if ($this->active) {
+			$class .= ' nav-tab-active';
+		}
+
+		return Tag::a([
+			'href'  => $link,
+			'class' => $class,
+		], $this->title ?: $this->id);
+	}
 
 }
