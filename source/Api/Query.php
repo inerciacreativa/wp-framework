@@ -2,6 +2,8 @@
 
 namespace ic\Framework\Api;
 
+use WP_Error;
+
 /**
  * Class Query
  *
@@ -10,274 +12,275 @@ namespace ic\Framework\Api;
 class Query
 {
 
-    const USER_AGENT = 'ic HTTP/2.0';
+	public const USER_AGENT = 'ic HTTP/2.0';
 
-    const READY = 0;
+	public const READY = 0;
 
-    const ERROR = -1;
+	public const ERROR = -1;
 
-    const SUCCESS = 200;
+	public const SUCCESS = 200;
 
-    /**
-     * @var string
-     */
-    protected $endpoint;
+	/**
+	 * @var string
+	 */
+	protected $endpoint;
 
-    /**
-     * @var string
-     */
-    protected $method;
+	/**
+	 * @var string
+	 */
+	protected $path;
 
-    /**
-     * @var array
-     */
-    protected $parameters = [];
+	/**
+	 * @var array
+	 */
+	protected $parameters = [];
 
-    /**
-     * @var string
-     */
-    protected $id;
+	/**
+	 * @var string
+	 */
+	protected $id;
 
-    /**
-     * @var string
-     */
-    protected $url;
-    /**
-     * @var int
-     */
-    protected $status = self::READY;
+	/**
+	 * @var string
+	 */
+	protected $url;
 
-    /**
-     * @var array
-     */
-    protected $request = [
-        'user-agent' => self::USER_AGENT,
-        'sslverify'  => false,
-        'headers'    => [
-            'Accept-Encoding' => 'gzip',
-        ],
-        'cookies'    => [],
-        'body'       => null,
-    ];
+	/**
+	 * @var int
+	 */
+	protected $status = self::READY;
 
-    /**
-     * @var null|array|\WP_Error
-     */
-    protected $response;
+	/**
+	 * @var array
+	 */
+	protected $request = [
+		'user-agent' => self::USER_AGENT,
+		'sslverify'  => false,
+		'headers'    => [
+			'Accept-Encoding' => 'gzip',
+		],
+		'cookies'    => [],
+		'body'       => null,
+	];
 
-    /**
-     * Query constructor.
-     *
-     * @param string $endpoint
-     */
-    public function __construct($endpoint)
-    {
-        $this->endpoint = $endpoint;
-    }
+	/**
+	 * @var array|WP_Error
+	 */
+	protected $response;
 
-    /**
-     * @param string $endpoint
-     *
-     * @return static
-     */
-    public static function create($endpoint)
-    {
-        return new static($endpoint);
-    }
+	/**
+	 * Query constructor.
+	 *
+	 * @param string $endpoint
+	 */
+	public function __construct(string $endpoint)
+	{
+		$this->endpoint = $endpoint;
+	}
 
-    /**
-     * @param string $http
-     * @param string $method
-     * @param array  $parameters
-     * @param bool   $execute
-     *
-     * @return bool|Query
-     */
-    public function query($http, $method = '', array $parameters = [], $execute = true)
-    {
-        $this->method     = $method;
-        $this->parameters = array_merge($this->parameters, $parameters);
+	/**
+	 * @param string $endpoint
+	 *
+	 * @return static
+	 */
+	public static function create(string $endpoint)
+	{
+		return new static($endpoint);
+	}
 
-        $this->request['method'] = $http;
+	/**
+	 * @param string $method
+	 * @param string $path
+	 * @param array  $parameters
+	 * @param bool   $execute
+	 *
+	 * @return bool|$this
+	 */
+	public function query(string $method, string $path = '', array $parameters = [], bool $execute = true)
+	{
+		$this->path       = $path;
+		$this->parameters = array_merge($this->parameters, $parameters);
 
-        return $execute ? $this->execute() : $this;
-    }
+		$this->request['method'] = strtoupper($method);
 
-    /**
-     * @return bool
-     */
-    public function execute()
-    {
-        $this->response = wp_remote_request($this->getUrl(), $this->request);
+		return $execute ? $this->execute() : $this;
+	}
 
-        if (is_wp_error($this->response)) {
-            $this->status = self::ERROR;
-        } else {
-            $this->status = (int)wp_remote_retrieve_response_code($this->response);
+	/**
+	 * @return bool
+	 */
+	public function execute(): bool
+	{
+		$this->response = wp_remote_request($this->getUrl(), $this->request);
 
-            if ($this->status === self::SUCCESS) {
-                return true;
-            }
-        }
+		if (is_wp_error($this->response)) {
+			$this->status = self::ERROR;
+		} else {
+			$this->status = (int) wp_remote_retrieve_response_code($this->response);
 
-        return false;
-    }
+			if ($this->status === self::SUCCESS) {
+				return true;
+			}
+		}
 
-    /**
-     * @param string $method
-     * @param array  $parameters
-     * @param bool   $execute
-     *
-     * @return bool|Query
-     */
-    public function get($method = '', array $parameters = [], $execute = true)
-    {
-        return $this->query('GET', $method, $parameters, $execute);
-    }
+		return false;
+	}
 
-    /**
-     * @param string $method
-     * @param array  $parameters
-     * @param bool   $execute
-     *
-     * @return bool|Query
-     */
-    public function post($method = '', array $parameters = [], $execute = true)
-    {
-        return $this->query('POST', $method, $parameters, $execute);
-    }
+	/**
+	 * @param string $path
+	 * @param array  $parameters
+	 * @param bool   $execute
+	 *
+	 * @return bool|$this
+	 */
+	public function get(string $path = '', array $parameters = [], bool $execute = true)
+	{
+		return $this->query('GET', $path, $parameters, $execute);
+	}
 
-    /**
-     * @return string
-     */
-    public function getResponse()
-    {
-        if (is_array($this->response) && !is_wp_error($this->response)) {
-            return wp_remote_retrieve_body($this->response);
-        }
+	/**
+	 * @param string $path
+	 * @param array  $parameters
+	 * @param bool   $execute
+	 *
+	 * @return bool|Query
+	 */
+	public function post(string $path = '', array $parameters = [], bool $execute = true)
+	{
+		return $this->query('POST', $path, $parameters, $execute);
+	}
 
-        return '';
-    }
+	/**
+	 * @return string
+	 */
+	public function getResponse(): ?string
+	{
+		if (is_array($this->response) && !is_wp_error($this->response)) {
+			return wp_remote_retrieve_body($this->response);
+		}
 
-    /**
-     * @return int
-     */
-    public function getStatus()
-    {
-        return $this->status;
-    }
+		return null;
+	}
 
-    /**
-     * @return \WP_Error|bool
-     */
-    public function getError()
-    {
-        if (is_wp_error($this->response)) {
-            return $this->response->get_error_message();
-        }
+	/**
+	 * @return int
+	 */
+	public function getStatus(): int
+	{
+		return $this->status;
+	}
 
-        return false;
-    }
+	/**
+	 * @return string|null
+	 */
+	public function getError(): ?string
+	{
+		if (is_wp_error($this->response)) {
+			return $this->response->get_error_message();
+		}
 
-    /**
-     * @return string
-     */
-    public function getUrl()
-    {
-        if (empty($this->url)) {
-            $this->url = empty($this->method) ? $this->endpoint : sprintf('%s/%s', rtrim($this->endpoint, '/'), ltrim($this->method, '/'));
+		return null;
+	}
 
-            if (!empty($this->parameters)) {
-                $this->url .= '?' . http_build_query($this->parameters);
-            }
-        }
+	/**
+	 * @return string
+	 */
+	public function getUrl(): string
+	{
+		if (empty($this->url)) {
+			$this->url = empty($this->path) ? $this->endpoint : sprintf('%s/%s', rtrim($this->endpoint, '/'), ltrim($this->path, '/'));
 
-        return $this->url;
-    }
+			if (!empty($this->parameters)) {
+				$this->url .= '?' . http_build_query($this->parameters);
+			}
+		}
 
-    /**
-     * @return string
-     */
-    public function getId()
-    {
-        if (empty($this->id)) {
-            $this->id = md5($this->getUrl());
-        }
+		return $this->url;
+	}
 
-        return $this->id;
-    }
+	/**
+	 * @return string
+	 */
+	public function getId(): string
+	{
+		if (empty($this->id)) {
+			$this->id = md5($this->getUrl());
+		}
 
-    /**
-     * @param string $name
-     * @param string $value
-     *
-     * @return $this
-     */
-    public function setParameter($name, $value)
-    {
-        if (isset($this->parameters[$name])) {
-            return $this;
-        }
+		return $this->id;
+	}
 
-        $this->parameters[$name] = $value;
+	/**
+	 * @param string $name
+	 * @param string $value
+	 *
+	 * @return $this
+	 */
+	public function setParameter(string $name, string $value): self
+	{
+		if (isset($this->parameters[$name])) {
+			return $this;
+		}
 
-        return $this->reset(true);
-    }
+		$this->parameters[$name] = $value;
 
-    /**
-     * @param string $name
-     * @param string $value
-     *
-     * @return $this
-     */
-    public function setHeader($name, $value)
-    {
-        $this->request['headers'][$name] = $value;
+		return $this->reset(true);
+	}
 
-        return $this->reset();
-    }
+	/**
+	 * @param string $name
+	 * @param string $value
+	 *
+	 * @return $this
+	 */
+	public function setHeader(string $name, string $value): self
+	{
+		$this->request['headers'][$name] = $value;
 
-    /**
-     * @param string $name
-     * @param string $value
-     *
-     * @return $this
-     */
-    public function setCookie($name, $value)
-    {
-        $this->request['cookies'][$name] = $value;
+		return $this->reset();
+	}
 
-        return $this->reset();
-    }
+	/**
+	 * @param string $name
+	 * @param string $value
+	 *
+	 * @return $this
+	 */
+	public function setCookie(string $name, string $value): self
+	{
+		$this->request['cookies'][$name] = $value;
 
-    /**
-     * @param mixed $body
-     *
-     * @return $this
-     */
-    public function setBody($body)
-    {
-        $this->request['body'] = $body;
+		return $this->reset();
+	}
 
-        return $this->reset();
-    }
+	/**
+	 * @param mixed $body
+	 *
+	 * @return $this
+	 */
+	public function setBody($body): self
+	{
+		$this->request['body'] = $body;
 
-    /**
-     * @param bool $url
-     *
-     * @return $this
-     */
-    protected function reset($url = false)
-    {
-        $this->response = null;
-        $this->status   = self::READY;
+		return $this->reset();
+	}
 
-        if ($url) {
-            $this->url = null;
-            $this->id  = null;
-        }
+	/**
+	 * @param bool $url
+	 *
+	 * @return $this
+	 */
+	protected function reset(bool $url = false): self
+	{
+		$this->response = null;
+		$this->status   = self::READY;
 
-        return $this;
-    }
+		if ($url) {
+			$this->url = null;
+			$this->id  = null;
+		}
+
+		return $this;
+	}
 
 }

@@ -5,7 +5,7 @@ namespace ic\Framework\Plugin;
 use ic\Framework\Widget\Widget;
 
 /**
- * Class Widget
+ * Class PluginWidget
  *
  * @package ic\Framework\Plugin
  */

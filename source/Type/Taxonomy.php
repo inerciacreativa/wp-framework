@@ -2,9 +2,11 @@
 
 namespace ic\Framework\Type;
 
-use ic\Framework\Type\MetaBox\TaxonomyMetaBox;
 use ic\Framework\Html\Tag;
 use ic\Framework\Support\Arr;
+use ic\Framework\Type\MetaBox\TaxonomyMetaBox;
+use WP_Query;
+use WP_Taxonomy;
 
 /**
  * Class Taxonomy
@@ -14,7 +16,7 @@ use ic\Framework\Support\Arr;
  * @property-read string       $name
  * @property-read string|array $object_type           Name of the object type(s) for the taxonomy object
  * @property-read              $label                 A plural descriptive name for the taxonomy marked for translation.
- * @property array|\stdClass   $labels                An array of labels for this taxonomy.
+ * @property array|object      $labels                An array of labels for this taxonomy.
  * @property string            $description           A short descriptive summary of what the taxonomy is.
  *
  * @property bool              $public                Controls how the taxonomy is visible to authors and readers.
@@ -34,7 +36,7 @@ use ic\Framework\Support\Arr;
  * @property callable          $meta_box_cb           Provide a callback function name for the meta box display.
  *
  * @property array             $capabilities          An array of the capabilities for this taxonomy.
- * @property-read \stdClass    $cap                   An object with the capabilities for this taxonomy.
+ * @property-read object       $cap                   An object with the capabilities for this taxonomy.
  *
  * @property bool              $show_in_rest          Whether to expose this taxonomy in the REST API.
  * @property string            $rest_base             The base slug that will be used when accessed using the REST API.
@@ -59,7 +61,7 @@ class Taxonomy extends Type
 	protected $has_archive = true;
 
 	/**
-	 * @var \WP_Taxonomy
+	 * @var WP_Taxonomy
 	 */
 	protected $taxonomy;
 
@@ -69,7 +71,7 @@ class Taxonomy extends Type
 	 *
 	 * @return static
 	 */
-	public static function create($name, array $object_type = [])
+	public static function create(string $name, array $object_type = [])
 	{
 		return new static($name, $object_type);
 	}
@@ -80,7 +82,7 @@ class Taxonomy extends Type
 	 * @param string $name
 	 * @param array  $object_type
 	 */
-	public function __construct($name, array $object_type = [])
+	public function __construct(string $name, array $object_type = [])
 	{
 		$this->defaults();
 
@@ -97,9 +99,9 @@ class Taxonomy extends Type
 	 *
 	 * @return $this
 	 */
-	public function hierarchical($hierarchical = true)
+	public function hierarchical(bool $hierarchical = true): self
 	{
-		$this->hierarchical = (bool) $hierarchical;
+		$this->hierarchical = $hierarchical;
 
 		return $this;
 	}
@@ -111,7 +113,7 @@ class Taxonomy extends Type
 	 *
 	 * @return $this
 	 */
-	public function meta_box($popular = true, $multiple = true, $none = true)
+	public function meta_box(bool $popular = true, bool $multiple = true, bool $none = true): self
 	{
 		$this->meta_box_cb = new TaxonomyMetaBox($this, $popular, $multiple, $none);
 
@@ -123,14 +125,14 @@ class Taxonomy extends Type
 	 *
 	 * @return $this
 	 */
-	public function capabilities(array $capabilities = [])
+	public function capabilities(array $capabilities = []): self
 	{
 		$this->capabilities = array_merge([
-			                                  'manage_terms' => 'manage_categories',
-			                                  'edit_terms'   => 'manage_categories',
-			                                  'delete_terms' => 'manage_categories',
-			                                  'assign_terms' => 'edit_posts',
-		                                  ], $capabilities);
+			'manage_terms' => 'manage_categories',
+			'edit_terms'   => 'manage_categories',
+			'delete_terms' => 'manage_categories',
+			'assign_terms' => 'edit_posts',
+		], $capabilities);
 
 		return $this;
 	}
@@ -142,7 +144,7 @@ class Taxonomy extends Type
 	 *
 	 * @return $this
 	 */
-	public function rewrite($slug, $front = true, $endpoint = EP_NONE)
+	public function rewrite(string $slug, bool $front = true, int $endpoint = EP_NONE): self
 	{
 		$this->rewrite = [
 			'slug'         => sanitize_title_with_dashes($slug),
@@ -159,7 +161,7 @@ class Taxonomy extends Type
 	 *
 	 * @return $this
 	 */
-	public function labels(array $labels = [])
+	public function labels(array $labels = []): self
 	{
 		$singular = strtolower($this->singular);
 		$plural   = strtolower($this->plural);
@@ -211,9 +213,9 @@ class Taxonomy extends Type
 	 *
 	 * @return $this
 	 */
-	public function has_archive($archive = true)
+	public function has_archive(bool $archive = true): self
 	{
-		$this->has_archive = (bool) $archive;
+		$this->has_archive = $archive;
 
 		return $this;
 	}
@@ -223,12 +225,12 @@ class Taxonomy extends Type
 	 *
 	 * @return array
 	 */
-	public function getAllTerms()
+	public function getAllTerms(): array
 	{
 		return $this->getTerms([
-			                       'hide_empty' => false,
-			                       'orderby'    => 'name',
-		                       ]);
+			'hide_empty' => false,
+			'orderby'    => 'name',
+		]);
 	}
 
 	/**
@@ -238,14 +240,14 @@ class Taxonomy extends Type
 	 *
 	 * @return array
 	 */
-	public function getPopularTerms($number = 10)
+	public function getPopularTerms(int $number = 10): array
 	{
 		return $this->getTerms([
-			                       'orderby'      => 'count',
-			                       'order'        => 'DESC',
-			                       'number'       => $number,
-			                       'hierarchical' => false,
-		                       ]);
+			'orderby'      => 'count',
+			'order'        => 'DESC',
+			'number'       => $number,
+			'hierarchical' => false,
+		]);
 	}
 
 	/**
@@ -253,9 +255,9 @@ class Taxonomy extends Type
 	 *
 	 * @param array $arguments
 	 *
+	 * @return array|int
 	 * @uses get_terms()
 	 *
-	 * @return array|int
 	 */
 	public function getTerms(array $arguments = [])
 	{
@@ -270,11 +272,11 @@ class Taxonomy extends Type
 	 * @param int   $post_id
 	 * @param array $arguments
 	 *
+	 * @return array
 	 * @uses wp_get_object_terms()
 	 *
-	 * @return array
 	 */
-	public function getPostTerms($post_id, array $arguments = [])
+	public function getPostTerms(int $post_id, array $arguments = []): array
 	{
 		$terms = wp_get_object_terms($post_id, $this->name, $arguments);
 
@@ -284,7 +286,7 @@ class Taxonomy extends Type
 	/**
 	 * Sets the default properties.
 	 */
-	protected function defaults()
+	protected function defaults(): void
 	{
 		$this->properties = [
 			'labels'                => [],
@@ -312,7 +314,7 @@ class Taxonomy extends Type
 	/**
 	 * Set defaults and register the taxonomy.
 	 */
-	protected function register()
+	protected function register(): void
 	{
 		if (empty($this->properties['labels'])) {
 			$this->labels();
@@ -332,26 +334,24 @@ class Taxonomy extends Type
 	}
 
 	/**
-	 * @param \WP_Taxonomy $object
+	 * @param WP_Taxonomy $object
 	 */
-	protected function initialize($object)
+	protected function initialize(WP_Taxonomy $object): void
 	{
 		$this->object = $object;
 
 		if (is_admin()) {
 			if ($this->object->show_admin_column) {
-				add_action('restrict_manage_posts', function ($type) {
+				add_action('restrict_manage_posts', function (string $type) {
 					$this->addPostsFilter($type);
 				});
 			}
-		} else {
-			if (!$this->has_archive) {
-				add_action('pre_get_posts', function (\WP_Query $query) {
-					if ($query->is_tax($this->name)) {
-						$query->set_404();
-					}
-				});
-			}
+		} else if (!$this->has_archive) {
+			add_action('pre_get_posts', function (WP_Query $query) {
+				if ($query->is_tax($this->name)) {
+					$query->set_404();
+				}
+			});
 		}
 	}
 
@@ -360,7 +360,7 @@ class Taxonomy extends Type
 	 *
 	 * @param string $type
 	 */
-	protected function addPostsFilter($type)
+	protected function addPostsFilter(string $type): void
 	{
 		if (!in_array($type, $this->object_type, false)) {
 			return;
@@ -374,20 +374,20 @@ class Taxonomy extends Type
 		}
 
 		$label = Tag::label([
-			                    'for'   => 'filter-by-' . $this->name,
-			                    'class' => 'screen-reader-text',
-		                    ], $this->object->labels->filter_items);
+			'for'   => 'filter-by-' . $this->name,
+			'class' => 'screen-reader-text',
+		], $this->object->labels->filter_items);
 
 		$select = Tag::select([
-			                      'id'   => 'filter-by-' . $this->name,
-			                      'name' => $this->name,
-		                      ], Tag::option(['value' => ''], $this->object->labels->all_items));
+			'id'   => 'filter-by-' . $this->name,
+			'name' => $this->name,
+		], Tag::option(['value' => ''], $this->object->labels->all_items));
 
 		foreach ($terms as $term) {
 			$select->content(Tag::option([
-				                             'value'    => $term->slug,
-				                             'selected' => $current === $term->slug,
-			                             ], sanitize_term_field('name', $term->name, $term->id, $this->name, 'display')));
+				'value'    => $term->slug,
+				'selected' => $current === $term->slug,
+			], sanitize_term_field('name', $term->name, $term->id, $this->name, 'display')));
 		}
 
 		echo $label, $select;

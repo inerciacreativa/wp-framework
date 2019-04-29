@@ -2,9 +2,10 @@
 
 namespace ic\Framework\Api\Client;
 
-use ic\Framework\Framework;
+use ic\Framework\Api\Auth\AuthInterface;
 use ic\Framework\Api\Auth\OAuthKey;
-use ic\Framework\Support\Collection;
+use ic\Framework\Framework;
+use RuntimeException;
 
 /**
  * Class YouTubeClient
@@ -14,189 +15,208 @@ use ic\Framework\Support\Collection;
 class YouTubeClient extends Client
 {
 
-    /**
-     * @inheritdoc
-     */
-    public function getAuth()
-    {
-        $options = Framework::instance()->getOptions();
+	/**
+	 * @inheritdoc
+	 */
+	public function getAuth(): ?AuthInterface
+	{
+		static $auth;
+		if ($auth === null) {
+			if (empty($this->credentials['key'])) {
+				throw new RuntimeException('Could not find the credentials!');
+			}
 
-        return new OAuthKey([
-            'key'  => $options->get('youtube.credentials.key'),
-            'part' => 'snippet',
-        ]);
-    }
+			$auth = new OAuthKey([
+				'key'  => $this->credentials['key'],
+				'part' => 'snippet',
+			]);
+		}
 
-    /**
-     * @inheritdoc
-     */
-    public function getName()
-    {
-        return 'YouTube';
-    }
+		return $auth;
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function getVersion()
-    {
-        return '3';
-    }
+	/**
+	 * @inheritdoc
+	 */
+	protected function getCredentials(): array
+	{
+		/** @noinspection NullPointerExceptionInspection */
+		return Framework::instance()
+		                ->getOptions()
+		                ->get('youtube.credentials', []);
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function getDomain()
-    {
-        return 'https://www.youtube.com';
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function getName(): string
+	{
+		return 'YouTube';
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function getEndpoint()
-    {
-        return 'https://www.googleapis.com/youtube/v' . $this->getVersion();
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function getVersion(): string
+	{
+		return '3';
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function getMethods()
-    {
-        return Collection::make([
-            ['name' => 'video', 'type' => 'video', 'label' => __('Video', 'ic-framework'), 'callback' => 'getVideo'],
-            ['name' => 'user', 'type' => 'info', 'label' => __('User', 'ic-framework'), 'callback' => 'getUser'],
-            ['name' => 'userVideos', 'type' => 'video', 'label' => __('User Videos', 'ic-framework'), 'callback' => 'getUserVideos'],
-            ['name' => 'channel', 'type' => 'info', 'label' => __('Channel', 'ic-framework'), 'callback' => 'getChannel'],
-            ['name' => 'channelVideos', 'type' => 'video', 'label' => __('Channel Videos', 'ic-framework'), 'callback' => 'getChannelVideos'],
-            ['name' => 'playlist', 'type' => 'info', 'label' => __('Playlist', 'ic-framework'), 'callback' => 'getPlaylist'],
-            ['name' => 'playlistVideos', 'type' => 'video', 'label' => __('Playlist Videos', 'ic-framework'), 'callback' => 'getPlaylistVideos'],
-        ]);
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function getDomain(string $path = ''): string
+	{
+		return 'https://www.youtube.com' . $path;
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function getUrls()
-    {
-        return [
-            'video'          => '/watch?v=#ID#',
-            'userVideos'     => '/user/#ID#',
-            'channelVideos'  => '/channel/#ID#',
-            'playlistVideos' => '/playlist?list=#ID#',
-            'embed'          => '/embed/#ID#?version=' . $this->getVersion(),
-        ];
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function getEndpoint(): string
+	{
+		return 'https://www.googleapis.com/youtube/v' . $this->getVersion();
+	}
 
-    /**
-     * @param string $videoId
-     *
-     * @return null|\stdClass
-     */
-    public function getVideo($videoId)
-    {
-        return $this->api()->get('videos', ['id' => $videoId]);
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function getUrls(): array
+	{
+		static $urls;
+		if ($urls === null) {
+			$urls = [
+				'video'          => $this->getDomain('/watch?v=#ID#'),
+				'userVideos'     => $this->getDomain('/user/#ID#'),
+				'channelVideos'  => $this->getDomain('/channel/#ID#'),
+				'playlistVideos' => $this->getDomain('/playlist?list=#ID#'),
+				'embed'          => $this->getDomain('/embed/#ID#?version=' . $this->getVersion()),
+			];
+		}
 
-    /**
-     * @param string $userId
-     *
-     * @return null|\stdClass
-     */
-    public function getUser($userId)
-    {
-        return $this->api()->get('channels', ['forUsername' => $userId]);
-    }
+		return $urls;
+	}
 
-    /**
-     * @param string $userId
-     * @param int    $maxResults
-     *
-     * @return null|\stdClass
-     */
-    public function getUserVideos($userId, $maxResults = 10)
-    {
-        $channel = $this->api()->get('channels', ['forUsername' => $userId, 'part' => 'contentDetails']);
+	/**
+	 * @param string $videoId
+	 *
+	 * @return null|object
+	 */
+	public function getVideo(string $videoId): ?object
+	{
+		return $this->getApi()->get('videos', ['id' => $videoId]);
+	}
 
-        if (!$channel) {
-            return null;
-        }
+	/**
+	 * @param string $userId
+	 *
+	 * @return null|object
+	 */
+	public function getUser(string $userId): ?object
+	{
+		return $this->getApi()->get('channels', ['forUsername' => $userId]);
+	}
 
-        $playlistId = $channel->items[0]->contentDetails->relatedPlaylists->uploads;
+	/**
+	 * @param string $userId
+	 * @param int    $maxResults
+	 *
+	 * @return null|object
+	 */
+	public function getUserVideos(string $userId, int $maxResults = 10): ?object
+	{
+		$channel = $this->getApi()->get('channels', [
+			'forUsername' => $userId,
+			'part'        => 'contentDetails',
+		]);
 
-        return $this->getPlaylistVideos($playlistId, $maxResults);
-    }
+		if (!$channel) {
+			return null;
+		}
 
-    /**
-     * @param string $channelId
-     *
-     * @return null|\stdClass
-     */
-    public function getChannel($channelId)
-    {
-        return $this->api()->get('channels', ['id' => $channelId]);
-    }
+		$playlistId = $channel->items[0]->contentDetails->relatedPlaylists->uploads;
 
-    /**
-     * @param string $channelId
-     * @param int    $maxResults
-     *
-     * @return null|\stdClass
-     */
-    public function getChannelVideos($channelId, $maxResults = 10)
-    {
-        $channel = $this->api()->get('channels', ['id' => $channelId, 'part' => 'contentDetails']);
+		return $this->getPlaylistVideos($playlistId, $maxResults);
+	}
 
-        if (!$channel) {
-            return null;
-        }
+	/**
+	 * @param string $channelId
+	 *
+	 * @return null|object
+	 */
+	public function getChannel(string $channelId): ?object
+	{
+		return $this->getApi()->get('channels', ['id' => $channelId]);
+	}
 
-        $playlistId = $channel->items[0]->contentDetails->relatedPlaylists->uploads;
+	/**
+	 * @param string $channelId
+	 * @param int    $maxResults
+	 *
+	 * @return null|object
+	 */
+	public function getChannelVideos(string $channelId, int $maxResults = 10): ?object
+	{
+		$channel = $this->getApi()->get('channels', [
+			'id'   => $channelId,
+			'part' => 'contentDetails',
+		]);
 
-        return $this->getPlaylistVideos($playlistId, $maxResults);
-    }
+		if (!$channel) {
+			return null;
+		}
 
-    /**
-     * @param string $playlistId
-     *
-     * @return null|\stdClass
-     */
-    public function getPlaylist($playlistId)
-    {
-        return $this->api()->get('playlists', ['id' => $playlistId]);
-    }
+		$playlistId = $channel->items[0]->contentDetails->relatedPlaylists->uploads;
 
-    /**
-     * @param string $playlistId
-     * @param int    $maxResults
-     *
-     * @return null|\stdClass
-     */
-    public function getPlaylistVideos($playlistId, $maxResults = 10)
-    {
-        $playlist = $this->api()->get('playlistItems', ['playlistId' => $playlistId, 'maxResults' => $maxResults]);
+		return $this->getPlaylistVideos($playlistId, $maxResults);
+	}
 
-        if (!$playlist) {
-            return null;
-        }
+	/**
+	 * @param string $playlistId
+	 *
+	 * @return null|object
+	 */
+	public function getPlaylist(string $playlistId): ?object
+	{
+		return $this->getApi()->get('playlists', ['id' => $playlistId]);
+	}
 
-        $videos = [];
-        foreach ($playlist->items as $id => $item) {
-            $videos[] = $item->snippet->resourceId->videoId;
-        }
+	/**
+	 * @param string $playlistId
+	 * @param int    $maxResults
+	 *
+	 * @return null|object
+	 */
+	public function getPlaylistVideos(string $playlistId, int $maxResults = 10): ?object
+	{
+		$playlist = $this->getApi()->get('playlistItems', [
+			'playlistId' => $playlistId,
+			'maxResults' => $maxResults,
+		]);
 
-        if (!empty($videos)) {
-            $durations = $this->api()->get('videos', ['id' => implode(',', $videos), 'part' => 'contentDetails']);
+		if (!$playlist) {
+			return null;
+		}
 
-            if ($durations) {
-                foreach ($playlist->items as $id => $item) {
-                    $playlist->items[$id]->snippet->duration = $durations->items[$id]->contentDetails->duration;
-                }
-            }
-        }
+		$videos = [];
+		foreach ($playlist->items as $id => $item) {
+			$videos[] = $item->snippet->resourceId->videoId;
+		}
 
-        return $playlist;
-    }
+		if (!empty($videos)) {
+			$durations = $this->getApi()->get('videos', [
+				'id'   => implode(',', $videos),
+				'part' => 'contentDetails',
+			]);
+
+			if ($durations) {
+				foreach ($playlist->items as $id => $item) {
+					$playlist->items[$id]->snippet->duration = $durations->items[$id]->contentDetails->duration;
+				}
+			}
+		}
+
+		return $playlist;
+	}
 
 }

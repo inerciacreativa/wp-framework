@@ -2,14 +2,15 @@
 
 namespace ic\Framework\Plugin;
 
-use ic\Framework\Support\Store;
+use ic\Framework\Data\Repository;
+use RuntimeException;
 
 /**
  * Class Metadata
  *
  * @package ic\Framework\Plugin
  */
-class Metadata extends Store
+class Metadata extends Repository
 {
 
 	/**
@@ -17,7 +18,7 @@ class Metadata extends Store
 	 *
 	 * @param string $filename
 	 *
-	 * @throws \RuntimeException
+	 * @throws RuntimeException
 	 */
 	public function __construct(string $filename)
 	{
@@ -31,17 +32,17 @@ class Metadata extends Store
 		$metadata = get_file_data($filename, $defaults, 'plugin');
 		$metadata = array_filter($metadata);
 
-		if (\count($metadata) === 0) {
-			throw new \RuntimeException(sprintf('The plugin metadata is missing, Not found in "%s".', $filename));
+		if (count($metadata) === 0) {
+			throw new RuntimeException(sprintf('The plugin metadata is missing. Not found in "%s".', $filename));
 		}
 
-		if (\count($metadata) < 4) {
+		if (count($metadata) < 4) {
 			$keys = implode('", "', array_diff_key($defaults, $metadata));
 
-			throw new \RuntimeException(sprintf('The plugin metadata is incomplete. Missing value(s): "%s".', $keys));
+			throw new RuntimeException(sprintf('The plugin metadata is incomplete. Missing value(s): "%s".', $keys));
 		}
 
-		$this->fill(array_merge([
+		parent::__construct(array_merge([
 			'id'        => 'ic-unknown',
 			'name'      => 'Unknown',
 			'version'   => '0.0.0',

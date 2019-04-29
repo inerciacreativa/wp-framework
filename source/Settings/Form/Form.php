@@ -2,10 +2,10 @@
 
 namespace ic\Framework\Settings\Form;
 
+use ic\Framework\Data\Options;
 use ic\Framework\Form\AdvancedForm;
-use ic\Framework\Hook\HookDecorator;
+use ic\Framework\Hook\Hookable;
 use ic\Framework\Http\Input;
-use ic\Framework\Support\Options;
 
 /**
  * Class Form
@@ -15,7 +15,7 @@ use ic\Framework\Support\Options;
 class Form extends AdvancedForm
 {
 
-	use HookDecorator;
+	use Hookable;
 
 	/**
 	 * Form constructor.

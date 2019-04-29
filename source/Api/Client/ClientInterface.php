@@ -4,7 +4,6 @@ namespace ic\Framework\Api\Client;
 
 use ic\Framework\Api\Api;
 use ic\Framework\Api\Auth\AuthInterface;
-use ic\Framework\Support\Collection;
 
 /**
  * Interface ClientInterface
@@ -14,75 +13,56 @@ use ic\Framework\Support\Collection;
 interface ClientInterface
 {
 
-    /**
-     * @return string
-     */
-    public function getName();
+	/**
+	 * @return string
+	 */
+	public function getName(): string;
 
-    /**
-     * @return string
-     */
-    public function getVersion();
+	/**
+	 * @return string
+	 */
+	public function getVersion(): string;
 
-    /**
-     * @return string
-     */
-    public function getDomain();
+	/**
+	 * @param string $path
+	 *
+	 * @return string
+	 */
+	public function getDomain(string $path = ''): string;
 
-    /**
-     * @return string
-     */
-    public function getEndpoint();
+	/**
+	 * @return string
+	 */
+	public function getEndpoint(): string;
 
-    /**
-     * @return AuthInterface
-     */
-    public function getAuth();
+	/**
+	 * @return AuthInterface|null
+	 */
+	public function getAuth(): ?AuthInterface;
 
-    /**
-     * @return Collection
-     */
-    public function getMethods();
+	/**
+	 * @return array
+	 */
+	public function getUrls(): array;
 
-    /**
-     * @return array
-     */
-    public function getUrls();
+	/**
+	 * @param string $type
+	 * @param string $id
+	 *
+	 * @return string
+	 */
+	public function getUrl(string $type, string $id): string;
 
-    /**
-     * @param string $type
-     * @param string $id
-     * @param string $extra
-     *
-     * @return string
-     */
-    public function getUrl($type, $id = '', $extra = '');
+	/**
+	 * @param int $cache
+	 *
+	 * @return static
+	 */
+	public function setCache(int $cache);
 
-    /**
-     * @param int $cache
-     *
-     * @return static
-     */
-    public function setCache($cache);
-
-    /**
-     * @param bool $json
-     *
-     * @return static
-     */
-    public function setJson($json);
-
-    /**
-     * @return Api
-     */
-    public function api();
-
-    /**
-     * @param string $method
-     * @param array  $parameters
-     *
-     * @return \stdClass|array|null
-     */
-    public function query($method, array $parameters = []);
+	/**
+	 * @return Api
+	 */
+	public function getApi(): Api;
 
 }

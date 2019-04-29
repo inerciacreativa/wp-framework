@@ -1,13 +1,19 @@
 <?php
 
-namespace ic\Framework\Support;
+namespace ic\Framework\Data;
 
 /**
  * Class Options
  *
  * @package ic\Framework\Support
+ *
+ * @method Options add($key, $value = null)
+ * @method Options set($key, $value = null)
+ * @method Options forget($key)
+ * @method Options fill($values)
+ * @method Options merge(array $values)
  */
-class Options extends Store
+class Options extends Repository
 {
 
 	/**
@@ -21,24 +27,19 @@ class Options extends Store
 	protected $network;
 
 	/**
-	 * @var bool
-	 */
-	protected $exists = false;
-
-	/**
 	 * Options constructor.
 	 *
-	 * @param string $id
 	 * @param array  $defaults
+	 * @param string $id
 	 * @param int    $network
-	 * @param string $version
 	 */
-	public function __construct($id, array $defaults = [], $network = 0, $version = null)
+	public function __construct(array $defaults, string $id, int $network = 0)
 	{
+		parent::__construct($defaults);
+
 		$this->id      = $id;
 		$this->network = is_multisite() ? absint($network) : 0;
 
-		$this->fill($defaults);
 		$this->load();
 	}
 
@@ -69,10 +70,8 @@ class Options extends Store
 	 */
 	public function load(): self
 	{
-		$this->exists = false;
-
 		if ($this->network) {
-			if (\function_exists('get_network_option')) {
+			if (function_exists('get_network_option')) {
 				$values = get_network_option($this->network, $this->id, []);
 			} else {
 				$values = get_site_option($this->id, []);
@@ -83,7 +82,6 @@ class Options extends Store
 
 		if (!empty($values)) {
 			$this->fill($values);
-			$this->exists = true;
 		}
 
 		return $this;
@@ -97,7 +95,7 @@ class Options extends Store
 	public function save(): self
 	{
 		if ($this->network) {
-			if (\function_exists('update_network_option')) {
+			if (function_exists('update_network_option')) {
 				update_network_option($this->network, $this->id, $this->all());
 			} else {
 				update_site_option($this->id, $this->all());
@@ -106,19 +104,7 @@ class Options extends Store
 			update_option($this->id, $this->all());
 		}
 
-		$this->exists = true;
-
 		return $this;
-	}
-
-	/**
-	 * Whether the options exists in the database.
-	 *
-	 * @return bool
-	 */
-	public function exists(): bool
-	{
-		return $this->exists;
 	}
 
 }

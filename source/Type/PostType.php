@@ -4,6 +4,9 @@ namespace ic\Framework\Type;
 
 use ic\Framework\Html\Tag;
 use ic\Framework\Support\Arr;
+use RuntimeException;
+use WP_Post;
+use WP_Post_Type;
 
 /**
  * Class PostType
@@ -63,7 +66,7 @@ class PostType extends Type
 	 *
 	 * @return static
 	 *
-	 * @throws \RuntimeException
+	 * @throws RuntimeException
 	 */
 	public static function create(string $name, array $taxonomies = []): PostType
 	{
@@ -76,7 +79,7 @@ class PostType extends Type
 	 * @param string $name
 	 * @param array  $taxonomies
 	 *
-	 * @throws \RuntimeException
+	 * @throws RuntimeException
 	 */
 	public function __construct(string $name, array $taxonomies = [])
 	{
@@ -151,10 +154,10 @@ class PostType extends Type
 			return $this;
 		}
 
-		if (\is_callable($filter)) {
+		if (is_callable($filter)) {
 			$this->filter = $filter;
 		} else if ($filter === true) {
-			$this->filter = function ($link, \WP_Post $post) {
+			$this->filter = function ($link, WP_Post $post) {
 				if ($post->post_type !== $this->name) {
 					return $link;
 				}
@@ -229,7 +232,7 @@ class PostType extends Type
 			'not_found'             => sprintf(__('No %s found.', 'ic-framework'), $plural),
 			'not_found_in_trash'    => sprintf(__('No %s found in Trash.', 'ic-framework'), $plural),
 			'archives'              => sprintf(__('%s archives', 'ic-framework'), $singular),
-			'insert_into_item'      => sprintf(__('Insert into %s', 'ic-framework'), $singular),
+			'insert_into_item'      => sprintf(__(/** @lang text */ 'Insert into %s', 'ic-framework'), $singular),
 			'uploaded_to_this_item' => sprintf(__('Uploaded to this %s', 'ic-framework'), $singular),
 			'filter_items_list'     => sprintf(__('Filter %s list', 'ic-framework'), $plural),
 			'items_list_navigation' => sprintf(__('%s list navigation', 'ic-framework'), $plural),
@@ -307,7 +310,7 @@ class PostType extends Type
 	/**
 	 * Set defaults and register the post type.
 	 *
-	 * @throws \RuntimeException
+	 * @throws RuntimeException
 	 */
 	protected function register(): void
 	{
@@ -329,20 +332,20 @@ class PostType extends Type
 	}
 
 	/**
-	 * @param \WP_Post_Type $object
+	 * @param WP_Post_Type $object
 	 *
-	 * @throws \RuntimeException
+	 * @throws RuntimeException
 	 */
-	protected function initialize(\WP_Post_Type $object): void
+	protected function initialize(WP_Post_Type $object): void
 	{
 		$this->object = $object;
 
 		if ($this->filter && !$this->hierarchical) {
 			$this->addRewriteRules();
 
-			add_action('post_type_link', function ($link, \WP_Post $post) {
+			add_action('post_type_link', function ($link, WP_Post $post) {
 				if ($post->post_type === $this->name) {
-					$link = \call_user_func($this->filter, $link, $post);
+					$link = call_user_func($this->filter, $link, $post);
 				}
 
 				return $link;
@@ -370,12 +373,12 @@ class PostType extends Type
 			['var' => $this->name, 'regex' => '([^/]+)'],
 		];
 
-		array_walk($patterns, function (&$value, $index) {
+		array_walk($patterns, static function (&$value, $index) {
 			$value['var'] = sprintf('%s=$matches[%d]', $value['var'], $index + 1);
 		});
 
-		for ($count = \count($patterns); $count > 0; $count--) {
-			$slice = \array_slice($patterns, 0, $count);
+		for ($count = count($patterns); $count > 0; $count--) {
+			$slice = array_slice($patterns, 0, $count);
 			$regex = sprintf('^%s/%s/?', $slug, implode('/', Arr::pluck($slice, 'regex')));
 			$query = sprintf('index.php?post_type=%s&%s', $this->name, implode('&', Arr::pluck($slice, 'var')));
 
@@ -388,7 +391,7 @@ class PostType extends Type
 	 *
 	 * @return array
 	 *
-	 * @throws \RuntimeException
+	 * @throws RuntimeException
 	 */
 	protected function addMessages(array $messages): array
 	{
@@ -402,21 +405,21 @@ class PostType extends Type
 	}
 
 	/**
-	 * @param \WP_Post $post
+	 * @param WP_Post $post
 	 *
 	 * @return array
 	 *
-	 * @throws \RuntimeException
+	 * @throws RuntimeException
 	 */
-	protected function getMessages(\WP_Post $post): array
+	protected function getMessages(WP_Post $post): array
 	{
 		$type = get_post_type_object($this->name);
 
-		if (!($type instanceof \WP_Post_Type)) {
-			throw new \RuntimeException(sprintf('Could not get post type of "%s"', $this->name));
+		if (!($type instanceof WP_Post_Type)) {
+			throw new RuntimeException(sprintf('Could not get post type of "%s"', $this->name));
 		}
 
-		$messages = $this->messages;
+		$messages    = $this->messages;
 		$messages[5] = isset($_GET['revision']) ? sprintf($messages[5], wp_post_revision_title((int) $_GET['revision'], false)) : false;
 		$messages[9] = sprintf($messages[9], date_i18n(__('M j, Y @ G:i', 'ic-framework'), strtotime($post->post_date)));
 
@@ -424,9 +427,9 @@ class PostType extends Type
 			$permalink = get_permalink($post->ID);
 			$view      = ' ' . Tag::a(['href' => $permalink], sprintf(__('View %s', 'ic-framework'), strtolower($this->singular)));
 			$preview   = ' ' . Tag::a([
-				                          'href'   => add_query_arg('preview', 'true', $permalink),
-				                          'target' => 'blank',
-			                          ], sprintf(__('Preview %s', 'ic-framework'), strtolower($this->singular)));
+					'href'   => add_query_arg('preview', 'true', $permalink),
+					'target' => 'blank',
+				], sprintf(__('Preview %s', 'ic-framework'), strtolower($this->singular)));
 
 			$messages[1] .= $view;
 			$messages[6] .= $view;

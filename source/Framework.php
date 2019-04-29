@@ -56,8 +56,6 @@ class Framework extends PluginBase
 	 * @param array  $parameters
 	 *
 	 * @return Assets
-	 *
-	 * @throws \InvalidArgumentException
 	 */
 	public function addScript(string $source, int $target, array $parameters = []): Assets
 	{
@@ -74,8 +72,6 @@ class Framework extends PluginBase
 	 * @param array  $parameters
 	 *
 	 * @return Assets
-	 *
-	 * @throws \InvalidArgumentException
 	 */
 	public function addStyle(string $source, int $target, array $parameters = []): Assets
 	{

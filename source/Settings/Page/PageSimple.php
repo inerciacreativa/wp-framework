@@ -2,8 +2,8 @@
 
 namespace ic\Framework\Settings\Page;
 
+use ic\Framework\Data\Options;
 use ic\Framework\Settings\Form\SectionsDecorator;
-use ic\Framework\Support\Options;
 
 /**
  * Class PageSimple

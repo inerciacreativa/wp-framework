@@ -2,12 +2,14 @@
 
 namespace ic\Framework\Widget;
 
+use WP_Widget;
+
 /**
  * Class WidgetProxy
  *
  * @package ic\Framework\Widget
  */
-class WidgetProxy extends \WP_Widget
+class WidgetProxy extends WP_Widget
 {
 
     /**

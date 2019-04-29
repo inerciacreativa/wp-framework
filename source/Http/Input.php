@@ -24,32 +24,32 @@ class Input
 	private $method;
 
 	/**
-	 * @var InputStore
+	 * @var Request
 	 */
 	private $request;
 
 	/**
-	 * @var InputStore
+	 * @var Request
 	 */
 	private $query;
 
 	/**
-	 * @var FileStore
+	 * @var Files
 	 */
 	private $files;
 
 	/**
-	 * @var ServerStore
+	 * @var Server
 	 */
 	private $server;
 
 	/**
-	 * @var HeaderStore
+	 * @var Headers
 	 */
 	private $headers;
 
 	/**
-	 * @var InputStore
+	 * @var Request
 	 */
 	private $referer;
 
@@ -75,12 +75,12 @@ class Input
 	 */
 	protected function __construct(array $query = [], array $request = [], array $files = [], array $server = [])
 	{
-		$this->query   = new InputStore($query);
-		$this->request = new InputStore($request);
-		$this->files   = new FileStore($files);
-		$this->server  = new ServerStore($server);
-		$this->headers = new HeaderStore($this->server->getHeaders());
-		$this->referer = new RefererStore($this->request->get('_wp_http_referer', ''));
+		$this->query   = new Request($query);
+		$this->request = new Request($request);
+		$this->files   = new Files($files);
+		$this->server  = new Server($server);
+		$this->headers = new Headers($this->server->getHeaders());
+		$this->referer = new Referer($this->request->get('_wp_http_referer', ''));
 	}
 
 	/**
@@ -321,9 +321,9 @@ class Input
 	}
 
 	/**
-	 * @return InputStore
+	 * @return Request
 	 */
-	protected function getInputSource(): InputStore
+	protected function getInputSource(): Request
 	{
 		return $this->method() === 'GET' ? $this->query : $this->request;
 	}

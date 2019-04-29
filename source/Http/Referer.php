@@ -3,11 +3,11 @@
 namespace ic\Framework\Http;
 
 /**
- * Class RefererStore
+ * Class Referer
  *
  * @package ic\Framework\Http
  */
-class RefererStore extends InputStore
+class Referer extends Request
 {
 
 	/**

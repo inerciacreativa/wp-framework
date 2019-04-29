@@ -2,7 +2,10 @@
 
 namespace ic\Framework\Plugin;
 
-use ic\Framework\Hook\HookDecorator;
+use ic\Framework\Hook\Hookable;
+use ReflectionClass;
+use ReflectionException;
+use RuntimeException;
 
 /**
  * Class PluginBase
@@ -13,7 +16,7 @@ abstract class PluginBase
 {
 
 	use PathDecorator;
-	use HookDecorator;
+	use Hookable;
 	use MetadataDecorator;
 	use OptionsDecorator;
 	use AssetsDecorator;
@@ -52,8 +55,8 @@ abstract class PluginBase
 	 * @param string $filename
 	 * @param string $root
 	 *
-	 * @throws \RuntimeException
-	 * @throws \ReflectionException
+	 * @throws RuntimeException
+	 * @throws ReflectionException
 	 */
 	final private function __construct($filename, $root = WP_PLUGIN_DIR)
 	{
@@ -63,7 +66,7 @@ abstract class PluginBase
 
 		$this->configure();
 
-		$namespace = (new \ReflectionClass($this))->getNamespaceName();
+		$namespace = (new ReflectionClass($this))->getNamespaceName();
 		$class     = $namespace . '\\' . (is_admin() ? 'Backend' : 'Frontend');
 
 		if (class_exists($class)) {
@@ -79,11 +82,11 @@ abstract class PluginBase
 	}
 
 	/**
-	 * @throws \RuntimeException
+	 * @throws RuntimeException
 	 */
 	final public function __wakeup()
 	{
-		throw new \RuntimeException('Cannot unserialize singleton.');
+		throw new RuntimeException('Cannot unserialize singleton.');
 	}
 
 	/**

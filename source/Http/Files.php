@@ -2,14 +2,14 @@
 
 namespace ic\Framework\Http;
 
-use ic\Framework\Support\Store;
+use ic\Framework\Data\Repository;
 
 /**
- * Class InputStore
+ * Class Files
  *
  * @package ic\Framework\Http
  */
-class FileStore extends Store
+class Files extends Repository
 {
 
 	/**
@@ -19,7 +19,7 @@ class FileStore extends Store
 	 */
 	public function __construct(array $items)
 	{
-		$this->fill($this->normalizeFiles($items));
+		parent::__construct($this->normalizeFiles($items));
 	}
 
 	/**

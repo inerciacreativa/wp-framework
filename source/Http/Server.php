@@ -3,11 +3,11 @@
 namespace ic\Framework\Http;
 
 /**
- * Class ServerStore
+ * Class Server
  *
  * @package ic\Framework\Http
  */
-class ServerStore extends InputStore
+class Server extends Request
 {
 
 	/**

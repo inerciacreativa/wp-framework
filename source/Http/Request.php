@@ -2,25 +2,15 @@
 
 namespace ic\Framework\Http;
 
-use ic\Framework\Support\Store;
+use ic\Framework\Data\Repository;
 
 /**
- * Class InputStore
+ * Class Request
  *
  * @package ic\Framework\Http
  */
-class InputStore extends Store
+class Request extends Repository
 {
-
-	/**
-	 * InputStore constructor.
-	 *
-	 * @param array $items
-	 */
-	public function __construct(array $items)
-	{
-		$this->fill($items);
-	}
 
 	/**
 	 * Returns the alphabetic characters of the parameter value.

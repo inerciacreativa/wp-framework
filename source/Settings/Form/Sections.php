@@ -3,12 +3,12 @@
 namespace ic\Framework\Settings\Form;
 
 use Closure;
-use ic\Framework\Hook\HookDecorator;
+use ic\Framework\Data\Options;
+use ic\Framework\Hook\Hookable;
 use ic\Framework\Http\Input;
 use ic\Framework\Settings\Page\Page;
 use ic\Framework\Settings\Settings;
 use ic\Framework\Support\Arr;
-use ic\Framework\Support\Options;
 
 /**
  * Class Sections
@@ -18,7 +18,7 @@ use ic\Framework\Support\Options;
 class Sections
 {
 
-	use HookDecorator;
+	use Hookable;
 
 	/**
 	 * @var Page
@@ -217,23 +217,25 @@ class Sections
 	 * Normalize the values. Correct the checkboxes values, and return the
 	 * complete Options array.
 	 *
-	 * @param array $values
+	 * @param array $newValues
 	 *
 	 * @return array
 	 */
-	protected function normalize(array $values): array
+	protected function normalize(array $newValues): array
 	{
 		foreach ($this->fields() as $field) {
 			if ($field->type() === 'checkbox') {
-				if (Arr::has($values, $field->id())) {
-					Arr::set($values, $field->id(), (bool) Arr::get($values, $field->id()));
+				if (Arr::has($newValues, $field->id())) {
+					Arr::set($newValues, $field->id(), (bool) Arr::get($newValues, $field->id()));
 				} else {
-					Arr::set($values, $field->id(), false);
+					Arr::set($newValues, $field->id(), false);
 				}
 			}
 		}
 
-		return Arr::fill($this->options()->all(), $values);
+		$oldValues = $this->options()->all();
+
+		return Arr::merge($oldValues, $newValues);
 	}
 
 	/**

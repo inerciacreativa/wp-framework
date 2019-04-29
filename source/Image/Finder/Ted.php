@@ -2,6 +2,7 @@
 
 namespace ic\Framework\Image\Finder;
 
+use Exception;
 use ic\Framework\Api\Api;
 
 /**
@@ -48,9 +49,10 @@ class Ted extends Finder
 
 	/**
 	 * @inheritdoc
-	 * @throws \Exception
+	 *
+	 * @throws Exception
 	 */
-	protected function getImage($id): array
+	protected function getImage(string $id): array
 	{
 		$id   = 'http://embed.ted.com/talks/' . $id;
 		$data = $this->getApi()->get('services/v1/oembed.json', [
@@ -59,7 +61,7 @@ class Ted extends Finder
 			'language' => $this->language,
 		]);
 
-		if (!\is_object($data)) {
+		if (!is_object($data)) {
 			return [];
 		}
 
@@ -72,7 +74,7 @@ class Ted extends Finder
 	}
 
 	/**
-	 * @return \ic\Framework\Api\Api
+	 * @return Api
 	 */
 	protected function getApi(): Api
 	{

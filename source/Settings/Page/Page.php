@@ -2,10 +2,10 @@
 
 namespace ic\Framework\Settings\Page;
 
-use ic\Framework\Hook\HookDecorator;
+use ic\Framework\Data\Options;
+use ic\Framework\Hook\Hookable;
 use ic\Framework\Html\Tag;
 use ic\Framework\Settings\Form\Form;
-use ic\Framework\Support\Options;
 
 /**
  * Class Page
@@ -15,7 +15,7 @@ use ic\Framework\Support\Options;
 abstract class Page
 {
 
-	use HookDecorator;
+	use Hookable;
 
 	/**
 	 * @var string

@@ -1044,4 +1044,14 @@ class Str
 		return trim($title, $separator);
 	}
 
+	/**
+	 * @param string $string
+	 *
+	 * @return bool
+	 */
+	public static function isHtml(string $string): bool
+	{
+		return $string !== strip_tags($string);
+	}
+
 }

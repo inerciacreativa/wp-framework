@@ -2,6 +2,11 @@
 
 namespace ic\Framework\Support;
 
+use DateInterval;
+use DateTime;
+use DateTimeZone;
+use Exception;
+
 /**
  * Class Date
  *
@@ -11,17 +16,19 @@ class Date
 {
 
 	/**
-	 * @var \DateTime
+	 * @var DateTime
 	 */
 	protected $date;
 
 	/**
-	 * @var \DateTimeZone
+	 * @var DateTimeZone
 	 */
 	protected $timezone;
 
 	/**
-	 * @return Date
+	 * @return static
+	 *
+	 * @throws Exception
 	 */
 	public static function now(): Date
 	{
@@ -31,7 +38,9 @@ class Date
 	/**
 	 * @param $input
 	 *
-	 * @return Date
+	 * @return static
+	 *
+	 * @throws Exception
 	 */
 	public static function create(string $input): Date
 	{
@@ -43,18 +52,26 @@ class Date
 	 *
 	 * @param string $input
 	 */
+
+	/**
+	 * Date constructor.
+	 *
+	 * @param string $input
+	 *
+	 * @throws Exception
+	 */
 	public function __construct(string $input = 'now')
 	{
-		$this->date     = new \DateTime($input);
-		$this->timezone = new \DateTimeZone(get_option('timezone_string'));
+		$this->date     = new DateTime($input);
+		$this->timezone = new DateTimeZone(get_option('timezone_string'));
 
 		$this->date->setTimezone($this->timezone);
 	}
 
 	/**
-	 * @return \DateTime
+	 * @return DateTime
 	 */
-	public function get(): \DateTime
+	public function get(): DateTime
 	{
 		return $this->date;
 	}
@@ -90,18 +107,18 @@ class Date
 	/**
 	 * @param int|string $interval
 	 *
-	 * @return \DateInterval
+	 * @return DateInterval
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public static function interval($interval): \DateInterval
+	public static function interval($interval): DateInterval
 	{
 		if (is_numeric($interval)) {
 			$interval = 'PT' . $interval . 'S';
 		}
 
-		return (new \DateTime())->add(new \DateInterval($interval))
-		                        ->diff(new \DateTime());
+		return (new DateTime())->add(new DateInterval($interval))
+		                       ->diff(new DateTime());
 	}
 
 }

@@ -6,6 +6,9 @@ use ic\Framework\Framework;
 use ic\Framework\Html\Tag;
 use ic\Framework\Support\Arr;
 use ic\Framework\Type\Taxonomy;
+use InvalidArgumentException;
+use WP_Ajax_Response;
+use WP_Post;
 
 class TaxonomyMetaBox
 {
@@ -38,7 +41,7 @@ class TaxonomyMetaBox
 	 * @param bool     $multiple
 	 * @param bool     $allowNone
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 */
 	public function __construct(Taxonomy $taxonomy, bool $popular = true, bool $multiple = true, bool $allowNone = true)
 	{
@@ -65,10 +68,10 @@ class TaxonomyMetaBox
 	}
 
 	/**
-	 * @param \WP_Post $post
-	 * @param array    $box
+	 * @param WP_Post $post
+	 * @param array   $box
 	 */
-	public function __invoke(\WP_Post $post, array $box = [])
+	public function __invoke(WP_Post $post, array $box = [])
 	{
 		$this->render($post);
 	}
@@ -76,11 +79,11 @@ class TaxonomyMetaBox
 	/**
 	 * Displays terms controls.
 	 *
-	 * @param \WP_Post $post
+	 * @param WP_Post $post
 	 *
 	 * @see post_categories_meta_box()
 	 */
-	protected function render(\WP_Post $post): void
+	protected function render(WP_Post $post): void
 	{
 		$taxonomy = $this->taxonomy->name;
 		$selected = $this->getPostTerms($post);
@@ -104,16 +107,16 @@ class TaxonomyMetaBox
 	}
 
 	/**
-	 * @param \WP_Post $post
+	 * @param WP_Post $post
 	 *
 	 * @return array
 	 */
-	protected function getPostTerms(\WP_Post $post): array
+	protected function getPostTerms(WP_Post $post): array
 	{
 		$terms = $post ? $this->taxonomy->getPostTerms($post->ID, ['fields' => 'ids']) : [];
 
-		if (\count($terms) > 1 && !$this->allowMultiple()) {
-			$terms = \array_slice($terms, 0, 1);
+		if (count($terms) > 1 && !$this->allowMultiple()) {
+			$terms = array_slice($terms, 0, 1);
 		}
 
 		if (empty($terms) && $this->allowNone()) {
@@ -193,7 +196,7 @@ class TaxonomyMetaBox
 				'prefix'   => 'popular-',
 				'class'    => 'popular-category',
 				'name'     => '',
-				'checked'  => \in_array($term->term_id, $selected, false),
+				'checked'  => in_array($term->term_id, $selected, false),
 				'disabled' => $disabled,
 			]);
 		}, $popular)));
@@ -202,15 +205,15 @@ class TaxonomyMetaBox
 	/**
 	 * Renders the controls to select the terms.
 	 *
-	 * @param \WP_Post $post
-	 * @param array    $selected
-	 * @param array    $popular Popular terms.
-	 *
-	 * @uses wp_terms_checklist()
+	 * @param WP_Post $post
+	 * @param array   $selected
+	 * @param array   $popular Popular terms.
 	 *
 	 * @return Tag
+	 * @uses wp_terms_checklist()
+	 *
 	 */
-	protected function getAllTab(\WP_Post $post, array $selected, array $popular): Tag
+	protected function getAllTab(WP_Post $post, array $selected, array $popular): Tag
 	{
 		$taxonomy = $this->taxonomy->name;
 		$popular  = empty($popular) ? [] : Arr::pluck($popular, 'term_id');
@@ -308,9 +311,9 @@ class TaxonomyMetaBox
 	/**
 	 * Renders a dropdown with the terms to be assigned as parent for hierarchical taxonomies.
 	 *
+	 * @return array|null
 	 * @uses wp_dropdown_categories()
 	 *
-	 * @return array|null
 	 */
 	protected function getNewParent(): ?array
 	{
@@ -342,7 +345,7 @@ class TaxonomyMetaBox
 	/**
 	 * Ajax handler for adding a term.
 	 *
-	 * @uses \WP_Ajax_Response
+	 * @uses WP_Ajax_Response
 	 * @see  _wp_ajax_add_hierarchical_term()
 	 */
 	protected function addNewTerm(): void
@@ -373,7 +376,7 @@ class TaxonomyMetaBox
 			}
 
 			$term = (object) [
-				'term_id' => \is_array($term_id) ? $term_id['term_id'] : $term_id,
+				'term_id' => is_array($term_id) ? $term_id['term_id'] : $term_id,
 				'name'    => $name,
 			];
 
@@ -391,7 +394,7 @@ class TaxonomyMetaBox
 		}
 
 		if ($response) {
-			$ajax = new \WP_Ajax_Response($response);
+			$ajax = new WP_Ajax_Response($response);
 			$ajax->send();
 		}
 	}
@@ -426,9 +429,9 @@ class TaxonomyMetaBox
 	 * @param object $term
 	 * @param array  $attributes
 	 *
+	 * @return Tag
 	 * @see /public/js/taxonomy-meta-box.js
 	 *
-	 * @return Tag
 	 */
 	public function getInput($term, array $attributes = []): Tag
 	{

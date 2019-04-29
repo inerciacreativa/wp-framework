@@ -18,14 +18,42 @@
     }
   ],
   "require": {
-    "php": ">=7.1",
+    "php": ">=7.2",
+    "ext-apache": "*",
+    "ext-dom": "*",
+    "ext-json": "*",
+    "ext-libxml": "*",
+    "ext-simplexml": "*",
     "composer/installers": "^1.5"
   },
   "config": {
     "vendor-dir": "vendor"
   },
   "extra": {
-    "installer-name": "ic-framework"
+    "installer-name": "ic-framework",
+    "wordpress-install-dir": "www/wp",
+    "installer-paths": {
+      "www/app/mu-plugins/{$name}/": [
+        "type:wordpress-muplugin"
+      ],
+      "www/app/plugins/{$name}/": [
+        "type:wordpress-plugin"
+      ],
+      "www/app/themes/{$name}/": [
+        "type:wordpress-theme"
+      ]
+    },
+    "dropin-paths": {
+      "www/app/languages/": [
+        "vendor:koodimonni-language"
+      ],
+      "www/app/languages/plugins/": [
+        "vendor:koodimonni-plugin-language"
+      ],
+      "www/app/languages/themes/": [
+        "vendor:koodimonni-theme-language"
+      ]
+    }
   },
   "scripts": {
     "post-install-cmd": "php -r \"copy('ic-framework-loader.php', '../ic-framework-loader.php');\"",

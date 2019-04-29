@@ -2,7 +2,7 @@
 
 namespace ic\Framework\Plugin;
 
-use ic\Framework\Hook\HookDecorator;
+use ic\Framework\Hook\Hookable;
 
 /**
  * Class Assets
@@ -12,7 +12,7 @@ use ic\Framework\Hook\HookDecorator;
 class Assets
 {
 
-	use HookDecorator;
+	use Hookable;
 
 	public const FRONT = 1;
 
@@ -111,7 +111,7 @@ class Assets
 	{
 		$folders = array_merge(self::$folders, $folders, ['path' => $path]);
 
-		$folders = array_map(function ($folder) {
+		$folders = array_map(static function ($folder) {
 			$folder = trim($folder, '/\\');
 
 			return empty($folder) ? '' : "$folder/";
@@ -131,8 +131,6 @@ class Assets
 	 * @param array  $parameters
 	 *
 	 * @return $this
-	 *
-	 * @throws \InvalidArgumentException
 	 */
 	public function addStyle(string $source, int $target, array $parameters = []): self
 	{
@@ -148,8 +146,6 @@ class Assets
 	 * @param array  $parameters
 	 *
 	 * @return $this
-	 *
-	 * @throws \InvalidArgumentException
 	 */
 	public function addScript(string $source, int $target, array $parameters = []): self
 	{
@@ -162,8 +158,6 @@ class Assets
 	 * @param array  $parameters
 	 *
 	 * @return $this
-	 *
-	 * @throws \InvalidArgumentException
 	 */
 	protected function add(string $source, int $target, array $parameters = []): self
 	{
@@ -174,7 +168,7 @@ class Assets
 		}
 
 		if (!array_key_exists($target, self::$targets)) {
-			throw new \InvalidArgumentException(sprintf('Asset target not allowed: %s.', $asset->target));
+			$target = self::ALL;
 		}
 
 		$asset->target = $target;
@@ -236,17 +230,17 @@ class Assets
 	 */
 	protected function filter(int $target, $hook = null): array
 	{
-		return array_filter($this->assets, function ($asset) use ($target, $hook) {
+		return array_filter($this->assets, static function ($asset) use ($target, $hook) {
 			if (!($asset->target & $target)) {
 				return false;
 			}
 
-			if (($target === self::BACK) && !empty($hook) && !empty($asset->hooks) && is_admin() && !\in_array($hook, $asset->hooks, false)) {
+			if (($target === self::BACK) && !empty($hook) && !empty($asset->hooks) && is_admin() && !in_array($hook, $asset->hooks, false)) {
 				return false;
 			}
 
-			if (\is_callable($asset->on)) {
-				return \call_user_func($asset->on, $hook);
+			if (is_callable($asset->on)) {
+				return call_user_func($asset->on, $hook);
 			}
 
 			return true;

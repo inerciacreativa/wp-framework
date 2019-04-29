@@ -75,7 +75,7 @@ abstract class Action implements ActionInterface
 	 */
 	public function __invoke()
 	{
-		return \call_user_func_array($this->callback, \array_slice(\func_get_args(), 0, $this->arguments));
+		return call_user_func_array($this->callback, array_slice(func_get_args(), 0, $this->arguments));
 	}
 
 	/**
@@ -114,27 +114,23 @@ abstract class Action implements ActionInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function enable(): ActionInterface
+	public function enable(): void
 	{
 		if (!$this->enabled) {
 			add_filter($this->hook, $this, $this->priority, $this->arguments);
 			$this->enabled = true;
 		}
-
-		return $this;
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function disable(): ActionInterface
+	public function disable(): void
 	{
 		if ($this->enabled) {
 			remove_filter($this->hook, $this, $this->priority);
 			$this->enabled = false;
 		}
-
-		return $this;
 	}
 
 }

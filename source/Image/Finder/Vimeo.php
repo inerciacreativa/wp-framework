@@ -1,4 +1,5 @@
 <?php
+/** @noinspection NullPointerExceptionInspection */
 
 namespace ic\Framework\Image\Finder;
 
@@ -36,11 +37,11 @@ class Vimeo extends Finder
 	/**
 	 * @inheritdoc
 	 */
-	protected function getImage($id): array
+	protected function getImage(string $id): array
 	{
 		$data = $this->getApi()->getVideo($id);
 
-		if (!\is_object($data)) {
+		if (!is_object($data)) {
 			return [];
 		}
 
@@ -57,7 +58,10 @@ class Vimeo extends Finder
 		];
 	}
 
-	protected function getApi()
+	/**
+	 * @return VimeoClient
+	 */
+	protected function getApi(): VimeoClient
 	{
 		if ($this->api === null) {
 			$this->api = new VimeoClient();

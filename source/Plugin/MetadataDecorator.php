@@ -2,6 +2,9 @@
 
 namespace ic\Framework\Plugin;
 
+use InvalidArgumentException;
+use RuntimeException;
+
 /**
  * Trait MetadataDecorator
  *
@@ -20,7 +23,7 @@ trait MetadataDecorator
 	 *
 	 * @return $this
 	 *
-	 * @throws \RuntimeException
+	 * @throws RuntimeException
 	 */
 	protected function setMetadata($source): self
 	{
@@ -34,13 +37,13 @@ trait MetadataDecorator
 	 *
 	 * @return string|Metadata
 	 *
-	 * @throws \RuntimeException
-	 * @throws \InvalidArgumentException
+	 * @throws RuntimeException
+	 * @throws InvalidArgumentException
 	 */
 	public function getMetadata(string $metadata = null)
 	{
 		if ($this->metadata === null) {
-			throw new \RuntimeException(sprintf('There is no attached metadata in "%s".', static::class));
+			throw new RuntimeException(sprintf('There is no attached metadata in "%s".', static::class));
 		}
 
 		if (empty($metadata)) {
@@ -48,7 +51,7 @@ trait MetadataDecorator
 		}
 
 		if (!isset($this->metadata->$metadata)) {
-			throw new \InvalidArgumentException(sprintf('There is no attached metadata "%s" in "%s".', $metadata, static::class));
+			throw new InvalidArgumentException(sprintf('There is no attached metadata "%s" in "%s".', $metadata, static::class));
 		}
 
 		return $this->metadata->$metadata;

@@ -3,11 +3,11 @@
 namespace ic\Framework\Hook;
 
 /**
- * Class HookDecorator
+ * Trait Hookable
  *
  * @package ic\Framework\Hook
  */
-trait HookDecorator
+trait Hookable
 {
 
 	/**

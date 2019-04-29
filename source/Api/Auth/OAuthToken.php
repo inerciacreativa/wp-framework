@@ -3,173 +3,173 @@
 namespace ic\Framework\Api\Auth;
 
 use ic\Framework\Api\Query;
-use ic\Framework\Support\Cache;
+use ic\Framework\Data\Cache;
 
 /**
  * Class OAuthToken
  *
- * @package ic\Framework\Api\OAuth
+ * @package ic\Framework\Api\Auth
  */
 class OAuthToken implements AuthInterface
 {
 
-    /**
-     * @var string
-     */
-    protected $id;
+	/**
+	 * @var string
+	 */
+	protected $id;
 
-    /**
-     * @var string
-     */
-    protected $endpoint;
+	/**
+	 * @var string
+	 */
+	protected $endpoint;
 
-    /**
-     * @var array
-     */
-    protected $headers;
+	/**
+	 * @var array
+	 */
+	protected $headers;
 
-    /**
-     * @var string
-     */
-    protected $credentials;
+	/**
+	 * @var string
+	 */
+	protected $credentials;
 
-    /**
-     * @var bool|string
-     */
-    protected $token = true;
+	/**
+	 * @var bool|string
+	 */
+	protected $token = true;
 
-    /**
-     * @var int
-     */
-    protected $retries = 0;
+	/**
+	 * @var int
+	 */
+	protected $retries = 0;
 
-    /**
-     * @param string $endpoint
-     * @param string $id
-     * @param string $secret
-     * @param array  $headers
-     */
-    public function __construct($endpoint, $id, $secret, array $headers = [])
-    {
-        $this->endpoint    = $endpoint;
-        $this->headers     = $headers;
-        $this->credentials = base64_encode($id . ':' . $secret);
-    }
+	/**
+	 * @param string $endpoint
+	 * @param string $id
+	 * @param string $secret
+	 * @param array  $headers
+	 */
+	public function __construct(string $endpoint, string $id, string $secret, array $headers = [])
+	{
+		$this->endpoint    = $endpoint;
+		$this->headers     = $headers;
+		$this->credentials = base64_encode($id . ':' . $secret);
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function getId()
-    {
-        if (!$this->id) {
-            $this->id = 'oauth_token_' . md5($this->credentials);
-        }
+	/**
+	 * @inheritdoc
+	 */
+	public function getId(): string
+	{
+		if (!$this->id) {
+			$this->id = 'oauth_token_' . md5($this->credentials);
+		}
 
-        return $this->id;
-    }
+		return $this->id;
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function isReady()
-    {
-        return (bool)$this->getToken();
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function isReady(): bool
+	{
+		return (bool) $this->getToken();
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function authorize(Query $query)
-    {
-        if ($this->isReady()) {
-            $query->setHeader('Authorization', 'Bearer ' . $this->getToken());
+	/**
+	 * @inheritdoc
+	 */
+	public function authorize(Query $query): Query
+	{
+		if ($this->isReady()) {
+			$query->setHeader('Authorization', 'Bearer ' . $this->getToken());
 
-            foreach ($this->headers as $name => $value) {
-                $query->setHeader($name, $value);
-            }
-        }
+			foreach ($this->headers as $name => $value) {
+				$query->setHeader($name, $value);
+			}
+		}
 
-        return $query;
-    }
+		return $query;
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function regenerate()
-    {
-        if ($token = $this->setToken(false)) {
-            $this->token = $token;
+	/**
+	 * @inheritdoc
+	 */
+	public function regenerate(): bool
+	{
+		if ($token = $this->setToken(false)) {
+			$this->token = $token;
 
-            return true;
-        }
+			return true;
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-    /**
-     * @return bool|string
-     */
-    protected function getToken()
-    {
-        if ($this->token === true) {
-            $this->token = $this->setToken(true);
-        }
+	/**
+	 * @return string|null
+	 */
+	protected function getToken(): ?string
+	{
+		if ($this->token === true) {
+			$this->token = $this->setToken(true);
+		}
 
-        return $this->token;
-    }
+		return $this->token;
+	}
 
-    /**
-     * @param bool $cache
-     *
-     * @return bool|string
-     */
-    protected function setToken($cache)
-    {
-        $token = false;
+	/**
+	 * @param bool $cache
+	 *
+	 * @return string|null
+	 */
+	protected function setToken(bool $cache): ?string
+	{
+		$token = null;
 
-        if ($cache) {
-            $this->retries++;
+		if ($cache) {
+			$this->retries++;
 
-            $token = Cache::pull($this->getId());
-        }
+			$token = Cache::get($this->getId(), null);
+		}
 
-        while (!$token && $this->retries < 2) {
-            $this->retries++;
+		while (!$token && $this->retries < 2) {
+			$this->retries++;
 
-            if ($token = $this->retrieveToken()) {
-                Cache::push($this->getId(), $token);
-            }
-        }
+			if ($token = $this->retrieveToken()) {
+				Cache::set($this->getId(), $token);
+			}
+		}
 
-        return $token;
-    }
+		return $token;
+	}
 
-    /**
-     * Generate the bearer token for unauthenticated requests following the OAuth 2.0 Client Credentials Grant.
-     *
-     * @return bool|string
-     */
-    protected function retrieveToken()
-    {
-        $token = false;
-        $query = Query::create($this->endpoint)
-                      ->setHeader('Authorization', 'Basic ' . $this->credentials)
-                      ->setHeader('Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8')
-                      ->setBody(['grant_type' => 'client_credentials']);
+	/**
+	 * Generate the bearer token for unauthenticated requests following the OAuth 2.0 Client Credentials Grant.
+	 *
+	 * @return string|null
+	 */
+	protected function retrieveToken(): ?string
+	{
+		$token = null;
+		$query = Query::create($this->endpoint)
+		              ->setHeader('Authorization', 'Basic ' . $this->credentials)
+		              ->setHeader('Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8')
+		              ->setBody(['grant_type' => 'client_credentials']);
 
-        foreach ($this->headers as $name => $value) {
-            $query->setHeader($name, $value);
-        }
+		foreach ($this->headers as $name => $value) {
+			$query->setHeader($name, $value);
+		}
 
-        if ($query->post()) {
-            $data = json_decode($query->getResponse());
+		if ($query->post()) {
+			$data = json_decode($query->getResponse(), false);
 
-            if (isset($data->access_token)) {
-                $token = $data->access_token;
-            }
-        }
+			if (isset($data->access_token)) {
+				$token = $data->access_token;
+			}
+		}
 
-        return $token;
-    }
+		return $token;
+	}
 
 }

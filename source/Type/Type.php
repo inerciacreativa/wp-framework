@@ -2,6 +2,9 @@
 
 namespace ic\Framework\Type;
 
+use InvalidArgumentException;
+use RuntimeException;
+
 /**
  * Class Type
  *
@@ -60,15 +63,15 @@ abstract class Type
 	 *
 	 * @return mixed Property value.
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 */
 	public function __get($property)
 	{
-		if (\in_array($property, static::$public, false)) {
+		if (in_array($property, static::$public, false)) {
 			return $this->$property;
 		}
 
-		if (\is_object($this->object) && property_exists($this->object, $property)) {
+		if (is_object($this->object) && property_exists($this->object, $property)) {
 			return $this->object->$property;
 		}
 
@@ -76,7 +79,7 @@ abstract class Type
 			return $this->properties[$property];
 		}
 
-		throw new \InvalidArgumentException(sprintf('The property "%s" does not exists.', $property));
+		throw new InvalidArgumentException(sprintf('The property "%s" does not exists.', $property));
 	}
 
 	/**
@@ -85,17 +88,17 @@ abstract class Type
 	 * @param string $property
 	 * @param mixed  $value
 	 *
-	 * @throws \RuntimeException
-	 * @throws \InvalidArgumentException
+	 * @throws RuntimeException
+	 * @throws InvalidArgumentException
 	 */
 	public function __set($property, $value): void
 	{
-		if (\is_object($this->object)) {
-			throw new \RuntimeException(sprintf('The object "%s" has been registered.', $this->name));
+		if (is_object($this->object)) {
+			throw new RuntimeException(sprintf('The object "%s" has been registered.', $this->name));
 		}
 
 		if (!array_key_exists($property, $this->properties)) {
-			throw new \InvalidArgumentException(sprintf('The property "%s" does not exists.', $property));
+			throw new InvalidArgumentException(sprintf('The property "%s" does not exists.', $property));
 		}
 
 		$this->properties[$property] = $value;
@@ -108,7 +111,7 @@ abstract class Type
 	 */
 	public function __isset($property): bool
 	{
-		return \in_array($property, static::$public, false) || (\is_object($this->object) && property_exists($this->object, $property)) || array_key_exists($property, $this->properties);
+		return in_array($property, static::$public, false) || (is_object($this->object) && property_exists($this->object, $property)) || array_key_exists($property, $this->properties);
 	}
 
 	/**

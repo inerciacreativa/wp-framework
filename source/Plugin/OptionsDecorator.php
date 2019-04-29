@@ -2,8 +2,13 @@
 
 namespace ic\Framework\Plugin;
 
-use ic\Framework\Support\Options;
+use ic\Framework\Data\Options;
 
+/**
+ * Trait OptionsDecorator
+ *
+ * @package ic\Framework\Plugin
+ */
 trait OptionsDecorator
 {
 
@@ -20,12 +25,12 @@ trait OptionsDecorator
 	 *
 	 * @return static
 	 */
-	protected function setOptions($options, $network = 0)
+	protected function setOptions($options, int $network = 0)
 	{
 		if ($options instanceof Options) {
 			$this->options = $options;
-		} else if (($this instanceof PluginBase) && \is_array($options)) {
-			$this->options = new Options($this->id(), $options, $network);
+		} else if (($this instanceof PluginBase) && is_array($options)) {
+			$this->options = new Options($options, $this->id(), $network);
 		}
 
 		return $this;
@@ -33,15 +38,9 @@ trait OptionsDecorator
 
 	/**
 	 * @return Options
-	 *
-	 * @throws \RuntimeException
 	 */
-	public function getOptions(): Options
+	public function getOptions(): ?Options
 	{
-		if (!$this->options) {
-			throw new \RuntimeException(sprintf('There is not options object attached to "%s".', static::class));
-		}
-
 		return $this->options;
 	}
 
@@ -53,7 +52,11 @@ trait OptionsDecorator
 	 */
 	public function getOption(string $key, $default = null)
 	{
-		return $this->getOptions()->get($key, $default);
+		if ($this->getOptions()) {
+			return $this->getOptions()->get($key, $default);
+		}
+
+		return $default;
 	}
 
 	/**
@@ -64,7 +67,9 @@ trait OptionsDecorator
 	 */
 	public function setOption(string $key, $value)
 	{
-		$this->getOptions()->set($key, $value);
+		if ($this->getOptions()) {
+			$this->getOptions()->set($key, $value);
+		}
 
 		return $this;
 	}

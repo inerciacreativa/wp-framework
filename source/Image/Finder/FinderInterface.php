@@ -20,6 +20,6 @@ interface FinderInterface
      *
      * @return ImageCollection
      */
-    public function search($html, ImageCollection $collection = null, $limit = 0, $width = 720);
+    public function search(string $html, ImageCollection $collection = null, int $limit = 0, int $width = 720): ImageCollection;
 
 }

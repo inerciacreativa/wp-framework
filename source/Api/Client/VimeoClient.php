@@ -2,9 +2,10 @@
 
 namespace ic\Framework\Api\Client;
 
+use ic\Framework\Api\Auth\AuthInterface;
 use ic\Framework\Api\Auth\OAuthToken;
 use ic\Framework\Framework;
-use ic\Framework\Support\Collection;
+use RuntimeException;
 
 /**
  * Class VimeoClient
@@ -14,154 +15,167 @@ use ic\Framework\Support\Collection;
 class VimeoClient extends Client
 {
 
-    /**
-     * @inheritdoc
-     */
-    public function getAuth()
-    {
-        $options = Framework::instance()->getOptions();
+	/**
+	 * @inheritdoc
+	 */
+	public function getAuth(): ?AuthInterface
+	{
+		static $auth;
+		if ($auth === null) {
+			if (empty($this->credentials['id']) || empty($this->credentials['secret'])) {
+				throw new RuntimeException('Could not find the credentials!');
+			}
 
-        return new OAuthToken(
-            $this->getEndpoint() . '/oauth/authorize/client',
-            $options->get('vimeo.credentials.id'),
-            $options->get('vimeo.credentials.secret'),
-            ['Accept' => 'application/vnd.vimeo.*+json; version=' . $this->getVersion()]
-        );
-    }
+			$auth = new OAuthToken($this->getEndpoint('/oauth/authorize/client'), $this->credentials['id'], $this->credentials['secret'], $this->getHeaders());
+		}
 
-    /**
-     * @inheritdoc
-     */
-    public function getName()
-    {
-        return 'Vimeo';
-    }
+		return $auth;
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function getVersion()
-    {
-        return '3.2';
-    }
+	/**
+	 * @return array
+	 */
+	protected function getHeaders(): array
+	{
+		return ['Accept' => 'application/vnd.vimeo.*+json; version=' . $this->getVersion()];
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function getDomain()
-    {
-        return 'https://vimeo.com';
-    }
+	/**
+	 * @inheritdoc
+	 */
+	protected function getCredentials(): array
+	{
+		/** @noinspection NullPointerExceptionInspection */
+		return Framework::instance()
+		                ->getOptions()
+		                ->get('vimeo.credentials', []);
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function getEndpoint()
-    {
-        return 'https://api.vimeo.com';
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function getName(): string
+	{
+		return 'Vimeo';
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function getMethods()
-    {
-        return Collection::make([
-            ['name' => 'video', 'type' => 'video', 'label' => __('Video', 'ic-framework'), 'callback' => 'getVideo'],
-            ['name' => 'user', 'type' => 'info', 'label' => __('User', 'ic-framework'), 'callback' => 'getUser'],
-            ['name' => 'userVideos', 'type' => 'video', 'label' => __('User Videos', 'ic-framework'), 'callback' => 'getUserVideos'],
-            ['name' => 'channel', 'type' => 'info', 'label' => __('Channel', 'ic-framework'), 'callback' => 'getChannel'],
-            ['name' => 'channelVideos', 'type' => 'video', 'label' => __('Channel Videos', 'ic-framework'), 'callback' => 'getChannelVideos'],
-            ['name' => 'group', 'type' => 'info', 'label' => __('Group', 'ic-framework'), 'callback' => 'getGroup'],
-            ['name' => 'groupVideos', 'type' => 'video', 'label' => __('Group Videos', 'ic-framework'), 'callback' => 'getGroupVideos'],
-        ]);
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function getVersion(): string
+	{
+		return '3.2';
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function getUrls()
-    {
-        return [
-            'video'         => '/videos/#ID#',
-            'userVideos'    => '/#ID#',
-            'channelVideos' => '/channels/#ID#',
-            'groupVideos'   => '/groups/#ID#',
-            'embed'         => 'https://player.vimeo.com/video/#ID#',
-        ];
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function getDomain(string $path = ''): string
+	{
+		return 'https://vimeo.com' . $path;
+	}
 
-    /**
-     * @param string $videoId
-     *
-     * @return null|\stdClass
-     */
-    public function getVideo($videoId)
-    {
-        return $this->api()->get("videos/$videoId");
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function getEndpoint(string $path = ''): string
+	{
+		return 'https://api.vimeo.com' . $path;
+	}
 
-    /**
-     * @param string $userId
-     *
-     * @return null|\stdClass
-     */
-    public function getUser($userId)
-    {
-        return $this->api()->get("users/$userId");
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function getUrls(): array
+	{
+		static $urls;
+		if ($urls === null) {
+			$urls = [
+				'video'         => $this->getDomain('/videos/#ID#'),
+				'userVideos'    => $this->getDomain('/#ID#'),
+				'channelVideos' => $this->getDomain('/channels/#ID#'),
+				'groupVideos'   => $this->getDomain('/groups/#ID#'),
+				'embed'         => 'https://player.vimeo.com/video/#ID#',
+			];
+		}
 
-    /**
-     * @param string $userId
-     * @param int    $maxResults
-     *
-     * @return null|\stdClass
-     */
-    public function getUserVideos($userId, $maxResults = 10)
-    {
-        return $this->api()->get("users/$userId/videos", ['per_page' => $maxResults]);
-    }
+		return $urls;
+	}
 
-    /**
-     * @param string $channelId
-     *
-     * @return null|\stdClass
-     */
-    public function getChannel($channelId)
-    {
-        return $this->api()->get("channels/$channelId");
-    }
+	/**
+	 * @param string $videoId
+	 *
+	 * @return null|object
+	 */
+	public function getVideo(string $videoId): ?object
+	{
+		return $this->getApi()->get("videos/$videoId");
+	}
 
-    /**
-     * @param string $channelId
-     * @param int    $maxResults
-     *
-     * @return null|\stdClass
-     */
-    public function getChannelVideos($channelId, $maxResults = 10)
-    {
-        return $this->api()->get("channels/$channelId/videos", ['per_page' => $maxResults]);
-    }
+	/**
+	 * @param string $userId
+	 *
+	 * @return null|object
+	 */
+	public function getUser(string $userId): ?object
+	{
+		return $this->getApi()->get("users/$userId");
+	}
 
-    /**
-     * @param string $groupId
-     *
-     * @return null|\stdClass
-     */
-    public function getGroup($groupId)
-    {
-        return $this->api()->get("groups/$groupId");
-    }
+	/**
+	 * @param string $userId
+	 * @param int    $maxResults
+	 *
+	 * @return null|object
+	 */
+	public function getUserVideos(string $userId, int $maxResults = 10): ?object
+	{
+		return $this->getApi()
+		            ->get("users/$userId/videos", ['per_page' => $maxResults]);
+	}
 
-    /**
-     * @param string $groupId
-     * @param int    $maxResults
-     *
-     * @return null|\stdClass
-     */
-    public function getGroupVideos($groupId, $maxResults = 10)
-    {
-        return $this->api()->get("groups/$groupId/videos", ['per_page' => $maxResults]);
-    }
+	/**
+	 * @param string $channelId
+	 *
+	 * @return null|object
+	 */
+	public function getChannel(string $channelId): ?object
+	{
+		return $this->getApi()->get("channels/$channelId");
+	}
+
+	/**
+	 * @param string $channelId
+	 * @param int    $maxResults
+	 *
+	 * @return null|object
+	 */
+	public function getChannelVideos(string $channelId, int $maxResults = 10): ?object
+	{
+		return $this->getApi()
+		            ->get("channels/$channelId/videos", ['per_page' => $maxResults]);
+	}
+
+	/**
+	 * @param string $groupId
+	 *
+	 * @return null|object
+	 */
+	public function getGroup(string $groupId): ?object
+	{
+		return $this->getApi()->get("groups/$groupId");
+	}
+
+	/**
+	 * @param string $groupId
+	 * @param int    $maxResults
+	 *
+	 * @return null|object
+	 */
+	public function getGroupVideos(string $groupId, int $maxResults = 10): ?object
+	{
+		return $this->getApi()
+		            ->get("groups/$groupId/videos", ['per_page' => $maxResults]);
+	}
 
 }

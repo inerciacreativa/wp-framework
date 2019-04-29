@@ -2,17 +2,19 @@
 
 namespace ic\Framework\Plugin;
 
-use ic\Framework\Hook\HookDecorator;
+use ic\Framework\Hook\Hookable;
+use InvalidArgumentException;
+use RuntimeException;
 
 /**
- * Class PluginAccessDecorator
+ * Class PluginClassDecorator
  *
  * @package ic\Framework\Plugin
  */
 trait PluginClassDecorator
 {
 
-	use HookDecorator;
+	use Hookable;
 	use MetadataDecorator;
 	use OptionsDecorator;
 	use AssetsDecorator;
@@ -25,13 +27,13 @@ trait PluginClassDecorator
 	/**
 	 * @param PluginBase $plugin
 	 *
-	 * @throws \RuntimeException
-	 * @throws \InvalidArgumentException
+	 * @throws RuntimeException
+	 * @throws InvalidArgumentException
 	 */
 	protected function setPlugin(PluginBase $plugin): void
 	{
 		if ($this->plugin) {
-			throw new \RuntimeException('There is already a Plugin object attached.');
+			throw new RuntimeException('There is already a Plugin object attached.');
 		}
 
 		$this->plugin = $plugin;
@@ -43,12 +45,12 @@ trait PluginClassDecorator
 	/**
 	 * @return Plugin|PluginClass
 	 *
-	 * @throws \RuntimeException
+	 * @throws RuntimeException
 	 */
 	public function getPlugin()
 	{
 		if ($this->plugin === null) {
-			throw new \RuntimeException('There is no Plugin object attached.');
+			throw new RuntimeException('There is no Plugin object attached.');
 		}
 
 		return $this->plugin;
@@ -59,7 +61,7 @@ trait PluginClassDecorator
 	 *
 	 * @return string
 	 *
-	 * @throws \RuntimeException
+	 * @throws RuntimeException
 	 */
 	public function getRelativePath(string $path = ''): string
 	{
@@ -71,7 +73,7 @@ trait PluginClassDecorator
 	 *
 	 * @return string
 	 *
-	 * @throws \RuntimeException
+	 * @throws RuntimeException
 	 */
 	public function getAbsolutePath($path = ''): string
 	{

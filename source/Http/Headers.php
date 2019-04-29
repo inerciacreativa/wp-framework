@@ -7,11 +7,11 @@ use Countable;
 use IteratorAggregate;
 
 /**
- * Class HeaderStore
+ * Class Headers
  *
  * @package ic\Framework\Http
  */
-class HeaderStore implements Countable, IteratorAggregate
+class Headers implements Countable, IteratorAggregate
 {
 
 	/**
@@ -26,9 +26,7 @@ class HeaderStore implements Countable, IteratorAggregate
 	 */
 	public function __construct(array $headers = [])
 	{
-		foreach ($headers as $key => $values) {
-			$this->set($key, $values);
-		}
+		$this->add($headers);
 	}
 
 	/**

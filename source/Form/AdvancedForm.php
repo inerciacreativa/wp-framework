@@ -2,9 +2,9 @@
 
 namespace ic\Framework\Form;
 
+use ic\Framework\Data\Collection;
 use ic\Framework\Html\Tag;
 use ic\Framework\Support\Arr;
-use ic\Framework\Support\Collection;
 
 /**
  * Class AdvancedForm

@@ -3,10 +3,10 @@
 namespace ic\Framework\Settings;
 
 use BadMethodCallException;
+use ic\Framework\Data\Options;
 use ic\Framework\Settings\Page\Page;
 use ic\Framework\Settings\Page\PageSimple;
 use ic\Framework\Settings\Page\PageTabbed;
-use ic\Framework\Support\Options;
 use ic\Framework\Support\Str;
 use InvalidArgumentException;
 

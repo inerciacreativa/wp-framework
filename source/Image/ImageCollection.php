@@ -2,7 +2,8 @@
 
 namespace ic\Framework\Image;
 
-use ic\Framework\Support\Collection;
+use ic\Framework\Data\Collection;
+use ic\Framework\Data\CollectionIteratorInterface;
 
 /**
  * Class ImageCollection
@@ -12,112 +13,116 @@ use ic\Framework\Support\Collection;
 class ImageCollection extends Collection
 {
 
-    /**
-     * @inheritdoc
-     */
-    public function offsetSet($key, $value): void
-    {
-        $value = $this->getImage($value);
+	/**
+	 * @inheritdoc
+	 */
+	public function offsetSet($key, $value): void
+	{
+		$value = $this->getImage($value);
 
-        if ($value === null) {
-            return;
-        }
+		if ($value === null) {
+			return;
+		}
 
-        if ($key === null) {
-            $this->items[] = $value;
-        } else {
-            $this->items[$key] = $value;
-        }
-    }
+		if ($key === null) {
+			$this->items[] = $value;
+		} else {
+			$this->items[$key] = $value;
+		}
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function toArray(): array
-    {
-        $items = array_map([$this, 'getImage'], $this->items);
+	/**
+	 * @inheritdoc
+	 */
+	public function toArray(): array
+	{
+		$items = array_map([$this, 'getImage'], $this->items);
 
-        return array_filter($items);
-    }
+		return array_filter($items);
+	}
 
-    /**
-     * @param array $image
-     *
-     * @return array|null
-     */
-    protected function getImage(array $image): ?array
-    {
-        $default = [
-            'src'    => '',
-            'alt'    => '',
-            'id'     => 0,
-            'width'  => 0,
-            'height' => 0,
-        ];
+	/**
+	 * @param array $image
+	 *
+	 * @return array|null
+	 */
+	protected function getImage(array $image): ?array
+	{
+		$default = [
+			'src'    => '',
+			'alt'    => '',
+			'id'     => 0,
+			'width'  => 0,
+			'height' => 0,
+		];
 
-        $image = array_merge($default, $image);
-        $image = array_intersect_key($image, $default);
+		$image = array_merge($default, $image);
+		$image = array_intersect_key($image, $default);
 
-        if (!empty($image['id']) || (!empty($image['src']) && (false !== filter_var($image['src'], FILTER_VALIDATE_URL)))) {
-            return $image;
-        }
+		if (!empty($image['id']) || (!empty($image['src']) && (false !== filter_var($image['src'], FILTER_VALIDATE_URL)))) {
+			return $image;
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function first(callable $callback = null, $default = null)
-    {
-        $image = parent::first($callback, $default);
+	/**
+	 * @inheritdoc
+	 */
+	public function first(callable $callback = null, $default = null)
+	{
+		$image = parent::first($callback, $default);
 
-        return is_array($image) ? new Image($image) : $image;
-    }
+		return is_array($image) ? new Image($image) : $image;
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function last(callable $callback = null, $default = null)
-    {
-        $image = parent::last($callback, $default);
+	/**
+	 * @inheritdoc
+	 */
+	public function last(callable $callback = null, $default = null)
+	{
+		$image = parent::last($callback, $default);
 
-        return is_array($image) ? new Image($image) : $image;
-    }
+		return is_array($image) ? new Image($image) : $image;
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function get($key, $default = null)
-    {
-        $image = parent::get($key, $default);
+	/**
+	 * @inheritdoc
+	 */
+	public function get($key, $default = null)
+	{
+		$image = parent::get($key, $default);
 
-        return is_array($image) ? new Image($image) : $image;
-    }
+		return is_array($image) ? new Image($image) : $image;
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function getIterator()
-    {
-        return new ImageIterator($this->items);
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function getIterator(): CollectionIteratorInterface
+	{
+		return new ImageIterator($this->items);
+	}
 
-    /**
-     * @return static
-     */
-    public function sortBySize()
-    {
-        return $this->sort(function ($a, $b) {
-            $a = ($a['width'] * 10) + $a['height'];
-            $b = ($b['width'] * 10) + $b['height'];
+	/**
+	 * @return static
+	 */
+	public function sortBySize(): ImageCollection
+	{
+		$items = $this->items;
 
-            if ($a === $b) {
-                return 0;
-            }
+		uasort($items, static function ($a, $b) {
+			$a = ($a['width'] * 10) + $a['height'];
+			$b = ($b['width'] * 10) + $b['height'];
 
-            return ($a > $b) ? -1 : 1;
-        });
-    }
+			if ($a === $b) {
+				return 0;
+			}
+
+			return ($a > $b) ? -1 : 1;
+		});
+
+		return new static($items);
+	}
 
 }

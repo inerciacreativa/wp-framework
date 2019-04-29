@@ -43,4 +43,4 @@
       terms.filter('[value="' + id + '"]').prop('checked', checked);
     });
   });
-})(jQuery);
+}(jQuery));

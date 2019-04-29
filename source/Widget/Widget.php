@@ -2,7 +2,7 @@
 
 namespace ic\Framework\Widget;
 
-use ic\Framework\Hook\HookDecorator;
+use ic\Framework\Hook\Hookable;
 use ic\Framework\Html\Tag;
 
 /**
@@ -13,7 +13,7 @@ use ic\Framework\Html\Tag;
 abstract class Widget
 {
 
-	use HookDecorator;
+	use Hookable;
 
 	/**
 	 * @var WidgetProxy
@@ -96,7 +96,7 @@ abstract class Widget
 		foreach ($instance as $key => $value) {
 			if (!isset($values[$key])) {
 				$void = null;
-				$type = \gettype($value);
+				$type = gettype($value);
 				settype($void, $type);
 
 				$values[$key] = $void;

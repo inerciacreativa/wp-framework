@@ -20,7 +20,7 @@ abstract class Finder implements FinderInterface
     /**
      * @inheritdoc
      */
-    public function search($html, ImageCollection $collection = null, $limit = 0, $width = 720)
+    public function search(string $html, ImageCollection $collection = null, int $limit = 0, int $width = 720): ImageCollection
     {
         $this->width = $width;
 
@@ -61,7 +61,7 @@ abstract class Finder implements FinderInterface
      *
      * @return array
      */
-    abstract protected function getImage($id): array;
+    abstract protected function getImage(string $id): array;
 
     /**
      * @param array $widths
@@ -69,7 +69,7 @@ abstract class Finder implements FinderInterface
      *
      * @return int
      */
-    protected static function closest(array $widths, $search): int
+    protected static function closest(array $widths, int $search): int
     {
         $closest = null;
         foreach ($widths as $width) {

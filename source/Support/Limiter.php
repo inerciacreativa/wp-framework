@@ -14,7 +14,7 @@ use ic\Framework\Support\Limiter\WordsResolver;
  *
  * @package ic\Framework\Support
  */
-class TextLimiter
+class Limiter
 {
 
 	/**

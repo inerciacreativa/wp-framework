@@ -2,6 +2,9 @@
 
 namespace ic\Framework\Plugin;
 
+use InvalidArgumentException;
+use RuntimeException;
+
 /**
  * Class PluginBackend
  *
@@ -10,36 +13,36 @@ namespace ic\Framework\Plugin;
 abstract class PluginClass
 {
 
-    use PluginClassDecorator;
+	use PluginClassDecorator;
 
-    /**
-     * PluginBackend constructor.
-     *
-     * @param PluginBase $plugin
-     *
-     * @throws \RuntimeException
-     * @throws \InvalidArgumentException
-     */
-    public function __construct(PluginBase $plugin)
-    {
-        $this->setPlugin($plugin);
+	/**
+	 * PluginBackend constructor.
+	 *
+	 * @param PluginBase $plugin
+	 *
+	 * @throws RuntimeException
+	 * @throws InvalidArgumentException
+	 */
+	public function __construct(PluginBase $plugin)
+	{
+		$this->setPlugin($plugin);
 
-        $this->configure();
-    }
+		$this->configure();
+	}
 
-    /**
-     *
-     */
-    protected function configure(): void
-    {
-	    $this->hook()->on('init', 'initialize');
-    }
+	/**
+	 *
+	 */
+	protected function configure(): void
+	{
+		$this->hook()->on('init', 'initialize');
+	}
 
-    /**
-     *
-     */
-    protected function initialize(): void
-    {
-    }
+	/**
+	 *
+	 */
+	protected function initialize(): void
+	{
+	}
 
 }

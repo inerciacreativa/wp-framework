@@ -3,8 +3,8 @@
 namespace ic\Framework\Api\Client;
 
 use ic\Framework\Api\Api;
+use ic\Framework\Api\Auth\AuthInterface;
 use ic\Framework\Support\Arr;
-use ic\Framework\Support\Str;
 
 /**
  * Class Client
@@ -14,105 +14,83 @@ use ic\Framework\Support\Str;
 abstract class Client implements ClientInterface
 {
 
-    /**
-     * @var Api
-     */
-    protected $api;
+	/**
+	 * @var Api
+	 */
+	protected $api;
 
-    /**
-     * @var array
-     */
-    protected $credentials = [];
+	/**
+	 * @var array
+	 */
+	protected $credentials = [];
 
-    /**
-     * @param array $credentials
-     *
-     * @return static
-     */
-    public static function create(array $credentials = [])
-    {
-        return new static($credentials);
-    }
+	/**
+	 * @param array $credentials
+	 *
+	 * @return static
+	 */
+	public static function create(array $credentials = [])
+	{
+		return new static($credentials);
+	}
 
-    /**
-     * Client constructor.
-     *
-     * @param array $credentials
-     */
-    public function __construct(array $credentials = [])
-    {
-        $this->credentials = array_merge(
-            $this->credentials,
-            Arr::only($credentials, array_keys($this->credentials))
-        );
-    }
+	/**
+	 * Client constructor.
+	 *
+	 * @param array $credentials
+	 */
+	public function __construct(array $credentials = [])
+	{
+		$this->credentials = Arr::defaults($this->getCredentials(), $credentials);
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function setCache($cache)
-    {
-        $this->api()->setCache($cache);
+	/**
+	 * @inheritdoc
+	 */
+	public function setCache(int $cache)
+	{
+		$this->getApi()->setCache($cache);
 
-        return $this;
-    }
+		return $this;
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function setJson($json)
-    {
-        $this->api()->setJson($json);
+	/**
+	 * @return Api
+	 */
+	public function getApi(): Api
+	{
+		if ($this->api === null) {
+			$this->api = Api::create($this->getName(), $this->getEndpoint(), $this->getAuth());
+		}
 
-        return $this;
-    }
+		return $this->api;
+	}
 
-    /**
-     * @return Api
-     */
-    public function api()
-    {
-        if ($this->api === null) {
-            $this->api = Api::create($this->getName(), $this->getEndpoint(), $this->getAuth());
-        }
+	/**
+	 * @inheritdoc
+	 */
+	public function getUrl(string $type, string $id): string
+	{
+		$urls = $this->getUrls();
+		$url  = $urls[$type] ?? $type;
 
-        return $this->api;
-    }
+		return str_replace('#ID#', $id, $url);
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function query($method, array $parameters = [])
-    {
-        if (method_exists($this, $method)) {
-            return call_user_func_array([$this, $method], $parameters);
-        }
+	/**
+	 * @inheritdoc
+	 */
+	public function getAuth(): ?AuthInterface
+	{
+		return null;
+	}
 
-        return null;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getUrl($type, $id = '', $extra = '')
-    {
-
-        $urls = $this->getUrls();
-        $url  = isset($urls[$type]) ? $urls[$type] : $type;
-
-        if (!Str::startsWith($url, 'http')) {
-            $url = $this->getDomain() . $url;
-        }
-
-        return str_replace(['#ID#', '#EXTRA#'], [$id, $extra], $url);
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getAuth()
-    {
-        return null;
-    }
+	/**
+	 * @return array
+	 */
+	protected function getCredentials(): array
+	{
+		return [];
+	}
 
 }

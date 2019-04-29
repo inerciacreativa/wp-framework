@@ -7,31 +7,31 @@ use ic\Framework\Api\Query;
 /**
  * Interface OAuthInterface
  *
- * @package ic\Framework\Api\OAuth
+ * @package ic\Framework\Api\Auth
  */
 interface AuthInterface
 {
 
-    /**
-     * @return string
-     */
-    public function getId();
+	/**
+	 * @return string
+	 */
+	public function getId(): string;
 
-    /**
-     * @return bool
-     */
-    public function isReady();
+	/**
+	 * @return bool
+	 */
+	public function isReady(): bool;
 
-    /**
-     * @param Query $query
-     *
-     * @return Query
-     */
-    public function authorize(Query $query);
+	/**
+	 * @param Query $query
+	 *
+	 * @return Query
+	 */
+	public function authorize(Query $query): Query;
 
-    /**
-     * @return bool
-     */
-    public function regenerate();
+	/**
+	 * @return bool
+	 */
+	public function regenerate(): bool;
 
 }

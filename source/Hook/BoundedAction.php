@@ -2,6 +2,8 @@
 
 namespace ic\Framework\Hook;
 
+use Closure;
+
 /**
  * Class BoundedAction
  *
@@ -14,7 +16,7 @@ class BoundedAction extends Action
 	 * BoundedAction constructor.
 	 *
 	 * @param string $hook
-	 * @param object $object
+	 * @param mixed  $object
 	 * @param string $method
 	 * @param array  $parameters {
 	 *
@@ -23,27 +25,27 @@ class BoundedAction extends Action
 	 * @type bool    $enabled
 	 * }
 	 */
-	public function __construct(string $hook, $object, string $method, array $parameters = [])
+	public function __construct($hook, $object, $method, array $parameters = [])
 	{
 		$callback = $this->getCallback($object, $method);
 
 		parent::__construct($hook, $callback, $parameters);
 
-		$this->setId(\get_class($object), $method);
+		$this->setId(get_class($object), $method);
 	}
 
 	/**
 	 * Builds the callback.
 	 *
-	 * @param object $object
+	 * @param mixed  $object
 	 * @param string $method
 	 *
-	 * @return \Closure
+	 * @return callable
 	 */
-	protected function getCallback($object, string $method): \Closure
+	protected function getCallback($object, $method): callable
 	{
-		return \Closure::bind(function () use ($method) {
-			return \call_user_func_array([$this, $method], \func_get_args());
+		return Closure::bind(function () use ($method) {
+			return call_user_func_array([$this, $method], func_get_args());
 		}, $object, $object);
 	}
 
