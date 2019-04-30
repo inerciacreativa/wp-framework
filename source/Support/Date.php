@@ -6,6 +6,7 @@ use DateInterval;
 use DateTime;
 use DateTimeZone;
 use Exception;
+use InvalidArgumentException;
 
 /**
  * Class Date
@@ -28,7 +29,7 @@ class Date
 	/**
 	 * @return static
 	 *
-	 * @throws Exception
+	 * @throws InvalidArgumentException
 	 */
 	public static function now(): Date
 	{
@@ -40,7 +41,7 @@ class Date
 	 *
 	 * @return static
 	 *
-	 * @throws Exception
+	 * @throws InvalidArgumentException
 	 */
 	public static function create(string $input): Date
 	{
@@ -58,14 +59,18 @@ class Date
 	 *
 	 * @param string $input
 	 *
-	 * @throws Exception
+	 * @throws InvalidArgumentException
 	 */
 	public function __construct(string $input = 'now')
 	{
-		$this->date     = new DateTime($input);
-		$this->timezone = new DateTimeZone(get_option('timezone_string'));
+		try {
+			$this->date     = new DateTime($input);
+			$this->timezone = new DateTimeZone(get_option('timezone_string'));
 
-		$this->date->setTimezone($this->timezone);
+			$this->date->setTimezone($this->timezone);
+		} catch (Exception $exception) {
+			throw new InvalidArgumentException($exception->getMessage(), $exception->getCode());
+		}
 	}
 
 	/**
