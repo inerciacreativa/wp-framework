@@ -29,7 +29,7 @@
     "vendor-dir": "vendor"
   },
   "extra": {
-    "installer-name": "ic-framework",
+    "installer-name": "ic-framework"
   },
   "scripts": {
     "post-install-cmd": "php -r \"copy('ic-framework-loader.php', '../ic-framework-loader.php');\"",
