@@ -5,6 +5,7 @@ namespace ic\Framework\Support;
 use ArrayAccess;
 use ic\Framework\Data\Collection;
 use ic\Framework\Data\RepositoryInterface;
+use InvalidArgumentException;
 use Traversable;
 
 /**
@@ -252,7 +253,7 @@ class Arr
 	 * Determine if the given key exists in the provided array.
 	 *
 	 * @param ArrayAccess|array $array
-	 * @param string|int         $key
+	 * @param string|int        $key
 	 *
 	 * @return bool
 	 */
@@ -628,14 +629,26 @@ class Arr
 	/**
 	 * @param array $defaults
 	 * @param array $values
+	 * @param array $required
 	 *
 	 * @return array
 	 */
-	public static function defaults(array $defaults, array $values): array
+	public static function defaults(array $defaults, array $values, array $required = []): array
 	{
 		$result = [];
+
 		foreach ($defaults as $key => $value) {
 			$result[$key] = $values[$key] ?? $value;
+		}
+
+		foreach ($required as $key) {
+			if (array_key_exists($key, $values)) {
+				$result[$key] = $values[$key];
+			}
+		}
+
+		if ($required && ($missing = array_diff($required, array_keys($result)))) {
+			throw new InvalidArgumentException('Values does not contain the following keys: ' . implode(', ', $missing));
 		}
 
 		return $result;
