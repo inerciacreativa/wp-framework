@@ -19,7 +19,6 @@
   ],
   "require": {
     "php": ">=7.2",
-    "ext-apache": "*",
     "ext-dom": "*",
     "ext-json": "*",
     "ext-libxml": "*",
