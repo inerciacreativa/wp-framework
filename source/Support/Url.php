@@ -7,7 +7,7 @@ use InvalidArgumentException;
 /**
  * Class Url
  *
- * @package Twist\Library\Util
+ * @package ic\Framework\Support
  *
  * @property string $scheme
  * @property string $host
