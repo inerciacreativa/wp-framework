@@ -30,29 +30,6 @@
   },
   "extra": {
     "installer-name": "ic-framework",
-    "wordpress-install-dir": "www/wp",
-    "installer-paths": {
-      "www/app/mu-plugins/{$name}/": [
-        "type:wordpress-muplugin"
-      ],
-      "www/app/plugins/{$name}/": [
-        "type:wordpress-plugin"
-      ],
-      "www/app/themes/{$name}/": [
-        "type:wordpress-theme"
-      ]
-    },
-    "dropin-paths": {
-      "www/app/languages/": [
-        "vendor:koodimonni-language"
-      ],
-      "www/app/languages/plugins/": [
-        "vendor:koodimonni-plugin-language"
-      ],
-      "www/app/languages/themes/": [
-        "vendor:koodimonni-theme-language"
-      ]
-    }
   },
   "scripts": {
     "post-install-cmd": "php -r \"copy('ic-framework-loader.php', '../ic-framework-loader.php');\"",
