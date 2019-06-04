@@ -22,8 +22,7 @@
     "ext-dom": "*",
     "ext-json": "*",
     "ext-libxml": "*",
-    "ext-simplexml": "*",
-    "composer/installers": "^1.5"
+    "ext-simplexml": "*"
   },
   "config": {
     "vendor-dir": "vendor"
