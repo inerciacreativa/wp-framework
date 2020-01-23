@@ -380,7 +380,7 @@ class Arr
 	 *
 	 * @return array
 	 */
-	public static function pluck(array $array, $value, $key = null): array
+	public static function pluck($array, $value, $key = null): array
 	{
 		$results = [];
 
