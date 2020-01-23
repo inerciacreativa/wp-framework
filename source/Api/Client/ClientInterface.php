@@ -4,6 +4,7 @@ namespace ic\Framework\Api\Client;
 
 use ic\Framework\Api\Api;
 use ic\Framework\Api\Auth\AuthInterface;
+use ic\Framework\Data\Collection;
 
 /**
  * Interface ClientInterface
@@ -41,6 +42,11 @@ interface ClientInterface
 	public function getAuth(): ?AuthInterface;
 
 	/**
+	 * @return Collection
+	 */
+	public function getMethods(): Collection;
+
+	/**
 	 * @return array
 	 */
 	public function getUrls(): array;
@@ -58,7 +64,14 @@ interface ClientInterface
 	 *
 	 * @return static
 	 */
-	public function setCache(int $cache);
+	public function setCache(int $cache): ClientInterface;
+
+	/**
+	 * @param bool $json
+	 *
+	 * @return static
+	 */
+	public function setJson(bool $json): ClientInterface;
 
 	/**
 	 * @return Api

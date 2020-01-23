@@ -5,6 +5,7 @@ namespace ic\Framework\Api;
 use ic\Framework\Api\Auth\AuthInterface;
 use ic\Framework\Data\Cache;
 use RuntimeException;
+use ic\Framework\Support\Data;
 
 /**
  * Class Api
@@ -132,7 +133,7 @@ class Api
 			$this->query = $query;
 
 			if ($this->json) {
-				$result = json_decode($result, false);
+				$result = Data::decode($result);
 			}
 		} catch (RuntimeException $exception) {
 			$this->errors[] = $exception->getMessage();

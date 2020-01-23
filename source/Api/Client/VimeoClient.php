@@ -4,6 +4,7 @@ namespace ic\Framework\Api\Client;
 
 use ic\Framework\Api\Auth\AuthInterface;
 use ic\Framework\Api\Auth\OAuthToken;
+use ic\Framework\Data\Collection;
 use ic\Framework\Framework;
 use RuntimeException;
 
@@ -47,8 +48,8 @@ class VimeoClient extends Client
 	{
 		/** @noinspection NullPointerExceptionInspection */
 		return Framework::instance()
-		                ->getOptions()
-		                ->get('vimeo.credentials', []);
+						->getOptions()
+						->get('vimeo.credentials', []);
 	}
 
 	/**
@@ -103,6 +104,57 @@ class VimeoClient extends Client
 	}
 
 	/**
+	 * @inheritdoc
+	 */
+	public function getMethods(): Collection
+	{
+		return Collection::make([
+			[
+				'name'     => 'video',
+				'type'     => 'video',
+				'label'    => __('Video', 'ic-framework'),
+				'callback' => 'getVideo',
+			],
+			[
+				'name'     => 'user',
+				'type'     => 'info',
+				'label'    => __('User', 'ic-framework'),
+				'callback' => 'getUser',
+			],
+			[
+				'name'     => 'userVideos',
+				'type'     => 'video',
+				'label'    => __('User Videos', 'ic-framework'),
+				'callback' => 'getUserVideos',
+			],
+			[
+				'name'     => 'channel',
+				'type'     => 'info',
+				'label'    => __('Channel', 'ic-framework'),
+				'callback' => 'getChannel',
+			],
+			[
+				'name'     => 'channelVideos',
+				'type'     => 'video',
+				'label'    => __('Channel Videos', 'ic-framework'),
+				'callback' => 'getChannelVideos',
+			],
+			[
+				'name'     => 'group',
+				'type'     => 'info',
+				'label'    => __('Group', 'ic-framework'),
+				'callback' => 'getGroup',
+			],
+			[
+				'name'     => 'groupVideos',
+				'type'     => 'video',
+				'label'    => __('Group Videos', 'ic-framework'),
+				'callback' => 'getGroupVideos',
+			],
+		]);
+	}
+
+	/**
 	 * @param string $videoId
 	 *
 	 * @return null|object
@@ -131,7 +183,7 @@ class VimeoClient extends Client
 	public function getUserVideos(string $userId, int $maxResults = 10): ?object
 	{
 		return $this->getApi()
-		            ->get("users/$userId/videos", ['per_page' => $maxResults]);
+					->get("users/$userId/videos", ['per_page' => $maxResults]);
 	}
 
 	/**
@@ -153,7 +205,7 @@ class VimeoClient extends Client
 	public function getChannelVideos(string $channelId, int $maxResults = 10): ?object
 	{
 		return $this->getApi()
-		            ->get("channels/$channelId/videos", ['per_page' => $maxResults]);
+					->get("channels/$channelId/videos", ['per_page' => $maxResults]);
 	}
 
 	/**
@@ -175,7 +227,7 @@ class VimeoClient extends Client
 	public function getGroupVideos(string $groupId, int $maxResults = 10): ?object
 	{
 		return $this->getApi()
-		            ->get("groups/$groupId/videos", ['per_page' => $maxResults]);
+					->get("groups/$groupId/videos", ['per_page' => $maxResults]);
 	}
 
 }

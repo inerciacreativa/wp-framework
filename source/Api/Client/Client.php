@@ -29,7 +29,7 @@ abstract class Client implements ClientInterface
 	 *
 	 * @return static
 	 */
-	public static function create(array $credentials = [])
+	public static function create(array $credentials = []): ClientInterface
 	{
 		return new static($credentials);
 	}
@@ -47,9 +47,19 @@ abstract class Client implements ClientInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function setCache(int $cache)
+	public function setCache(int $cache): ClientInterface
 	{
 		$this->getApi()->setCache($cache);
+
+		return $this;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function setJson(bool $json): ClientInterface
+	{
+		$this->getApi()->setJson($json);
 
 		return $this;
 	}
@@ -64,6 +74,18 @@ abstract class Client implements ClientInterface
 		}
 
 		return $this->api;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function query($method, array $parameters = [])
+	{
+		if (method_exists($this, $method)) {
+			return call_user_func_array([$this, $method], $parameters);
+		}
+
+		return null;
 	}
 
 	/**

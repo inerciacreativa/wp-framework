@@ -4,6 +4,7 @@ namespace ic\Framework\Api\Client;
 
 use ic\Framework\Api\Auth\AuthInterface;
 use ic\Framework\Api\Auth\OAuthKey;
+use ic\Framework\Data\Collection;
 use ic\Framework\Framework;
 use RuntimeException;
 
@@ -42,8 +43,8 @@ class YouTubeClient extends Client
 	{
 		/** @noinspection NullPointerExceptionInspection */
 		return Framework::instance()
-		                ->getOptions()
-		                ->get('youtube.credentials', []);
+						->getOptions()
+						->get('youtube.credentials', []);
 	}
 
 	/**
@@ -95,6 +96,57 @@ class YouTubeClient extends Client
 		}
 
 		return $urls;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getMethods(): Collection
+	{
+		return Collection::make([
+			[
+				'name'     => 'video',
+				'type'     => 'video',
+				'label'    => __('Video', 'ic-framework'),
+				'callback' => 'getVideo',
+			],
+			[
+				'name'     => 'user',
+				'type'     => 'info',
+				'label'    => __('User', 'ic-framework'),
+				'callback' => 'getUser',
+			],
+			[
+				'name'     => 'userVideos',
+				'type'     => 'video',
+				'label'    => __('User Videos', 'ic-framework'),
+				'callback' => 'getUserVideos',
+			],
+			[
+				'name'     => 'channel',
+				'type'     => 'info',
+				'label'    => __('Channel', 'ic-framework'),
+				'callback' => 'getChannel',
+			],
+			[
+				'name'     => 'channelVideos',
+				'type'     => 'video',
+				'label'    => __('Channel Videos', 'ic-framework'),
+				'callback' => 'getChannelVideos',
+			],
+			[
+				'name'     => 'playlist',
+				'type'     => 'info',
+				'label'    => __('Playlist', 'ic-framework'),
+				'callback' => 'getPlaylist',
+			],
+			[
+				'name'     => 'playlistVideos',
+				'type'     => 'video',
+				'label'    => __('Playlist Videos', 'ic-framework'),
+				'callback' => 'getPlaylistVideos',
+			],
+		]);
 	}
 
 	/**
