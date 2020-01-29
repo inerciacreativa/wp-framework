@@ -135,12 +135,12 @@ class Element extends DOMElement
 		/** @var DOMAttr $attribute */
 		foreach ($this->attributes as $attribute) {
 			if (in_array($attribute->nodeName, $disallowedAttributes, false)) {
-				$remove[] = $attribute;
+				$remove[] = $attribute->nodeName;
 			} elseif ($attribute->nodeName === 'style') {
 				$styles = $this->filterStyles($attribute->nodeValue, $allowedStyles);
 
 				if (empty($styles)) {
-					$remove[] = $attribute;
+					$remove[] = $attribute->nodeName;
 				} else {
 					$this->setAttribute('style', implode(';', $styles));
 				}
@@ -151,9 +151,9 @@ class Element extends DOMElement
 					$this->addClassName($className);
 				}
 
-				$remove[] = $attribute;
+				$remove[] = $attribute->nodeName;
 			} elseif ($attribute->nodeName === 'lang' && $attribute->nodeValue === $this->ownerDocument->language) {
-				$remove[] = $attribute;
+				$remove[] = $attribute->nodeName;
 			}
 		}
 
