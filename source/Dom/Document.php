@@ -70,18 +70,18 @@ class Document extends DOMDocument
 	 *
 	 * @return bool
 	 */
-	public function loadMarkup($source): bool
+	public function loadMarkup(string $source): bool
 	{
-		$this->preserveWhiteSpace = false;
-		$this->substituteEntities = false;
-		$this->encoding           = Str::getEncoding();
-
 		$source  = $this->addRootNode($source);
 		$success = false;
 		$error   = libxml_use_internal_errors(true);
 
+		$this->preserveWhiteSpace = false;
+		$this->substituteEntities = false;
+
 		if ($this->loadHTML(Str::toEntities($source), $this->getFlags())) {
 			$this->formatOutput = false;
+			$this->encoding     = 'UTF-8';
 			$this->xpath        = null;
 
 			$success = true;
@@ -116,7 +116,7 @@ class Document extends DOMDocument
 	 *
 	 * @return string
 	 */
-	protected function addRootNode($source): string
+	protected function addRootNode(string $source): string
 	{
 		return Tag::div(['id' => self::ROOT], $source)->render();
 	}
