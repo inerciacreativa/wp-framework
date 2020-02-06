@@ -7,7 +7,6 @@ use ic\Framework\Html\Tag;
 use ic\Framework\Http\Input;
 use ic\Framework\Support\Arr;
 use ic\Framework\Support\Data;
-use ic\Framework\Support\Str;
 
 /**
  * Class Form
@@ -851,11 +850,32 @@ class Form
 			return $attributes['name'];
 		}
 
-		$name = Str::toArrayNotation($this->id() . '.' . $id);
+		$name = $this->getNameFromId($this->id() . '.' . $id);
 
 		// Add [] to <select> or <input type="checkbox"> with the "multiple" attribute
 		if (Arr::get($attributes, 'multiple') && ($tag === 'select' || Arr::get($attributes, 'type') === 'checkbox')) {
 			$name .= '[]';
+		}
+
+		return $name;
+	}
+
+	/**
+	 * @param string $id
+	 *
+	 * @return string
+	 */
+	protected function getNameFromId(string $id): string
+	{
+		if (strpos($id, '.') === false || strpos($id, '[') !== false) {
+			return $id;
+		}
+
+		$parts = explode('.', $id);
+		$name  = array_shift($parts);
+
+		if (!empty($parts)) {
+			$name .= '[' . implode('][', $parts) . ']';
 		}
 
 		return $name;
