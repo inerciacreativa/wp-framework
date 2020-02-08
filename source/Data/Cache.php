@@ -45,4 +45,14 @@ class Cache
 		return delete_option($name);
 	}
 
+	/**
+	 * @param string $key
+	 *
+	 * @return bool
+	 */
+	public static function has(string $key): bool
+	{
+		return self::get($key) !== false;
+	}
+
 }
