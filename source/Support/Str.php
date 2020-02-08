@@ -422,7 +422,7 @@ class Str
 	 *
 	 * @return string
 	 */
-	public static function words(string $string, int $words = 100, string $end = '...'): string
+	public static function words(string $string, int $words = 100, string $end = '…'): string
 	{
 		preg_match('/^\s*+(?:\S++\s*+){1,' . $words . '}/u', $string, $matches);
 
