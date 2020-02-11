@@ -56,7 +56,7 @@ class Input
 	/**
 	 * @return static
 	 */
-	public static function getInstance()
+	public static function getInstance(): Input
 	{
 		if (null === static::$instance) {
 			static::$instance = new static($_GET, $_POST, $_FILES, $_SERVER);
