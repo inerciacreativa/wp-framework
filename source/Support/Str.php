@@ -10,6 +10,8 @@ namespace ic\Framework\Support;
 class Str
 {
 
+	use Macroable;
+
 	/**
 	 * The cache of snake-cased words.
 	 *
