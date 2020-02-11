@@ -45,12 +45,12 @@ class Arr
 	 * Get an item from an array using "dot" notation.
 	 *
 	 * @param ArrayAccess|array $array
-	 * @param string            $key
+	 * @param string|int|null   $key
 	 * @param mixed             $default
 	 *
 	 * @return mixed
 	 */
-	public static function get($array, string $key, $default = null)
+	public static function get($array, $key = null, $default = null)
 	{
 		if (!static::accessible($array)) {
 			return Data::value($default);
@@ -64,7 +64,7 @@ class Arr
 			return $array[$key];
 		}
 
-		if (strpos($key, '.') === false) {
+		if (strpos((string) $key, '.') === false) {
 			return $array[$key] ?? Data::value($default);
 		}
 
@@ -74,67 +74,6 @@ class Arr
 			} else {
 				return Data::value($default);
 			}
-		}
-
-		return $array;
-	}
-
-	/**
-	 * Set an array item to a given value using "dot" notation.
-	 *
-	 * If no key is given to the method, the entire array will be replaced if
-	 * it's an array, or the original object.
-	 *
-	 * @param ArrayAccess|array $array
-	 * @param string            $key
-	 * @param mixed             $value
-	 *
-	 * @return ArrayAccess|array
-	 */
-	public static function set(&$array, string $key, $value)
-	{
-		if (!static::accessible($array)) {
-			return $array;
-		}
-
-		if ($key === null) {
-			if (is_array($array)) {
-				return $array = $value;
-			}
-
-			return $array;
-		}
-
-		$keys = explode('.', $key);
-
-		while (count($keys) > 1) {
-			$key = array_shift($keys);
-
-			if (!isset($array[$key]) || !is_array($array[$key])) {
-				$array[$key] = [];
-			}
-
-			$array = &$array[$key];
-		}
-
-		$array[array_shift($keys)] = $value;
-
-		return $array;
-	}
-
-	/**
-	 * Add an element to an array using "dot" notation if it doesn't exist.
-	 *
-	 * @param ArrayAccess|array $array
-	 * @param string            $key
-	 * @param mixed             $value
-	 *
-	 * @return ArrayAccess|array
-	 */
-	public static function add($array, string $key, $value)
-	{
-		if (static::get($array, $key) === null) {
-			static::set($array, $key, $value);
 		}
 
 		return $array;
@@ -176,24 +115,71 @@ class Arr
 	}
 
 	/**
-	 * Remove one or many array items from a given array using "dot" notation.
+	 * Set an array item to a given value using "dot" notation.
 	 *
-	 * @param ArrayAccess|array $array
-	 * @param array|string      $keys
+	 * If no key is given to the method, the entire array will be replaced if
+	 * it's an array, or the original object.
 	 *
-	 * @return ArrayAccess|array
+	 * @param array       $array
+	 * @param string|null $key
+	 * @param mixed       $value
+	 *
+	 * @return array
 	 */
-	public static function forget(&$array, $keys)
+	public static function set(array &$array, $key, $value): array
 	{
-		if (!static::accessible($array)) {
-			return $array;
+		if ($key === null) {
+			return $array = $value;
 		}
 
+		$keys = explode('.', $key);
+
+		while (count($keys) > 1) {
+			$key = array_shift($keys);
+
+			if (!isset($array[$key]) || !is_array($array[$key])) {
+				$array[$key] = [];
+			}
+
+			$array = &$array[$key];
+		}
+
+		$array[array_shift($keys)] = $value;
+
+		return $array;
+	}
+
+	/**
+	 * Add an element to an array using "dot" notation if it doesn't exist.
+	 *
+	 * @param array  $array
+	 * @param string $key
+	 * @param mixed  $value
+	 *
+	 * @return array
+	 */
+	public static function add(array $array, string $key, $value): array
+	{
+		if (static::get($array, $key) === null) {
+			static::set($array, $key, $value);
+		}
+
+		return $array;
+	}
+
+	/**
+	 * Remove one or many array items from a given array using "dot" notation.
+	 *
+	 * @param array        $array
+	 * @param array|string $keys
+	 */
+	public static function forget(array &$array, $keys): void
+	{
 		$original = &$array;
 		$keys     = (array) $keys;
 
 		if (count($keys) === 0) {
-			return $array;
+			return;
 		}
 
 		foreach ($keys as $key) {
@@ -217,8 +203,6 @@ class Arr
 
 			unset($array[array_shift($parts)]);
 		}
-
-		return $array;
 	}
 
 	/**
@@ -323,11 +307,11 @@ class Arr
 	/**
 	 * Collapse an array of arrays into a single array.
 	 *
-	 * @param array|Collection $array
+	 * @param iterable $array
 	 *
 	 * @return array
 	 */
-	public static function collapse($array): array
+	public static function collapse(iterable $array): array
 	{
 		$results = [[]];
 
@@ -347,12 +331,12 @@ class Arr
 	/**
 	 * Flatten a multi-dimensional array into a single level.
 	 *
-	 * @param array|Collection $array
-	 * @param int              $depth
+	 * @param iterable $array
+	 * @param int      $depth
 	 *
 	 * @return array
 	 */
-	public static function flatten($array, int $depth = PHP_INT_MAX): array
+	public static function flatten(iterable $array, int $depth = PHP_INT_MAX): array
 	{
 		$result = [[]];
 
@@ -374,13 +358,13 @@ class Arr
 	/**
 	 * Pluck an array of values from an array.
 	 *
-	 * @param array             $array
+	 * @param iterable          $array
 	 * @param string|array      $value
 	 * @param string|array|null $key
 	 *
 	 * @return array
 	 */
-	public static function pluck($array, $value, $key = null): array
+	public static function pluck(iterable $array, $value, $key = null): array
 	{
 		$results = [];
 
@@ -393,6 +377,10 @@ class Arr
 				$results[] = $itemValue;
 			} else {
 				$itemKey = Data::get($item, $key);
+
+				if (is_object($itemKey) && method_exists($itemKey, '__toString')) {
+					$itemKey = (string) $itemKey;
+				}
 
 				$results[$itemKey] = $itemValue;
 			}
@@ -475,7 +463,7 @@ class Arr
 	 * Sort the array using the given callback.
 	 *
 	 * @param array    $array
-	 * @param callable $callback
+	 * @param callable $callback ($value, $key)
 	 *
 	 * @return array
 	 */
@@ -518,21 +506,13 @@ class Arr
 	 * Filter the array using the given callback.
 	 *
 	 * @param array    $array
-	 * @param callable $callback
+	 * @param callable $callback ($value, $key)
 	 *
 	 * @return array
 	 */
 	public static function where(array $array, callable $callback): array
 	{
-		$filtered = [];
-
-		foreach ($array as $key => $value) {
-			if ($callback($value, $key)) {
-				$filtered[$key] = $value;
-			}
-		}
-
-		return $filtered;
+		return array_filter($array, $callback, ARRAY_FILTER_USE_BOTH);
 	}
 
 	/**
@@ -614,7 +594,7 @@ class Arr
 
 	/**
 	 * @param array    $array
-	 * @param callable $callback
+	 * @param callable $callback ($value, $key)
 	 *
 	 * @return array
 	 */
@@ -720,9 +700,9 @@ class Arr
 	}
 
 	/**
-	 * @param array      $array
-	 * @param null|array $keys
-	 * @param bool       $caseless
+	 * @param array             $array
+	 * @param string|array|null $keys
+	 * @param bool              $caseless
 	 *
 	 * @return array
 	 */
