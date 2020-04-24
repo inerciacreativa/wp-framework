@@ -163,7 +163,7 @@ class Image
 			$parsed->host = $home->host;
 		}
 
-		$source = $parsed->get();
+		$source = $parsed->render();
 
 		if ($parsed->host === $home->host) {
 			$base = wp_upload_dir();

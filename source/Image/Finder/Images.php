@@ -64,7 +64,7 @@ class Images implements FinderInterface
 			}
 
 			$collection->append([
-				'src'    => $source->get(),
+				'src'    => $source->render(),
 				'id'     => $this->getId($image, $source),
 				'alt'    => $image->getAttribute('alt'),
 				'width'  => $image->getAttribute('width', 0),
