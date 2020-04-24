@@ -2,12 +2,12 @@
 
 namespace ic\Framework\Html;
 
-use ic\Framework\Support\Arr;
-use SimpleXMLElement;
-use Exception;
 use ArrayAccess;
-use InvalidArgumentException;
 use Closure;
+use Exception;
+use ic\Framework\Support\Arr;
+use InvalidArgumentException;
+use SimpleXMLElement;
 
 /**
  * Class Tag
@@ -150,54 +150,14 @@ class Tag implements ArrayAccess
 	];
 
 	/**
-	 * @var array
-	 */
-	protected static $urlAttributes = [
-		'action',
-		'cite',
-		'data',
-		'formaction',
-		'href',
-		'src',
-	];
-
-	/**
-	 * @var array
-	 */
-	protected static $boolAttributes = [
-		'async',
-		'autofocus',
-		'capture',
-		'checked',
-		'controls',
-		'crossorigin',
-		'default',
-		'defer',
-		'disabled',
-		'formnovalidate',
-		'hidden',
-		'ismap',
-		'itemscope',
-		'loop',
-		'multiple',
-		'muted',
-		'novalidate',
-		'open',
-		'readonly',
-		'required',
-		'reversed',
-		'selected',
-	];
-
-	/**
 	 * @var string
 	 */
 	protected $tag;
 
 	/**
-	 * @var array
+	 * @var Attributes
 	 */
-	protected $attributes = [];
+	protected $attributes;
 
 	/**
 	 * @var string
@@ -217,7 +177,7 @@ class Tag implements ArrayAccess
 		$attributes = Arr::get($arguments, 0, []);
 		$content    = Arr::get($arguments, 1);
 
-		if (is_array($attributes) && (empty($attributes) || Arr::isAssoc($attributes))) {
+		if (($attributes instanceof Attributes) || (is_array($attributes) && (empty($attributes) || Arr::isAssoc($attributes)))) {
 			return new static($tag, $attributes, $content);
 		}
 
@@ -234,7 +194,7 @@ class Tag implements ArrayAccess
 	 *
 	 * @return static
 	 */
-	public static function make(string $tag, array $attributes = [], $content = null): Tag
+	public static function make(string $tag, iterable $attributes = [], $content = null): self
 	{
 		return new static($tag, $attributes, $content);
 	}
@@ -246,7 +206,7 @@ class Tag implements ArrayAccess
 	 *
 	 * @return static|null
 	 */
-	public static function parse(string $html)
+	public static function parse(string $html): ?self
 	{
 		$options = LIBXML_NOERROR | LIBXML_ERR_NONE | LIBXML_ERR_FATAL;
 		try {
@@ -269,10 +229,10 @@ class Tag implements ArrayAccess
 	 * @param array  $attributes
 	 * @param mixed  $content
 	 */
-	public function __construct(string $tag, array $attributes = [], $content = null)
+	public function __construct(string $tag, iterable $attributes = [], $content = null)
 	{
 		$this->tag        = $tag;
-		$this->attributes = $attributes;
+		$this->attributes = new Attributes($attributes, $this);
 
 		if (!empty($content)) {
 			$this->content($content);
@@ -299,7 +259,7 @@ class Tag implements ArrayAccess
 	 * @param string|callable|array|Tag $content
 	 * @param bool                      $overwrite
 	 *
-	 * @return static|string
+	 * @return $this|string
 	 */
 	public function content($content = null, $overwrite = false)
 	{
@@ -307,7 +267,7 @@ class Tag implements ArrayAccess
 			return $this->content;
 		}
 
-		if (!static::isVoidTag($this->tag)) {
+		if (!static::isVoid($this->tag)) {
 			$content = static::getContent($content);
 
 			if ($this->tag === 'textarea') {
@@ -327,9 +287,9 @@ class Tag implements ArrayAccess
 	}
 
 	/**
-	 * @param array $attributes
+	 * @param array|null $attributes
 	 *
-	 * @return static|array
+	 * @return $this|Attributes
 	 */
 	public function attributes(array $attributes = null)
 	{
@@ -337,7 +297,23 @@ class Tag implements ArrayAccess
 			return $this->attributes;
 		}
 
-		$this->attributes = array_merge($this->attributes, $attributes);
+		$this->attributes->add($attributes);
+
+		return $this;
+	}
+
+	/**
+	 * @param array|null $classes
+	 *
+	 * @return $this|Classes
+	 */
+	public function classes(array $classes = null)
+	{
+		if ($classes === null) {
+			return $this->attributes->classes();
+		}
+
+		$this->attributes->classes()->add($classes);
 
 		return $this;
 	}
@@ -366,10 +342,10 @@ class Tag implements ArrayAccess
 	{
 		$attributes = static::getAttributes($this->attributes);
 
-		if (static::isVoidTag($this->tag)) {
+		if (static::isVoid($this->tag)) {
 			$tag = sprintf('<%s%s>', $this->tag, $attributes);
 		} else {
-			$tag = sprintf('<%1$s%2$s>%3$s', $this->tag, $attributes, $this->content);
+			$tag = sprintf('<%s%s>%s', $this->tag, $attributes, $this->content);
 		}
 
 		return $print ? print($tag) : $tag;
@@ -382,7 +358,7 @@ class Tag implements ArrayAccess
 	 */
 	public function close(bool $print = false): string
 	{
-		if (static::isVoidTag($this->tag)) {
+		if (static::isVoid($this->tag)) {
 			$tag = '';
 		} else {
 			$tag = sprintf('</%1$s>', $this->tag);
@@ -400,7 +376,7 @@ class Tag implements ArrayAccess
 	 */
 	public function offsetExists($attribute): bool
 	{
-		return array_key_exists($attribute, $this->attributes);
+		return $this->attributes->has($attribute);
 	}
 
 	/**
@@ -412,11 +388,7 @@ class Tag implements ArrayAccess
 	 */
 	public function offsetGet($attribute): ?string
 	{
-		if ($this->offsetExists($attribute)) {
-			return $this->attributes[$attribute];
-		}
-
-		return null;
+		return $this->attributes->get($attribute);
 	}
 
 	/**
@@ -425,9 +397,9 @@ class Tag implements ArrayAccess
 	 * @param string           $attribute
 	 * @param string|bool|null $value
 	 *
+	 * @return void
 	 * @throws InvalidArgumentException
 	 *
-	 * @return void
 	 */
 	public function offsetSet($attribute, $value): void
 	{
@@ -435,11 +407,7 @@ class Tag implements ArrayAccess
 			throw new InvalidArgumentException('Attribute name not specified');
 		}
 
-		if ($value === null) {
-			unset($this->attributes[$attribute]);
-		} else {
-			$this->attributes[$attribute] = $value;
-		}
+		$this->attributes->set($attribute, $value);
 	}
 
 	/**
@@ -451,7 +419,7 @@ class Tag implements ArrayAccess
 	 */
 	public function offsetUnset($attribute): void
 	{
-		unset($this->attributes[$attribute]);
+		$this->attributes->remove($attribute);
 	}
 
 	/**
@@ -461,11 +429,11 @@ class Tag implements ArrayAccess
 	 */
 	protected static function getContent($content): string
 	{
-		if (empty($content)) {
-			if (is_numeric($content)) {
-				return (string) $content;
-			}
+		if (is_numeric($content)) {
+			return (string) $content;
+		}
 
+		if (empty($content)) {
 			return '';
 		}
 
@@ -487,33 +455,13 @@ class Tag implements ArrayAccess
 	}
 
 	/**
-	 * @param array $attributes
+	 * @param Attributes $attributes
 	 *
 	 * @return string
 	 */
-	protected static function getAttributes(array $attributes): string
+	protected static function getAttributes(Attributes $attributes): string
 	{
-		$attributes = Arr::map($attributes, static function ($name, $value) {
-			if (static::isBoolAttribute($name)) {
-				return $value ? $name : '';
-			}
-
-			if ($value === '' && !in_array($name, ['value', 'alt'], false)) {
-				return $value;
-			}
-
-			$value = static::isUrlAttribute($name) ? esc_url($value) : esc_attr($value);
-
-			return sprintf('%s="%s"', $name, $value);
-		});
-
-		$result = trim(implode(' ', array_filter($attributes)));
-
-		if (!empty($attributes)) {
-			$result = ' ' . $result;
-		}
-
-		return $result;
+		return $attributes->render();
 	}
 
 	/**
@@ -521,29 +469,9 @@ class Tag implements ArrayAccess
 	 *
 	 * @return bool
 	 */
-	public static function isVoidTag(string $tag): bool
+	public static function isVoid(string $tag): bool
 	{
 		return in_array($tag, static::$voidTags, false);
-	}
-
-	/**
-	 * @param string $attribute
-	 *
-	 * @return bool
-	 */
-	public static function isBoolAttribute(string $attribute): bool
-	{
-		return in_array($attribute, static::$boolAttributes, true);
-	}
-
-	/**
-	 * @param string $attribute
-	 *
-	 * @return bool
-	 */
-	public static function isUrlAttribute(string $attribute): bool
-	{
-		return in_array($attribute, static::$urlAttributes, true);
 	}
 
 }
