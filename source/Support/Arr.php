@@ -601,7 +601,7 @@ class Arr
 	public static function map(array $array, callable $callback): array
 	{
 		$keys  = array_keys($array);
-		$items = array_map($callback, $keys, $array);
+		$items = array_map($callback, $array, $keys);
 
 		return array_combine($keys, $items);
 	}
