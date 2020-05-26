@@ -37,7 +37,7 @@ class TaxonomyWalker extends Walker_Category_Checklist
 	/**
 	 * @inheritdoc
 	 */
-	public function walk($terms, $max_depth): string
+	public function walk($terms, $max_depth, ...$args): string
 	{
 		$arguments = func_get_arg(2);
 
