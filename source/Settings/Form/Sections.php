@@ -9,6 +9,7 @@ use ic\Framework\Http\Input;
 use ic\Framework\Settings\Page\Page;
 use ic\Framework\Settings\Settings;
 use ic\Framework\Support\Arr;
+use Twist\Twist;
 
 /**
  * Class Sections
@@ -148,7 +149,7 @@ class Sections
 					return;
 				}
 
-				$values = $input->request($this->id(), []);
+				$values = $input->request($this->options()->id(), []);
 				$values = $this->validate($values);
 
 				$this->finalize($this->options()->all(), $values, true);
