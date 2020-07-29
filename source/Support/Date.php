@@ -102,6 +102,26 @@ class Date
 	}
 
 	/**
+	 * @param Date|DateTime $date
+	 *
+	 * @return DateInterval
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	public function diff($date): DateInterval
+	{
+		if ($date instanceof self) {
+			$date = $date->get();
+		}
+
+		if (!($date instanceof DateTime)) {
+			throw new InvalidArgumentException('$date is not an instance of Date nor DateTime');
+		}
+
+		return $this->date->diff($date);
+	}
+
+	/**
 	 * @return string
 	 */
 	public function __toString(): string
@@ -123,7 +143,7 @@ class Date
 		}
 
 		return (new DateTime())->add(new DateInterval($interval))
-		                       ->diff(new DateTime());
+							   ->diff(new DateTime());
 	}
 
 }
