@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ic Framework
  * Plugin URI:  https://github.com/inerciacreativa/wp-framework
- * Version:     6.0.1
+ * Version:     6.1.0
  * Text Domain: ic-framework
  * Domain Path: /languages
  * Description: Framework para la elaboración de plugins.
