@@ -77,14 +77,14 @@ abstract class PluginBase
 	/**
 	 *
 	 */
-	final private function __clone()
+	private function __clone()
 	{
 	}
 
 	/**
 	 * @throws RuntimeException
 	 */
-	final public function __wakeup()
+	public function __wakeup()
 	{
 		throw new RuntimeException('Cannot unserialize singleton.');
 	}
