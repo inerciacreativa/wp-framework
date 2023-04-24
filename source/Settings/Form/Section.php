@@ -278,15 +278,15 @@ class Section
 	 * @param string $label
 	 * @param array  $attributes
 	 * @param string $value
-	 * @param array  $selected
+	 * @param array  $checked
 	 *
 	 * @return $this
 	 *
 	 * @throws InvalidArgumentException
 	 */
-	public function checkbox(string $id, string $label, array $attributes = [], $value = null, array $selected = []): self
+	public function checkbox(string $id, string $label, array $attributes = [], $value = null, array $checked = []): self
 	{
-		return $this->field($id, 'checkbox', $label, $attributes, $value, $selected);
+		return $this->field($id, 'checkbox', $label, $attributes, $value, $checked);
 	}
 
 	/**
@@ -294,15 +294,15 @@ class Section
 	 * @param string $label
 	 * @param array  $attributes
 	 * @param string $value
-	 * @param array  $selected
+	 * @param array  $checked
 	 *
 	 * @return $this
 	 *
 	 * @throws InvalidArgumentException
 	 */
-	public function radio(string $id, string $label, array $attributes = [], $value = null, array $selected = []): self
+	public function radio(string $id, string $label, array $attributes = [], $value = null, array $checked = []): self
 	{
-		return $this->field($id, 'radio', $label, $attributes, $value, $selected);
+		return $this->field($id, 'radio', $label, $attributes, $value, $checked);
 	}
 
 	/**

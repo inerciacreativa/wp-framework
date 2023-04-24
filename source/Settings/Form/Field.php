@@ -61,9 +61,13 @@ class Field
 			'parameters' => ['id', 'value', 'attributes'],
 		],
 		[
-			'fields'     => ['checkbox', 'radio', 'select', 'choices'],
-			'parameters' => ['id', 'value', 'selected', 'attributes'],
+			'fields'     => ['checkbox', 'radio'],
+			'parameters' => ['id', 'value', 'checked', 'attributes'],
 		],
+        [
+            'fields'     => ['select', 'choices'],
+            'parameters' => ['id', 'value', 'selected', 'attributes'],
+        ],
 		[
 			'fields'     => ['submit', 'button', 'reset', 'image'],
 			'parameters' => ['value', 'attributes'],
@@ -104,15 +108,17 @@ class Field
 		}
 
 		if (in_array($this->type, ['checkbox', 'radio'])) {
-			$selected = (bool) $selected;
-		}
+			$checked = (bool) $selected;
+		} else{
+            $checked = null;
+        }
 
 		$form = $this->section->page()->form();
 
 		[
 			$this->callback,
 			$this->parameters,
-		] = self::callback($form, $callback, compact('id', 'value', 'selected', 'attributes'));
+		] = self::callback($form, $callback, compact('id', 'value', 'checked', 'selected', 'attributes'));
 	}
 
 	/**

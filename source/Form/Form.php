@@ -492,25 +492,25 @@ class Form
 	 * Create a select box field.
 	 *
 	 * @param string $id
-	 * @param array  $values
+	 * @param array  $value
 	 * @param string $selected
 	 * @param array  $attributes
 	 *
 	 * @return string
 	 */
-	public function select(string $id, array $values = [], $selected = null, array $attributes = []): string
+	public function select(string $id, array $value = [], $selected = null, array $attributes = []): string
 	{
-		if (empty($values)) {
-			$values = $this->getValueAttribute($id, $values);
-		} else if (is_callable($values)) {
-			$values = $values();
+		if (empty($value)) {
+			$value = $this->getValueAttribute($id, $value);
+		} else if (is_callable($value)) {
+			$value = $value();
 		}
 
 		$selected = $this->getValueAttribute($id, $selected);
 		$options  = [];
 
-		foreach ((array) $values as $value => $display) {
-			$options[] = $this->getSelectOption($display, $value, $selected);
+		foreach ((array) $value as $key => $display) {
+			$options[] = $this->getSelectOption($display, $key, $selected);
 		}
 
 		return $this->render($id, 'select', $attributes, $options);
@@ -596,20 +596,20 @@ class Form
 	 * radio buttons or a list of checkboxes.
 	 *
 	 * @param string         $id
-	 * @param array|callable $values
+	 * @param array|callable $value
 	 * @param array          $selected
 	 * @param array          $attributes
 	 *
 	 * @return string
 	 */
-	public function choices(string $id, $values = [], array $selected = [], array $attributes = []): string
+	public function choices(string $id, $value = [], array $selected = [], array $attributes = []): string
 	{
-		if (empty($values)) {
-			$values = $this->getValueAttribute($id, $values);
-		} else if (is_callable($values)) {
-			$values = $values();
-		} else if ($values instanceof Collection) {
-			$values = $values->all();
+		if (empty($value)) {
+			$value = $this->getValueAttribute($id, $value);
+		} else if (is_callable($value)) {
+			$value = $value();
+		} else if ($value instanceof Collection) {
+			$value = $value->all();
 		}
 
 		$expanded = Arr::get($attributes, 'expanded', false);
@@ -621,7 +621,7 @@ class Form
 			$type        = $multiple ? 'checkbox' : 'radio';
 			$legend      = Arr::pull($attributes, 'legend');
 			$description = Arr::pull($attributes, 'description');
-			$choices     = $this->getChoices($type, $id, $values, $selected, $attributes);
+			$choices     = $this->getChoices($type, $id, $value, $selected, $attributes);
 			$field       = Tag::fieldset();
 
 			if ($legend) {
@@ -642,10 +642,10 @@ class Form
 		}
 
 		if ($multiple && !isset($attributes['size'])) {
-			$attributes['size'] = count($values);
+			$attributes['size'] = count($value);
 		}
 
-		return $this->select($id, $values, $selected, $attributes);
+		return $this->select($id, $value, $selected, $attributes);
 	}
 
 	/**
